@@ -1,0 +1,44 @@
+{
+    "items": [
+        {
+            "key": "login_title",
+            "value": "VỤ GÌ VẬY???"
+        },
+        {
+            "key": "login_subtitle",
+            "value": "Xin hãy cho tôi mã!!!"
+        },
+        {
+            "key": "login_code_placeholder",
+            "value": "Nhập mã vào đây..."
+        },
+        {
+            "key": "login_btn_submit",
+            "value": "Xác Nhận"
+        },
+        {
+            "key": "login_err_invalid",
+            "value": "Nhập sai mã rồi!! Kiểm tra lại đi nhé"
+        },
+        {
+            "key": "login_err_empty",
+            "value": "Ủa không nhập gì à?!!"
+        },
+        {
+            "key": "login_loading",
+            "value": "Đang kiểm tra mã..."
+        },
+        {
+            "key": "settings_title",
+            "value": "CÀI ĐẶT"
+        },
+        {
+            "key": "settings_bgm",
+            "value": "Nhạc nền"
+        },
+        {
+            "key": "settings_sfx",
+            "value": "Âm thanh"
+        }
+    ]
+}

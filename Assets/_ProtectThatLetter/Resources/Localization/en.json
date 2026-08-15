@@ -1,0 +1,36 @@
+{
+    "items": [
+        {
+            "key": "login_title",
+            "value": "WHAT'S THIS????"
+        },
+        {
+            "key": "login_subtitle",
+            "value": "Please give me the code!!!"
+        },
+        {
+            "key": "login_code_placeholder",
+            "value": "Enter code here..."
+        },
+        {
+            "key": "login_btn_submit",
+            "value": "Submit"
+        },
+        {
+            "key": "login_err_invalid",
+            "value": "Wrong code!! Check it again"
+        },
+        {
+            "key": "login_err_empty",
+            "value": "You entered nothing?!!"
+        },
+        {
+            "key": "login_loading",
+            "value": "Checking code..."
+        },
+        {
+            "key": "settings_title",
+            "value": "SETTINGS"
+        }
+    ]
+}
