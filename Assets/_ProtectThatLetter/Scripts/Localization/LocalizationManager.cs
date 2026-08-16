@@ -2,8 +2,13 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// Manages localization (multi-language support) for the game.
+/// </summary>
 public class LocalizationManager : MonoBehaviour
 {
+    // Instance
+    //---------
     private static LocalizationManager instance;
 
     public static LocalizationManager Instance
@@ -22,12 +27,26 @@ public class LocalizationManager : MonoBehaviour
         }
     }
 
+    // Private Fields
+    //---------------
+    // Dictionary to store json key-value pairs for localized text
     private Dictionary<string, string> localizedText = new Dictionary<string, string>();
 
+    // Properties
+    //-----------
+    // Currently active language (default is Vietnamese)
     public string CurrentLanguage { get; private set; } = "vi";
 
+    // Events
+    //-------
+    //Trigger whenever the language changes
     public static event Action OnLanguageChanged;
 
+    // Unity Lifecycle
+    //----------------
+    /// <summary>
+    /// Ensures to loads the default language.
+    /// </summary>
     private void Awake()
     {
         if (instance != null && instance != this)
@@ -39,15 +58,25 @@ public class LocalizationManager : MonoBehaviour
         LoadLanguage(CurrentLanguage);
     }
 
+    // Public Methods
+    //---------------
+    /// <summary>
+    /// Loads localization data from JSON file located in Resources/Localization/
+    /// </summary>
+    /// <param name="langCode">Language code (e.g., "vi", "en")</param>
     public void LoadLanguage(string langCode)
     {
         CurrentLanguage = langCode;
+        //Load JSON file from folder
         TextAsset textAsset = Resources.Load<TextAsset>($"Localization/{langCode}");
         if (textAsset != null)
         {
+            //Deserialize into object
             LocalizationData data = JsonUtility.FromJson<LocalizationData>(textAsset.text);
 
             localizedText.Clear();
+
+            //Match the pair
             if(data != null && data.items != null)
             {
                 foreach(LocalizationItem item in data.items)
@@ -56,6 +85,7 @@ public class LocalizationManager : MonoBehaviour
                 }
             }
 
+            //Notify change language event
             OnLanguageChanged?.Invoke();
         } else
         {
@@ -64,6 +94,11 @@ public class LocalizationManager : MonoBehaviour
 
     }
 
+    /// <summary>
+    /// Get the translated text by given key.
+    /// </summary>
+    /// <param name="key">The identifier key</param>
+    /// <returns>Translated text, or an error message if the key is not found(in case)</returns>
     public string GetText(string key)
     {
         if (localizedText.TryGetValue(key, out string text))
@@ -73,6 +108,11 @@ public class LocalizationManager : MonoBehaviour
         return $"[LocalizationManager] - Get Text - {key}";
     }
 
+    /// <summary>
+    /// Switches the current language.
+    /// Only reloads if the new language differs from the current one.
+    /// </summary>
+    /// <param name="langCode">New language code</param>
     public void SwitchLanguage(string langCode)
     {
         if(CurrentLanguage != langCode)
@@ -81,6 +121,9 @@ public class LocalizationManager : MonoBehaviour
         }
     }
 
+    // Nested Classes
+    //---------------
+    /// Represents a single localization entry (key-value pair)
     [Serializable]
     private class LocalizationItem
     {
@@ -88,6 +131,7 @@ public class LocalizationManager : MonoBehaviour
         public string value;
     }
 
+    /// Represents list of localization items
     [Serializable]
     private class LocalizationData
     {
