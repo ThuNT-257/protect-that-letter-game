@@ -39,6 +39,14 @@
         {
             "key": "settings_sfx",
             "value": "Âm thanh"
+        },
+        {
+            "key": "ERROR_EMPTY_CODE",
+            "value": "Đừng để trống chứ!"
+        },
+        {
+            "key": "ERROR_INVALID_CODE",
+            "value": "Mã này lạ vậy? Kiểm tra lại đi!"
         }
     ]
 }

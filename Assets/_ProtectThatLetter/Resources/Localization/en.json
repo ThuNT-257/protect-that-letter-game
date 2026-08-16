@@ -31,6 +31,14 @@
         {
             "key": "settings_title",
             "value": "SETTINGS"
+        },
+        {
+            "key": "ERROR_EMPTY_CODE",
+            "value": "Hey do not leave it empty!"
+        },
+        {
+            "key": "ERROR_INVALID_CODE",
+            "value": "That's weird?! Please check again!"
         }
     ]
 }
