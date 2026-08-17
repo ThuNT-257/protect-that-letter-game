@@ -8,25 +8,24 @@ using UnityEngine;
 [RequireComponent(typeof(TMP_Text))]
 public class LocalizedText : MonoBehaviour
 {
-    // Serialized Fields
-    //------------------
+    #region Serialized Fields
     // The localization key to look up
     [SerializeField] private string key;
+    #endregion
 
-    // Private Fields
-    //---------------
+    #region Private Fields
     private TMP_Text textComponent;
+    #endregion
 
-    // Properties
-    //-----------
+    #region Properties
     public void SetKey(string newKey)
     {
         key = newKey;
         UpdateText();
     }
+    #endregion
 
-    // Unity Lifecycle
-    //----------------
+    #region Lifecycle
     /// <summary>
     /// Caches the TMP_Text component for performance.
     /// </summary>
@@ -52,8 +51,9 @@ public class LocalizedText : MonoBehaviour
     {
         LocalizationManager.OnLanguageChanged -= UpdateText;
     }
+    #endregion
 
-    // Public Methods
+    #region Public Methods
     //---------------
     /// <summary>
     /// Updates the TMP_Text component with the localized text for the current key.
@@ -66,4 +66,5 @@ public class LocalizedText : MonoBehaviour
             textComponent.text = LocalizationManager.Instance.GetText(key);
         }
     }
+    #endregion
 }

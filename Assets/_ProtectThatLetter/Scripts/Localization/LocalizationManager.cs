@@ -7,8 +7,12 @@ using UnityEngine;
 /// </summary>
 public class LocalizationManager : MonoBehaviour
 {
-    // Instance
-    //---------
+    #region Constants
+    public const string VIETNAMESE = "vi";
+    public const string ENGLISH = "en";
+    #endregion
+
+    #region Instance
     private static LocalizationManager instance;
 
     public static LocalizationManager Instance
@@ -26,24 +30,24 @@ public class LocalizationManager : MonoBehaviour
             return instance;
         }
     }
+    #endregion
 
-    // Private Fields
-    //---------------
+    #region Private Fields
     // Dictionary to store json key-value pairs for localized text
     private Dictionary<string, string> localizedText = new Dictionary<string, string>();
+    #endregion
 
-    // Properties
-    //-----------
+    #region Properties
     // Currently active language (default is Vietnamese)
-    public string CurrentLanguage { get; private set; } = "vi";
+    public string CurrentLanguage { get; private set; } = LocalizationManager.VIETNAMESE;
+    #endregion
 
-    // Events
-    //-------
+    #region Events
     //Trigger whenever the language changes
     public static event Action OnLanguageChanged;
+    #endregion
 
-    // Unity Lifecycle
-    //----------------
+    #region Lifecycle
     /// <summary>
     /// Ensures to loads the default language.
     /// </summary>
@@ -56,44 +60,11 @@ public class LocalizationManager : MonoBehaviour
         }
         instance = this;
         LoadLanguage(CurrentLanguage);
+        DontDestroyOnLoad(gameObject);
     }
+    #endregion
 
-    // Public Methods
-    //---------------
-    /// <summary>
-    /// Loads localization data from JSON file located in Resources/Localization/
-    /// </summary>
-    /// <param name="langCode">Language code (e.g., "vi", "en")</param>
-    public void LoadLanguage(string langCode)
-    {
-        CurrentLanguage = langCode;
-        //Load JSON file from folder
-        TextAsset textAsset = Resources.Load<TextAsset>($"Localization/{langCode}");
-        if (textAsset != null)
-        {
-            //Deserialize into object
-            LocalizationData data = JsonUtility.FromJson<LocalizationData>(textAsset.text);
-
-            localizedText.Clear();
-
-            //Match the pair
-            if(data != null && data.items != null)
-            {
-                foreach(LocalizationItem item in data.items)
-                {
-                    localizedText[item.key] = item.value;
-                }
-            }
-
-            //Notify change language event
-            OnLanguageChanged?.Invoke();
-        } else
-        {
-            Debug.LogError($"[LocalizationManager] - Load Language - JSON File Not Found in Resources/Localization/{langCode}");
-        }
-
-    }
-
+    #region Public Methods
     /// <summary>
     /// Get the translated text by given key.
     /// </summary>
@@ -120,9 +91,9 @@ public class LocalizationManager : MonoBehaviour
             LoadLanguage(langCode);
         }
     }
+    #endregion
 
-    // Nested Classes
-    //---------------
+    #region Nested Classes
     /// Represents a single localization entry (key-value pair)
     [Serializable]
     private class LocalizationItem
@@ -137,6 +108,35 @@ public class LocalizationManager : MonoBehaviour
     {
         public List<LocalizationItem> items;
     }
+    #endregion
 
+    #region Private Methods
+    /// <summary>
+    /// Loads localization data from JSON file located in Resources/Localization/
+    /// </summary>
+    /// <param name="langCode">Language code (e.g., "vi", "en")</param>
+    private void LoadLanguage(string langCode) {
+        CurrentLanguage = langCode;
+        //Load JSON file from folder
+        TextAsset textAsset = Resources.Load<TextAsset>($"Localization/{langCode}");
+        if (textAsset != null) {
+            //Deserialize into object
+            LocalizationData data = JsonUtility.FromJson<LocalizationData>(textAsset.text);
 
+            localizedText.Clear();
+
+            //Match the pair
+            if (data != null && data.items != null) {
+                foreach (LocalizationItem item in data.items) {
+                    localizedText[item.key] = item.value;
+                }
+            }
+
+            //Notify change language event
+            OnLanguageChanged?.Invoke();
+        } else {
+            Debug.LogError($"[LocalizationManager] - Load Language - JSON File Not Found in Resources/Localization/{langCode}");
+        }
+    }
+    #endregion
 }

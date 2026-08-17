@@ -1,8 +1,17 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
+/// <summary>
+/// Manages scene navigation throughout the application.
+/// </summary>
 public class SceneController : MonoBehaviour
 {
+    #region Constants
+    public const string LOGIN_SCENE = "LoginScene";
+    public const string STORY_SCENE = "StoryScene";
+    #endregion
+
+    #region Instance
     private static SceneController instance;
 
     public static SceneController Instance
@@ -12,19 +21,17 @@ public class SceneController : MonoBehaviour
             if (instance == null)
             {
                 instance = FindAnyObjectByType<SceneController>();
-                if (instance != null)
+                if (instance == null)
                 {
-                    Debug.Log("There is no SceneController in Scene.");
+                    Debug.LogError("There is no SceneController in Scene.");
                 }
             }
             return instance;
         }
     }
+    #endregion
 
-    [Header("Scene Names")]
-    public const string LOGIN_SCENE = "LoginScene";
-    public const string STORY_SCENE = "StoryScene";
-
+    #region Lifecycle
     private void Awake()
     {
         if (instance != null && instance != this)
@@ -33,10 +40,18 @@ public class SceneController : MonoBehaviour
             return;
         }
         instance = this;
+        DontDestroyOnLoad(gameObject);
     }
+    #endregion
 
+    #region Public Methods
+    /// <summary>
+    /// Loads a scene asynchronously by name.
+    /// </summary>
+    /// <param name="sceneName">The name of the scene to load</param>
     public void LoadScene(string sceneName)
     {
         SceneManager.LoadSceneAsync(sceneName);
     }
+    #endregion
 }

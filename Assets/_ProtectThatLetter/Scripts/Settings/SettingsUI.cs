@@ -2,8 +2,12 @@
 using UnityEngine;
 using UnityEngine.UI;
 
+/// <summary>
+/// Manages the Settings UI including audio toggles and language selection
+/// </summary>
 public class SettingsUI : MonoBehaviour
 {
+    #region Serialized Fields
     [Header("Controller References")]
     [SerializeField] private SettingsController controller;
 
@@ -34,10 +38,17 @@ public class SettingsUI : MonoBehaviour
     [Header("Language Checkmarks")]
     [SerializeField] private GameObject viCheckMark;
     [SerializeField] private GameObject enCheckMark;
+    #endregion
 
+    #region Private Fields
     private bool isBGMOn = true;
     private bool isSFXOn = true;
+    #endregion
 
+    #region Lifecycle
+    /// <summary>
+    /// Initializes the UI by setting up button listeners and hiding panels
+    /// </summary>
     private void Awake()
     {
         if (controller == null)
@@ -50,7 +61,7 @@ public class SettingsUI : MonoBehaviour
         if (settingsCloseButton != null) settingsCloseButton.onClick.AddListener(ClosePopup);
         if (settingsOverlayCloseButton != null) settingsOverlayCloseButton.onClick.AddListener(ClosePopup);
 
-        // Sound On/Off Buttons
+        // Sound toggle button listeners
         if (bgmButton != null) bgmButton.onClick.AddListener(ToggleBGM);
         if (sfxButton != null) sfxButton.onClick.AddListener(ToggleSFX);
 
@@ -59,13 +70,16 @@ public class SettingsUI : MonoBehaviour
         if (langCloseButton != null) langCloseButton.onClick.AddListener(CloseLanguagePopup);
         if (langOverlayCloseButton != null) langOverlayCloseButton.onClick.AddListener(CloseLanguagePopup);
 
-        if (btnVietnamese != null) btnVietnamese.onClick.AddListener(() => OnSelectLanguage("vi"));
-        if (btnEnglish != null) btnEnglish.onClick.AddListener(() => OnSelectLanguage("en"));
+        if (btnVietnamese != null) btnVietnamese.onClick.AddListener(() => OnSelectLanguage(LocalizationManager.VIETNAMESE));
+        if (btnEnglish != null) btnEnglish.onClick.AddListener(() => OnSelectLanguage(LocalizationManager.ENGLISH));
 
         CloseLanguagePopup();
         gameObject.SetActive(false);
     }
 
+    /// <summary>
+    /// Subscribes to events and syncs UI when enabled
+    /// </summary>
     private void OnEnable()
     {
         LocalizationManager.OnLanguageChanged += UpdateLanguageCheckmarks;
@@ -74,11 +88,19 @@ public class SettingsUI : MonoBehaviour
         UpdateLanguageCheckmarks();
     }
 
+    /// <summary>
+    /// Unsubscribes from events
+    /// </summary>
     private void OnDisable()
     {
         LocalizationManager.OnLanguageChanged -= UpdateLanguageCheckmarks;
     }
+    #endregion
 
+    #region Private Methods
+    /// <summary>
+    /// Opens the main settings popup
+    /// </summary>
     private void OpenPopup()
     {
         gameObject.SetActive(true);
@@ -86,13 +108,18 @@ public class SettingsUI : MonoBehaviour
         CloseLanguagePopup();
     }
 
+    /// <summary>
+    /// Closes the main settings popup
+    /// </summary
     private void ClosePopup()
     {
-        Debug.Log("[SettingsUI] ClosePopup triggered!");
         CloseLanguagePopup();
         gameObject.SetActive(false);
     }
 
+    /// <summary>
+    /// Opens the language popup
+    /// </summary>
     private void OpenLanguagePopup()
     {
         if (langDropdownPanel != null)
@@ -102,16 +129,20 @@ public class SettingsUI : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Closes the language popup
+    /// </summary>
     private void CloseLanguagePopup()
     {
-        Debug.Log("[SettingsUI] CloseLanguagePopup triggered!");
         if (langDropdownPanel != null)
         {
             langDropdownPanel.SetActive(false);
         }
     }
 
-    // Toggle BGM
+    /// <summary>
+    /// Toggles BGM on/off
+    /// </summary>
     private void ToggleBGM()
     {
         isBGMOn = !isBGMOn;
@@ -123,7 +154,9 @@ public class SettingsUI : MonoBehaviour
         }
     }
 
-    // Toggle SFX
+    /// <summary>
+    /// Toggles SFX on/off
+    /// </summary>
     private void ToggleSFX()
     {
         isSFXOn = !isSFXOn;
@@ -135,6 +168,9 @@ public class SettingsUI : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Syncs sound UI state with the controller
+    /// </summary>
     private void SyncSoundUI()
     {
         if (controller != null)
@@ -147,6 +183,9 @@ public class SettingsUI : MonoBehaviour
         UpdateSFXVisual();
     }
 
+    /// <summary>
+    /// Updates the BGM button sprite
+    /// </summary>
     private void UpdateBGMVisual()
     {
         if (bgmButton != null && bgmButton.image != null)
@@ -155,6 +194,9 @@ public class SettingsUI : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Updates the SFX button sprite
+    /// </summary>
     private void UpdateSFXVisual()
     {
         if (sfxButton != null && sfxButton.image != null)
@@ -163,6 +205,9 @@ public class SettingsUI : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Handles language selection
+    /// </summary>
     private void OnSelectLanguage(string langCode)
     {
         if (controller != null)
@@ -172,6 +217,9 @@ public class SettingsUI : MonoBehaviour
         CloseLanguagePopup();
     }
 
+    /// <summary>
+    /// Updates language checkmarks based on current language
+    /// </summary>
     private void UpdateLanguageCheckmarks()
     {
         if (LocalizationManager.Instance == null) return;
@@ -180,12 +228,13 @@ public class SettingsUI : MonoBehaviour
 
         if (viCheckMark != null)
         {
-            viCheckMark.SetActive(currentLang == "vi");
+            viCheckMark.SetActive(currentLang == LocalizationManager.VIETNAMESE);
         }
 
         if (enCheckMark != null)
         {
-            enCheckMark.SetActive(currentLang == "en");
+            enCheckMark.SetActive(currentLang == LocalizationManager.ENGLISH);
         }
     }
+    #endregion
 }
