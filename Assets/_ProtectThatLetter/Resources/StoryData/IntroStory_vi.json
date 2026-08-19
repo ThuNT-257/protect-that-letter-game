@@ -1,0 +1,53 @@
+{
+    "bgm": "",
+    "lines":[
+        {
+            "speaker": "???",
+            "content": "Ta giao cho nhóc một nhiệm vụ! Hãy đưa bức thư này đến đúng nơi. Bằng mọi giá phải giao được nó đến nơi nhé! Quãng đường tuy có xa, nhưng như chúng ta đã luyện tập, hãy cố gắng!",
+            "avatar": "default-avatar",
+            "position": "left",
+            "background": "",
+            "sound": ""
+        },
+        {
+            "speaker": "Nhóc Bồ Câu",
+            "content": "Grừ... grừ... grừ...??!",
+            "avatar": "default-avatar",
+            "position": "right",
+            "background": "",
+            "sound": ""
+        },
+        {
+            "speaker": "???",
+            "content": "Bức thư này rất quan trọng đấy, tuyệt đối đừng làm mất. Nhất định phải giao nó đến đúng nơi nhé! Ta tin nhóc!",
+            "avatar": "default-avatar",
+            "position": "left",
+            "background": "",
+            "sound": ""
+        },
+        {
+            "speaker": "Nhóc Bồ Câu",
+            "content": "*gật gật đầu* Gruuu Gruuu!!!",
+            "avatar": "default-avatar",
+            "position": "right",
+            "background": "",
+            "sound": ""
+        },
+        {
+            "speaker": "???",
+            "content": "Tốt! Lên đường đi! Bảo trọng!",
+            "avatar": "default-avatar",
+            "position": "left",
+            "background": "",
+            "sound": ""
+        },
+        {
+            "speaker": "Nhóc Bồ Câu",
+            "content": "*vỗ cánh* GRUUUU",
+            "avatar": "default-avatar",
+            "position": "right",
+            "background": "",
+            "sound": ""
+        }
+    ]
+}

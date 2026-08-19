@@ -33,12 +33,8 @@
             "value": "CÀI ĐẶT"
         },
         {
-            "key": "settings_bgm",
-            "value": "Nhạc nền"
-        },
-        {
-            "key": "settings_sfx",
-            "value": "Âm thanh"
+            "key": "languages_title",
+            "value": "NGÔN NGỮ"
         },
         {
             "key": "ERROR_EMPTY_CODE",

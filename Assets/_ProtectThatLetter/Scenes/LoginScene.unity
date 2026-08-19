@@ -1374,6 +1374,7 @@ GameObject:
   - component: {fileID: 523972366}
   - component: {fileID: 523972368}
   - component: {fileID: 523972367}
+  - component: {fileID: 523972369}
   m_Layer: 5
   m_Name: LanguageText
   m_TagString: Untagged
@@ -1499,6 +1500,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 523972365}
   m_CullTransparentMesh: 1
+--- !u!114 &523972369
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 523972365}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8919aa324087bde47882689d4e2bbfab, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  key: languages_title
 --- !u!1 &597535588
 GameObject:
   m_ObjectHideFlags: 0

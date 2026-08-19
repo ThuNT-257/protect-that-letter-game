@@ -54,7 +54,6 @@ public class LocalizedText : MonoBehaviour
     #endregion
 
     #region Public Methods
-    //---------------
     /// <summary>
     /// Updates the TMP_Text component with the localized text for the current key.
     /// Only executes if the LocalizationManager exists and the key is valid.

@@ -236,7 +236,14 @@ public class LoginUI : MonoBehaviour
         //Fake success response -> will handle later (update data for each code, load to story scene)
         if(errorCode == "MEOBEO")
         {
-            SceneController.Instance.LoadScene(SceneController.STORY_SCENE);
+            StoryManager.CurrentStoryType = StoryManager.StoryType.Intro;
+
+            if(SceneController.Instance != null) {
+                SceneController.Instance.LoadScene(SceneController.STORY_SCENE);
+            } else {
+                UnityEngine.SceneManagement.SceneManager.LoadScene(SceneController.STORY_SCENE);
+            }
+            return;
         }
         DisplayError(errorCode);
     }

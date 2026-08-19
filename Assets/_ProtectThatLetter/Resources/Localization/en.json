@@ -33,6 +33,10 @@
             "value": "SETTINGS"
         },
         {
+            "key": "languages_title",
+            "value": "LANGUAGES"
+        },
+        {
             "key": "ERROR_EMPTY_CODE",
             "value": "Hey do not leave it empty!"
         },

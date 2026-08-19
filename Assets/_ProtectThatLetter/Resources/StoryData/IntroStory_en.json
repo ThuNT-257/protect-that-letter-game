@@ -1,0 +1,53 @@
+{
+    "bgm": "",
+    "lines": [
+        {
+            "speaker": "???",
+            "content": "I have a mission for you, kid! Take this letter to the right place. No matter what, make sure it gets there! The journey may be long, but just like we practiced, do your best!",
+            "avatar": "default-avatar",
+            "position": "left",
+            "background": "",
+            "sound": ""
+        },
+        {
+            "speaker": "Little Pigeon",
+            "content": "Grr... grr... grr...??!",
+            "avatar": "default-avatar",
+            "position": "right",
+            "background": "",
+            "sound": ""
+        },
+        {
+            "speaker": "???",
+            "content": "This letter is very important, so don't lose it under any circumstances. Make sure you deliver it to the right place! I believe in you, kid!",
+            "avatar": "default-avatar",
+            "position": "left",
+            "background": "",
+            "sound": ""
+        },
+        {
+            "speaker": "Little Pigeon",
+            "content": "*nods repeatedly* Gruuu! Gruuu!!!",
+            "avatar": "default-avatar",
+            "position": "right",
+            "background": "",
+            "sound": ""
+        },
+        {
+            "speaker": "???",
+            "content": "Good! Off you go! Take care!",
+            "avatar": "default-avatar",
+            "position": "left",
+            "background": "",
+            "sound": ""
+        },
+        {
+            "speaker": "Little Pigeon",
+            "content": "*flaps wings* GRUUUU!",
+            "avatar": "default-avatar",
+            "position": "right",
+            "background": "",
+            "sound": ""
+        }
+    ]
+}
