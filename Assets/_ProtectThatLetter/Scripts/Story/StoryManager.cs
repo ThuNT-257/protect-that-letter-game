@@ -12,6 +12,10 @@ public static class StoryManager
     }
     public static StoryType CurrentStoryType = StoryType.Intro;
 
+    /// <summary>
+    /// Returns the JSON file name for the current story type
+    /// </summary>
+    /// <returns>File name of the story JSON</returns>
     public static string GetCurrentStoryFileName() {
         return CurrentStoryType switch {
             StoryType.Intro => "IntroStory",
@@ -20,6 +24,10 @@ public static class StoryManager
         };
     }
 
+    /// <summary>
+    /// Returns the scene to load after the current story ends
+    /// </summary>
+    /// <returns>Name of the next scene</returns>
     //Will change to right scene later
     public static string GetNextSceneName() {
         return CurrentStoryType switch {
