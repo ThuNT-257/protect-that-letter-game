@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Level1Spawner : MonoBehaviour
 {
@@ -8,6 +9,9 @@ public class Level1Spawner : MonoBehaviour
     [SerializeField] private Camera mainCamera;
     [SerializeField] private GameObject leafPrefab;
     [SerializeField] private GameObject paperPrefab;
+
+    [Header("UI References")]
+    [SerializeField] private Slider timebarSlider;
 
     [Header("Spawn Settings")]
     [SerializeField] private float spawnInterval = 0.8f;
@@ -35,6 +39,12 @@ public class Level1Spawner : MonoBehaviour
 
     private void Start()
     {
+        if(timebarSlider != null) {
+            timebarSlider.minValue = 0f;
+            timebarSlider.maxValue = 1f;
+            timebarSlider.value = 0f;
+        }
+
         StartCoroutine(LevelSequenceRoutine());
     }
     #endregion
@@ -60,11 +70,28 @@ public class Level1Spawner : MonoBehaviour
 
     private IEnumerator LevelSequenceRoutine()
     {
-        StartCoroutine(SpawnRoutine());
-        
-        yield return new WaitForSeconds(levelDuration);
+        float elapsedTime = 0f;
+        float lastSpawnTime = 0f;
 
-        Debug.Log("[Level1Spawner] - Stop Spawning");
+        while(elapsedTime < levelDuration) {
+
+            elapsedTime += Time.deltaTime;
+
+            if(timebarSlider != null) {
+                timebarSlider.value = Mathf.Clamp01(elapsedTime/levelDuration);
+            }
+
+            if(elapsedTime - lastSpawnTime >= spawnInterval) {
+                SpawnSingleObject();
+                lastSpawnTime = elapsedTime;
+            }
+
+            yield return null;
+        }
+
+        if(timebarSlider != null) {
+            timebarSlider.value = 1f;
+        }
 
         StopSpawning();
 
@@ -73,20 +100,15 @@ public class Level1Spawner : MonoBehaviour
         Debug.Log("[Level1Spawner] - Go to next Level or Scene :v");
     }
 
-    private IEnumerator SpawnRoutine()
+    private void SpawnSingleObject()
     {
-        while (isSpawning)
-        {
-            yield return new WaitForSeconds(spawnInterval);
+        float randomX = Random.Range(minX, maxX);
+        Vector3 spawnPos = new Vector3(randomX, spawnY, 0f);
 
-            float randomX = Random.Range(minX, maxX);
-            Vector3 spawnPos = new Vector3(randomX, spawnY, 0f);
+        GameObject prefabToSpawn = (Random.value < leafChance) ? leafPrefab : paperPrefab;
 
-            GameObject prefabToSpawn = (Random.value < leafChance) ? leafPrefab : paperPrefab;
-
-            Quaternion randomRotation = Quaternion.Euler(0, 0, Random.Range(-45f, 45f));
-            Instantiate(prefabToSpawn, spawnPos, randomRotation);
-        }
+        Quaternion randomRotation = Quaternion.Euler(0, 0, Random.Range(-45f, 45f));
+        Instantiate(prefabToSpawn, spawnPos, randomRotation);
     }
     #endregion
 }
