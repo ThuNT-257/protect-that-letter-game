@@ -175,8 +175,8 @@ public class SettingsUI : MonoBehaviour
     {
         if (controller != null)
         {
-             isBGMOn = controller.IsBGMOn;
-             isSFXOn = controller.IsSFXOn;
+            isBGMOn = SettingsController.Instance.IsBGMOn;
+            isSFXOn = SettingsController.Instance.IsSFXOn;
         }
 
         UpdateBGMVisual();

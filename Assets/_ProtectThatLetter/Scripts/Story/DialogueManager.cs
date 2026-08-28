@@ -1,4 +1,4 @@
-using TMPro;
+﻿using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -47,15 +47,34 @@ public class DialogueManager : MonoBehaviour
     private void LoadStoryData() {
         string storyFileName = StoryManager.GetCurrentStoryFileName();
 
-        string lang = LocalizationManager.Instance != null ? LocalizationManager.Instance.CurrentLanguage : LocalizationManager.VIETNAMESE;
+        string lang = LocalizationManager.Instance != null ? LocalizationManager.Instance.CurrentLanguage : "vi";
+
+        if (!string.IsNullOrEmpty(lang) && lang.Contains("-")) {
+            lang = lang.Split('-')[0];
+        }
 
         string fullPath = $"StoryData/{storyFileName}_{lang}";
+        Debug.Log($"[DialogueManager] Trying to load file in: Resources/{fullPath}");
+
         TextAsset jsonFile = Resources.Load<TextAsset>(fullPath);
 
-        if(jsonFile != null) {
+        if (jsonFile == null) {
+            fullPath = $"StoryData/{storyFileName}";
+            Debug.LogWarning($"[DialogueManager] Not found language files");
+            jsonFile = Resources.Load<TextAsset>(fullPath);
+        }
+
+        if (jsonFile == null) {
+            fullPath = storyFileName;
+            Debug.LogWarning($"[DialogueManager] Try root fallback: Resources/{fullPath}");
+            jsonFile = Resources.Load<TextAsset>(fullPath);
+        }
+
+        if (jsonFile != null) {
             currentStory = JsonUtility.FromJson<StoryData>(jsonFile.text);
+            Debug.Log($"[DialogueManager] Load Story Data successfully!");
         } else {
-            Debug.LogError($"[DialogueManager] Not found file JSON at: Resources/{fullPath}");
+            Debug.LogError($"[DialogueManager] FAIL: Filed not found");
             EndStory();
         }
     }

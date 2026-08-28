@@ -4,58 +4,127 @@ using UnityEngine;
 using UnityEngine.UI;
 using static ObstacleSpawner;
 
-public class GameManager : MonoBehaviour
-{
+public class GameManager : MonoBehaviour {
+    #region Instance
+    private static GameManager instance;
+
+    public static GameManager Instance {
+        get {
+            if (instance == null) {
+                instance = FindAnyObjectByType<GameManager>();
+            }
+            return instance;
+        }
+    }
+    #endregion
+
     #region Serialized Fields
     [SerializeField] private Slider timebarSlider;
     [SerializeField] private ObstacleSpawner spawner;
     [SerializeField] private float transitionDelay = 5f;
-
-    [Header("Level Configurations")]
     [SerializeField] private List<LevelConfig> levels = new List<LevelConfig>();
     #endregion
 
-    #region Private Field
+    #region Private Fields
     private float totalGameDuration = 0f;
     private float currentGameTime = 0f;
+    private Coroutine gameLoopCoroutine;
+    #endregion
+
+    #region Properties
+    public bool IsPaused { get; private set; } = false;
     #endregion
 
     #region Lifecycle
-    private void Start()
-    {
-        foreach (var level in levels)
-        {
-            totalGameDuration += level.duration;
+    private void Awake() {
+        instance = this;
+    }
+
+    private void Start() {
+        InitGame();
+    }
+
+    private void Update() {
+        if (IsPaused) return;
+
+        if (currentGameTime < totalGameDuration) {
+            currentGameTime += Time.deltaTime;
+            if (timebarSlider != null && totalGameDuration > 0f) {
+                timebarSlider.value = Mathf.Clamp01(currentGameTime / totalGameDuration);
+            }
+        }
+    }
+
+    private void OnDestroy() {
+        if (instance == this) {
+            instance = null;
+        }
+    }
+    #endregion
+
+    #region Public Methods
+    public void PauseGame() {
+        IsPaused = true;
+        Time.timeScale = 0f;
+        Debug.Log("[GameManager] Game Paused");
+    }
+
+    public void ResumeGame() {
+        IsPaused = false;
+        Time.timeScale = 1f;
+        Debug.Log("[GameManager] Game Resumed");
+    }
+
+    public void RestartGame() {
+        Time.timeScale = 1f;
+        IsPaused = false;
+
+        if (gameLoopCoroutine != null) {
+            StopCoroutine(gameLoopCoroutine);
+            gameLoopCoroutine = null;
         }
 
-        if (timebarSlider != null)
-        {
+        if (spawner != null) {
+            spawner.ResetSpawner();
+        }
+
+        InitGame();
+        Debug.Log("[GameManager] Game Restarted");
+    }
+    #endregion
+
+    #region Private Methods
+    private void InitGame() {
+        Time.timeScale = 1f;
+        IsPaused = false;
+        currentGameTime = 0f;
+        totalGameDuration = 0f;
+
+        foreach (var level in levels) {
+            if (level != null) {
+                totalGameDuration += level.duration;
+            }
+        }
+
+        if (timebarSlider != null) {
             timebarSlider.minValue = 0f;
             timebarSlider.maxValue = 1f;
             timebarSlider.value = 0f;
         }
 
-        StartCoroutine(GameLoopRoutine());
+        if (gameLoopCoroutine != null) StopCoroutine(gameLoopCoroutine);
+        gameLoopCoroutine = StartCoroutine(GameLoopRoutine());
     }
 
-    private void Update()
-    {
-        if (currentGameTime < totalGameDuration)
-        {
-            currentGameTime += Time.deltaTime;
-            if (timebarSlider != null)
-            {
-                timebarSlider.value = Mathf.Clamp01(currentGameTime / totalGameDuration);
-            }
+    private IEnumerator GameLoopRoutine() {
+        if (!ValidateReferences()) {
+            Debug.LogError("[GameManager] Game Loop aborted due to missing references!");
+            yield break;
         }
-    }
-    #endregion
 
-    #region Private Methods
-    private IEnumerator GameLoopRoutine()
-    {
-        for (int i = 0; i < levels.Count; i++)
-        {
+        yield return new WaitForEndOfFrame();
+
+        for (int i = 0; i < levels.Count; i++) {
             LevelConfig currentLevel = levels[i];
             Debug.Log($"[GameManager] - Start {currentLevel.levelName}");
 
@@ -66,13 +135,30 @@ public class GameManager : MonoBehaviour
             spawner.StopSpawning();
             Debug.Log($"[GameManager] - Finish {currentLevel.levelName}! Waiting for transition...");
 
-            if (i < levels.Count - 1)
-            {
+            if (i < levels.Count - 1) {
                 yield return new WaitForSeconds(transitionDelay);
             }
         }
 
         Debug.Log("[GameManager] - WIN!");
+    }
+
+    private bool ValidateReferences() {
+        if (spawner == null) {
+            spawner = FindAnyObjectByType<ObstacleSpawner>();
+
+            if (spawner == null) {
+                Debug.LogError("[GameManager] Missing ObstacleSpawner reference!");
+                return false;
+            }
+        }
+
+        if (levels == null || levels.Count == 0) {
+            Debug.LogError("[GameManager] Level list is empty!");
+            return false;
+        }
+
+        return true;
     }
     #endregion
 }

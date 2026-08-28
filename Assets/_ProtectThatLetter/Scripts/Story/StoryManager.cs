@@ -31,7 +31,7 @@ public static class StoryManager
     //Will change to right scene later
     public static string GetNextSceneName() {
         return CurrentStoryType switch {
-            StoryType.Intro => SceneController.LOGIN_SCENE,
+            StoryType.Intro => SceneController.PLAY_SCENE,
             StoryType.Outro => SceneController.LOGIN_SCENE,
             _ => SceneController.LOGIN_SCENE
         };

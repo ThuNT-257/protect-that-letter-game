@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Pigeon
   - Shield
+  - Obstacles
   layers:
   - Default
   - TransparentFX

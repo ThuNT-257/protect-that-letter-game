@@ -14,6 +14,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/_ProtectThatLetter/Scenes/StoryScene.unity
     guid: 5559242a668dc324e8b157f60e290dff
+  - enabled: 1
+    path: Assets/_ProtectThatLetter/Scenes/PlayScene.unity
+    guid: e72befe406c36254e972fc6034c58d36
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 3590b91b4603b465dbb4216d601bff33, type: 3}
   m_UseUCBPForAssetBundles: 0

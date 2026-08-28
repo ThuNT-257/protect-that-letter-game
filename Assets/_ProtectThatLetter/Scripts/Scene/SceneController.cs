@@ -9,6 +9,7 @@ public class SceneController : MonoBehaviour
     #region Constants
     public const string LOGIN_SCENE = "LoginScene";
     public const string STORY_SCENE = "StoryScene";
+    public const string PLAY_SCENE = "PlayScene";
     #endregion
 
     #region Instance
@@ -52,6 +53,14 @@ public class SceneController : MonoBehaviour
     public void LoadScene(string sceneName)
     {
         SceneManager.LoadSceneAsync(sceneName);
+    }
+
+    /// <summary>
+    /// Reloads the currently active scene asynchronously.
+    /// </summary>
+    public void ReloadCurrentScene() {
+        string currentSceneName = SceneManager.GetActiveScene().name;
+        SceneManager.LoadSceneAsync(currentSceneName);
     }
     #endregion
 }
