@@ -37,6 +37,11 @@ public class GameManager : MonoBehaviour {
 
     #region Lifecycle
     private void Awake() {
+        if (instance != null && instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
         instance = this;
     }
 
@@ -44,13 +49,15 @@ public class GameManager : MonoBehaviour {
         InitGame();
     }
 
-    private void Update() {
-        if (IsPaused) return;
+    private void Update() { 
+        if (IsPaused || totalGameDuration <= 0f) return;
 
-        if (currentGameTime < totalGameDuration) {
+        if (currentGameTime < totalGameDuration)
+        {
             currentGameTime += Time.deltaTime;
-            if (timebarSlider != null && totalGameDuration > 0f) {
-                timebarSlider.value = Mathf.Clamp01(currentGameTime / totalGameDuration);
+            if (timebarSlider != null)
+            {
+                timebarSlider.value = currentGameTime / totalGameDuration;
             }
         }
     }
@@ -100,9 +107,14 @@ public class GameManager : MonoBehaviour {
         currentGameTime = 0f;
         totalGameDuration = 0f;
 
-        foreach (var level in levels) {
-            if (level != null) {
-                totalGameDuration += level.duration;
+        for (int i = 0; i < levels.Count; i++) {
+            if (levels[i] != null)
+            {
+                totalGameDuration += levels[i].duration;
+                if (i < levels.Count - 1)
+                {
+                    totalGameDuration += transitionDelay;
+                }
             }
         }
 
@@ -139,6 +151,8 @@ public class GameManager : MonoBehaviour {
                 yield return new WaitForSeconds(transitionDelay);
             }
         }
+
+        if (timebarSlider != null) timebarSlider.value = 1f;
 
         Debug.Log("[GameManager] - WIN!");
     }

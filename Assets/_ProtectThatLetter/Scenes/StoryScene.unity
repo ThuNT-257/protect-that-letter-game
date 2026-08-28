@@ -1158,8 +1158,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1656844350}
   - component: {fileID: 1656844351}
-  - component: {fileID: 1656844352}
-  - component: {fileID: 1656844353}
   - component: {fileID: 1656844354}
   m_Layer: 0
   m_Name: ---Managers---
@@ -1196,30 +1194,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   dialogueUI: {fileID: 28096472}
---- !u!114 &1656844352
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1656844349}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7c2c432a6971adb4494d9b9ab7bb8b66, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &1656844353
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1656844349}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 961e413fa92942b438f42b1ea1265519, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &1656844354
 MonoBehaviour:
   m_ObjectHideFlags: 0

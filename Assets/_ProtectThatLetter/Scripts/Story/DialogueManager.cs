@@ -102,14 +102,29 @@ public class DialogueManager : MonoBehaviour
     /// <summary>
     /// Displays the current dialogue line or ends the story if complete
     /// </summary>
-    private void DisplayCurrentLine() {
-        if (currentStory == null || currentStory.lines == null || currentLineIndex >= currentStory.lines.Count) {
+    private void DisplayCurrentLine()
+    {
+        if (currentStory == null)
+        {
+            Debug.LogError("[DialogueManager] currentStory is being NULL! Pause to check.");
+            return;
+        }
+
+        if (currentStory.lines == null || currentStory.lines.Count == 0)
+        {
+            Debug.LogError("[DialogueManager] Some thing wrong with dialogue!");
+            return;
+        }
+
+        if (currentLineIndex >= currentStory.lines.Count)
+        {
             EndStory();
             return;
         }
 
         DialogueLine line = currentStory.lines[currentLineIndex];
-        if (dialogueUI != null) {
+        if (dialogueUI != null)
+        {
             dialogueUI.DisplayLine(line);
         }
     }

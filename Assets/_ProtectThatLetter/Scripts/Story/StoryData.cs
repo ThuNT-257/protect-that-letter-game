@@ -21,5 +21,5 @@ public class DialogueLine {
 public class StoryData
 {
     public string bgm;
-    public List<DialogueLine> lines = new List<DialogueLine>();
+    public List<DialogueLine> lines;
 }
