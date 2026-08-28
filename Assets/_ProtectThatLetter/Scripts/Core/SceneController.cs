@@ -5,9 +5,9 @@ using UnityEngine.SceneManagement;
 /// <summary>
 /// Manages scene navigation throughout the application.
 /// </summary>
-public class SceneController : MonoBehaviour
-{
+public class SceneController : MonoBehaviour {
     #region Constants
+    public const string INIT_SCENE = "InitScene";
     public const string LOGIN_SCENE = "LoginScene";
     public const string STORY_SCENE = "StoryScene";
     public const string PLAY_SCENE = "PlayScene";
@@ -18,10 +18,8 @@ public class SceneController : MonoBehaviour
     #endregion
 
     #region Lifecycle
-    private void Awake()
-    {
-        if (Instance != null && Instance != this)
-        {
+    private void Awake() {
+        if (Instance != null && Instance != this) {
             Destroy(gameObject);
             return;
         }
@@ -29,44 +27,29 @@ public class SceneController : MonoBehaviour
         Instance = this;
         DontDestroyOnLoad(gameObject);
     }
-
-    /// <summary>
-    /// Loads the login scene after one frame to ensure all systems are initialized
-    /// </summary>
-    private IEnumerator Start()
-    {
-        yield return null;
-
-        LoadScene(LOGIN_SCENE);
-    }
     #endregion
 
     #region Public Methods
     /// <summary>
-    /// Loads a scene asynchronously by name
+    /// Loads a scene by name. Calls UIFadeManager if available for smooth transitions.
     /// </summary>
-    /// <param name="sceneName">Name of the scene to load</param>
-    public void LoadScene(string sceneName)
-    {
-        StartCoroutine(LoadSceneAsyncCoroutine(sceneName));
+    public void LoadScene(string sceneName, float fadeDuration = -1f) {
+        if (UIFadeManager.Instance != null) {
+            UIFadeManager.Instance.FadeToScene(sceneName, fadeDuration);
+        } else {
+            StartCoroutine(LoadSceneAsyncCoroutine(sceneName));
+        }
     }
 
     /// <summary>
-    /// Coroutine that loads a scene asynchronously and waits for completion
+    /// Fallback coroutine to load scene directly if FadeManager is missing
     /// </summary>
-    /// <param name="sceneName">Name of the scene to load</param>
-    private IEnumerator LoadSceneAsyncCoroutine(string sceneName)
-    {
+    private IEnumerator LoadSceneAsyncCoroutine(string sceneName) {
         AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(sceneName);
 
-        //wait until the scene is fully loaded
-        while (!asyncLoad.isDone)
-        {
+        while (!asyncLoad.isDone) {
             yield return null;
         }
-
-        //extra frame for any post-load initialization
-        yield return null;
     }
     #endregion
 }
