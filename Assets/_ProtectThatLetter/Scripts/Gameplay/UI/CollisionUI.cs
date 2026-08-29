@@ -1,3 +1,4 @@
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -36,17 +37,28 @@ public class CollisionUI : MonoBehaviour
     #endregion
 
     #region Public Methods
+    public void ShowPanel()
+    {
+        if (collisionPanel != null)
+        {
+            collisionPanel.SetActive(true);
+        }
+    }
+
     public void HidePanel()
     {
-        if (collisionPanel != null) collisionPanel.SetActive(false);
+        if (collisionPanel != null)
+        {
+            collisionPanel.SetActive(false);
+        }
     }
     #endregion
 
-    #region Event Handlers
+        #region Event Handlers
     private void OnQuizButtonClicked()
     {
         HidePanel();
-        //ShowQuiz
+        QuizManager.Instance.StartQuiz();
     }
 
     private void OnRestartButtonClicked()
