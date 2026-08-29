@@ -7,9 +7,6 @@ using UnityEngine;
 public class InitManager : MonoBehaviour 
 {
     #region Serialized Fields
-    [Header("UI References")]
-    [SerializeField] private CanvasGroup logoCanvasGroup;
-
     [Header("Time Settings")]
     [SerializeField] private float fadeInDuration = 1.0f;
     [SerializeField] private float minimumDisplayTime = 1.5f;
@@ -18,15 +15,10 @@ public class InitManager : MonoBehaviour
 
     #region Lifecycle
     /// <summary>
-    /// Sets initial logo alpha and starts the initialization routine
+    /// Starts the initialization routine
     /// </summary>
     private void Start() 
     {
-        if (logoCanvasGroup != null) 
-        {
-            logoCanvasGroup.alpha = 1f;
-        }
-
         StartCoroutine(InitAndSplashRoutine());
     }
     #endregion

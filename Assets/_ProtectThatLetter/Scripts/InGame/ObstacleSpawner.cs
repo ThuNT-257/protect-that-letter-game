@@ -47,7 +47,7 @@ public class ObstacleSpawner : MonoBehaviour {
     public void ResetSpawner() {
         StopSpawning();
 
-        GameObject[] activeObstacles = GameObject.FindGameObjectsWithTag("Obstacles");
+        GameObject[] activeObstacles = GameObject.FindGameObjectsWithTag("Obstacle");
         foreach (var obstacle in activeObstacles) {
             Destroy(obstacle);
         }
@@ -80,7 +80,7 @@ public class ObstacleSpawner : MonoBehaviour {
             float interval = dynamicSpawnInterval > 0f ? dynamicSpawnInterval : currentConfig.spawnInterval;
             yield return new WaitForSeconds(interval);
 
-            if (!isSpawning) yield break; 
+            if (!isSpawning) yield break;
 
             float randomX = Random.Range(minX, maxX);
             Vector3 spawnPos = new Vector3(randomX, spawnY, 0f);
@@ -99,13 +99,7 @@ public class ObstacleSpawner : MonoBehaviour {
         if (mainCamera == null) {
             mainCamera = Camera.main;
         }
-
-        if (mainCamera == null) {
-            Debug.LogError("[ObstacleSpawner] Missing Main Camera in Scene!");
-            return false;
-        }
-
-        return true;
+        return mainCamera != null;
     }
     #endregion
 

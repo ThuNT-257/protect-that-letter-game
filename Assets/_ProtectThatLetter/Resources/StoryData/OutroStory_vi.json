@@ -1,0 +1,37 @@
+{
+    "bgm": "",
+    "lines":[
+        {
+            "speaker": "Nhóc Bồ Câu",
+            "content": "GRUUUUU!!!",
+            "avatar": "default-avatar",
+            "position": "left",
+            "background": "",
+            "sound": ""
+        },
+        {
+            "speaker": "AAA",
+            "content": "Ý!? Một con chim??",
+            "avatar": "default-avatar",
+            "position": "right",
+            "background": "",
+            "sound": ""
+        },
+        {
+            "speaker": "Nhóc Bồ Câu",
+            "content": "Gruu Gruu *giơ chân để thư lên*",
+            "avatar": "default-avatar",
+            "position": "left",
+            "background": "",
+            "sound": ""
+        },
+        {
+            "speaker": "AAA",
+            "content": "Ở đây có một bức thư?? Mở ra xem nào",
+            "avatar": "default-avatar",
+            "position": "right",
+            "background": "",
+            "sound": ""
+        }
+    ]
+}
