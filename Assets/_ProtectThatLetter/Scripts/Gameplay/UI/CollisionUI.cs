@@ -54,7 +54,7 @@ public class CollisionUI : MonoBehaviour
     }
     #endregion
 
-        #region Event Handlers
+    #region Event Handlers
     private void OnQuizButtonClicked()
     {
         HidePanel();

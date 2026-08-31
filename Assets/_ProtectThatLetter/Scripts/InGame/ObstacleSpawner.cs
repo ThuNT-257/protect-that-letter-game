@@ -47,7 +47,7 @@ public class ObstacleSpawner : MonoBehaviour {
     public void ResetSpawner() {
         StopSpawning();
 
-        GameObject[] activeObstacles = GameObject.FindGameObjectsWithTag("Obstacle");
+        GameObject[] activeObstacles = GameObject.FindGameObjectsWithTag("Obstacles");
         foreach (var obstacle in activeObstacles) {
             Destroy(obstacle);
         }

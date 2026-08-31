@@ -7,11 +7,16 @@ public class BirdController : MonoBehaviour
     #endregion
 
     #region Serialized Fields
-    [Header("UI Reference")]
+    [Header("UI References")]
     [SerializeField] private CollisionUI collisionUI;
+    [SerializeField] private GameOverUI gameOverUI;
 
     [Header("Settings")]
     [SerializeField] private bool pauseOnCollision = true;
+    #endregion
+
+    #region Private Fields
+    private int collisionCount = 0;
     #endregion
 
     #region Unity Physics Events
@@ -32,12 +37,31 @@ public class BirdController : MonoBehaviour
     }
     #endregion
 
+    #region Public Methods
+    public void ResetCollisionCount()
+    {
+        collisionCount = 0;
+    }
+    #endregion
+
     #region Private Methods
     private void HandleCollision()
     {
-        if (collisionUI != null)
+        collisionCount++;
+
+        if (collisionCount == 1)
         {
-            collisionUI.ShowPanel();
+            if (collisionUI != null)
+            {
+                collisionUI.ShowPanel();
+            }
+        }
+        else if (collisionCount >= 2)
+        {
+            if (gameOverUI != null)
+            {
+                gameOverUI.ShowPanel();
+            }
         }
 
         if (pauseOnCollision)

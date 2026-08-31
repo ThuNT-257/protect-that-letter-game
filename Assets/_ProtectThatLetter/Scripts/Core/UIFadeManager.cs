@@ -9,9 +9,12 @@ public class UIFadeManager : MonoBehaviour
 {
     #region Instance
     private static UIFadeManager instance;
-    public static UIFadeManager Instance {
-        get {
-            if (instance == null) {
+    public static UIFadeManager Instance 
+    {
+        get 
+        {
+            if (instance == null) 
+            {
                 instance = FindAnyObjectByType<UIFadeManager>();
             }
             return instance;
@@ -29,8 +32,10 @@ public class UIFadeManager : MonoBehaviour
     /// <summary>
     /// Ensures singleton integrity and initializes the fade panel to fully opaque
     /// </summary>
-    private void Awake() {
-        if (instance != null && instance != this) {
+    private void Awake() 
+    {
+        if (instance != null && instance != this) 
+        {
             Destroy(gameObject);
             return;
         }
@@ -38,7 +43,8 @@ public class UIFadeManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
 
         //start with a fully opaque black screen blocking raycasts
-        if (fadeCanvasGroup != null) {
+        if (fadeCanvasGroup != null) 
+        {
             fadeCanvasGroup.alpha = 1f;
             fadeCanvasGroup.blocksRaycasts = true;
         }
@@ -50,7 +56,8 @@ public class UIFadeManager : MonoBehaviour
     /// Fades the screen from opaque to transparent
     /// </summary>
     /// <param name="duration">Duration of the fade (uses default if -1)</param>
-    public IEnumerator FadeInRoutine(float duration = -1f) {
+    public IEnumerator FadeInRoutine(float duration = -1f) 
+    {
         float dur = duration > 0 ? duration : defaultFadeDuration;
         yield return StartCoroutine(Fade(1f, 0f, dur));
     }
@@ -59,7 +66,8 @@ public class UIFadeManager : MonoBehaviour
     /// Fades the screen from transparent to opaque
     /// </summary>
     /// <param name="duration">Duration of the fade (uses default if -1)</param>
-    public IEnumerator FadeOutRoutine(float duration = -1f) {
+    public IEnumerator FadeOutRoutine(float duration = -1f) 
+    {
         float dur = duration > 0 ? duration : defaultFadeDuration;
         yield return StartCoroutine(Fade(0f, 1f, dur));
     }
@@ -69,7 +77,8 @@ public class UIFadeManager : MonoBehaviour
     /// </summary>
     /// <param name="sceneName">Name of the scene to load</param>
     /// <param name="duration">Duration of the fade (uses default if -1)</param>
-    public void FadeToScene(string sceneName, float duration = -1f) {
+    public void FadeToScene(string sceneName, float duration = -1f) 
+    {
         StartCoroutine(FadeToSceneRoutine(sceneName, duration));
     }
     #endregion
@@ -78,7 +87,8 @@ public class UIFadeManager : MonoBehaviour
     /// <summary>
     /// Coroutine that handles the full fade-to-scene transition
     /// </summary>
-    private IEnumerator FadeToSceneRoutine(string sceneName, float duration) {
+    private IEnumerator FadeToSceneRoutine(string sceneName, float duration) 
+    {
         float dur = duration > 0 ? duration : defaultFadeDuration;
 
         //1. fade out (to opaque black)
@@ -89,7 +99,8 @@ public class UIFadeManager : MonoBehaviour
         asyncLoad.allowSceneActivation = false;
 
         // wait until the scene is 90% loaded (Unity's threshold for activation)
-        while (asyncLoad.progress < 0.9f) {
+        while (asyncLoad.progress < 0.9f) 
+        {
             yield return null;
         }
 
@@ -107,13 +118,15 @@ public class UIFadeManager : MonoBehaviour
     /// <param name="startAlpha">Starting alpha value</param>
     /// <param name="endAlpha">Ending alpha value</param>
     /// <param name="duration">Duration of the fade</param>
-    private IEnumerator Fade(float startAlpha, float endAlpha, float duration) {
+    private IEnumerator Fade(float startAlpha, float endAlpha, float duration) 
+    {
         if (fadeCanvasGroup == null) yield break;
 
         fadeCanvasGroup.blocksRaycasts = true;
 
         float timer = 0f;
-        while (timer < duration) {
+        while (timer < duration) 
+        {
             timer += Time.deltaTime;
             fadeCanvasGroup.alpha = Mathf.Lerp(startAlpha, endAlpha, timer / duration);
             yield return null;
@@ -122,7 +135,8 @@ public class UIFadeManager : MonoBehaviour
         fadeCanvasGroup.alpha = endAlpha;
 
         // unblock raycasts
-        if (endAlpha == 0f) {
+        if (endAlpha == 0f) 
+        {
             fadeCanvasGroup.blocksRaycasts = false;
         }
     }

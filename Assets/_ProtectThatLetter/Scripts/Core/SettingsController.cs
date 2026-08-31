@@ -14,11 +14,15 @@ public class SettingsController : MonoBehaviour
     #region Instance
     private static SettingsController instance;
 
-    public static SettingsController Instance {
-        get {
-            if (instance == null) {
+    public static SettingsController Instance 
+    {
+        get 
+        {
+            if (instance == null) 
+            {
                 instance = FindAnyObjectByType<SettingsController>();
-                if (instance == null) {
+                if (instance == null) 
+                {
                     Debug.LogError("There is no SettingsController in Scene.");
                 }
             }
@@ -36,8 +40,10 @@ public class SettingsController : MonoBehaviour
     /// <summary>
     /// Loads saved settings from PlayerPrefs.
     /// </summary>
-    private void Awake() {
-        if (instance != null && instance != this) {
+    private void Awake() 
+    {
+        if (instance != null && instance != this) 
+        {
             Destroy(this.gameObject);
             return;
         }
@@ -54,7 +60,8 @@ public class SettingsController : MonoBehaviour
     /// Saves the preference and applies it immediately.
     /// </summary>
     /// <param name="isOn">True to enable BGM, false to disable</param>
-    public void SetBGM(bool isOn) {
+    public void SetBGM(bool isOn) 
+    {
         IsBGMOn = isOn;
         PlayerPrefs.SetInt(BGM_KEY, isOn ? 1 : 0);
         PlayerPrefs.Save();
@@ -68,7 +75,8 @@ public class SettingsController : MonoBehaviour
     /// Saves the preference and applies it immediately.
     /// </summary>
     /// <param name="isOn">True to enable SFX, false to disable</param>
-    public void SetSFX(bool isOn) {
+    public void SetSFX(bool isOn) 
+    {
         IsSFXOn = isOn;
         PlayerPrefs.SetInt(SFX_KEY, isOn ? 1 : 0);
         PlayerPrefs.Save();
@@ -81,8 +89,10 @@ public class SettingsController : MonoBehaviour
     /// Changes the application's language using the LocalizationManager.
     /// </summary>
     /// <param name="langCode">Language code (e.g., "vi", "en", "ja")</param>
-    public void ChangeLanguage(string langCode) {
-        if (LocalizationManager.Instance != null) {
+    public void ChangeLanguage(string langCode) 
+    {
+        if (LocalizationManager.Instance != null) 
+        {
             LocalizationManager.Instance.SwitchLanguage(langCode);
         }
     }
@@ -105,8 +115,9 @@ public class SettingsController : MonoBehaviour
     /// Applies the current audio settings to the audio system.
     /// TODO: Integrate with an AudioManager when implemented.
     /// </summary>
-    private void ApplyAudioSettings() {
-        //Add Audio Manager later
+    private void ApplyAudioSettings() 
+    {
+        //Will add Audio Manager later
     }
     #endregion
 }

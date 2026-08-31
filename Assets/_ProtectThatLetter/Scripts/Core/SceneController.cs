@@ -5,7 +5,8 @@ using UnityEngine.SceneManagement;
 /// <summary>
 /// Manages scene navigation throughout the application.
 /// </summary>
-public class SceneController : MonoBehaviour {
+public class SceneController : MonoBehaviour 
+{
     #region Constants
     public const string INIT_SCENE = "InitScene";
     public const string LOGIN_SCENE = "LoginScene";
@@ -18,8 +19,10 @@ public class SceneController : MonoBehaviour {
     #endregion
 
     #region Lifecycle
-    private void Awake() {
-        if (Instance != null && Instance != this) {
+    private void Awake() 
+    {
+        if (Instance != null && Instance != this) 
+        {
             Destroy(gameObject);
             return;
         }
@@ -33,10 +36,14 @@ public class SceneController : MonoBehaviour {
     /// <summary>
     /// Loads a scene by name. Calls UIFadeManager if available for smooth transitions.
     /// </summary>
-    public void LoadScene(string sceneName, float fadeDuration = -1f) {
-        if (UIFadeManager.Instance != null) {
+    public void LoadScene(string sceneName, float fadeDuration = -1f) 
+    {
+        if (UIFadeManager.Instance != null) 
+        {
             UIFadeManager.Instance.FadeToScene(sceneName, fadeDuration);
-        } else {
+        } 
+        else 
+        {
             StartCoroutine(LoadSceneAsyncCoroutine(sceneName));
         }
     }
@@ -44,10 +51,12 @@ public class SceneController : MonoBehaviour {
     /// <summary>
     /// Fallback coroutine to load scene directly if FadeManager is missing
     /// </summary>
-    private IEnumerator LoadSceneAsyncCoroutine(string sceneName) {
+    private IEnumerator LoadSceneAsyncCoroutine(string sceneName) 
+    {
         AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(sceneName);
 
-        while (!asyncLoad.isDone) {
+        while (!asyncLoad.isDone) 
+        {
             yield return null;
         }
     }
