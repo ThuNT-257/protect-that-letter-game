@@ -1,0 +1,598 @@
+fileFormatVersion: 2
+guid: f4821868aafe7214eb961133a42a2188
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 8107016706359135226
+    second: login_code_inputfield_0
+  - first:
+      213: 7249141361533741991
+    second: login_code_inputfield_1
+  - first:
+      213: 2794114055724894245
+    second: login_code_inputfield_2
+  - first:
+      213: -2371559434409355206
+    second: login_code_inputfield_3
+  - first:
+      213: -5034776675445153130
+    second: login_code_inputfield_4
+  - first:
+      213: 6271204501982798011
+    second: login_code_inputfield_5
+  - first:
+      213: 4924677204402893891
+    second: login_code_inputfield_6
+  - first:
+      213: -2726586355397065384
+    second: login_code_inputfield_7
+  - first:
+      213: 4884201491811556720
+    second: login_code_inputfield_8
+  - first:
+      213: 6796004349334474630
+    second: login_code_inputfield_9
+  - first:
+      213: 1377729544071214494
+    second: login_code_inputfield_10
+  - first:
+      213: -7096684649054641236
+    second: login_code_inputfield_11
+  - first:
+      213: 2251702945258222298
+    second: login_code_inputfield_12
+  - first:
+      213: -3078446244933645745
+    second: login_code_inputfield_13
+  - first:
+      213: -7308982219866952306
+    second: login_code_inputfield_14
+  - first:
+      213: -4894073819345085641
+    second: login_code_inputfield_15
+  - first:
+      213: 2296844142269144903
+    second: login_code_inputfield_16
+  - first:
+      213: 1446158680640857444
+    second: login_code_inputfield_17
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 1
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: login_code_inputfield_0
+      rect:
+        serializedVersion: 2
+        x: 14
+        y: 350
+        width: 126
+        height: 57
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: afb81baddb8e18070800000000000000
+      internalID: 8107016706359135226
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: login_code_inputfield_1
+      rect:
+        serializedVersion: 2
+        x: 130
+        y: 383
+        width: 131
+        height: 24
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7ab6fc429af1a9460800000000000000
+      internalID: 7249141361533741991
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: login_code_inputfield_2
+      rect:
+        serializedVersion: 2
+        x: 241
+        y: 383
+        width: 145
+        height: 24
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 52888690eefa6c620800000000000000
+      internalID: 2794114055724894245
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: login_code_inputfield_3
+      rect:
+        serializedVersion: 2
+        x: 378
+        y: 383
+        width: 116
+        height: 24
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a38dd4c6247861fd0800000000000000
+      internalID: -2371559434409355206
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: login_code_inputfield_4
+      rect:
+        serializedVersion: 2
+        x: 486
+        y: 383
+        width: 141
+        height: 24
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6926ba00a41e02ab0800000000000000
+      internalID: -5034776675445153130
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: login_code_inputfield_5
+      rect:
+        serializedVersion: 2
+        x: 618
+        y: 383
+        width: 126
+        height: 24
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bb0e38ea44bc70750800000000000000
+      internalID: 6271204501982798011
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: login_code_inputfield_6
+      rect:
+        serializedVersion: 2
+        x: 738
+        y: 394
+        width: 10
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 344f5e943d7f75440800000000000000
+      internalID: 4924677204402893891
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: login_code_inputfield_7
+      rect:
+        serializedVersion: 2
+        x: 739
+        y: 382
+        width: 113
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8558125e728392ad0800000000000000
+      internalID: -2726586355397065384
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: login_code_inputfield_8
+      rect:
+        serializedVersion: 2
+        x: 843
+        y: 322
+        width: 62
+        height: 85
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 07d5cd2116b28c340800000000000000
+      internalID: 4884201491811556720
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: login_code_inputfield_9
+      rect:
+        serializedVersion: 2
+        x: 13
+        y: 238
+        width: 27
+        height: 114
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 68f471ee2f1405e50800000000000000
+      internalID: 6796004349334474630
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: login_code_inputfield_10
+      rect:
+        serializedVersion: 2
+        x: 13
+        y: 150
+        width: 28
+        height: 93
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e95fce688bdae1310800000000000000
+      internalID: 1377729544071214494
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: login_code_inputfield_11
+      rect:
+        serializedVersion: 2
+        x: 19
+        y: 235
+        width: 15
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ca3612a59e2838d90800000000000000
+      internalID: -7096684649054641236
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: login_code_inputfield_12
+      rect:
+        serializedVersion: 2
+        x: 794
+        y: 92
+        width: 112
+        height: 238
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ad231df06e7af3f10800000000000000
+      internalID: 2251702945258222298
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: login_code_inputfield_13
+      rect:
+        serializedVersion: 2
+        x: 13
+        y: 92
+        width: 287
+        height: 59
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f4a489653792745d0800000000000000
+      internalID: -3078446244933645745
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: login_code_inputfield_14
+      rect:
+        serializedVersion: 2
+        x: 19
+        y: 147
+        width: 11
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e8d2f2b4567419a90800000000000000
+      internalID: -7308982219866952306
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: login_code_inputfield_15
+      rect:
+        serializedVersion: 2
+        x: 287
+        y: 92
+        width: 207
+        height: 25
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 73b956d8ac1c41cb0800000000000000
+      internalID: -4894073819345085641
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: login_code_inputfield_16
+      rect:
+        serializedVersion: 2
+        x: 490
+        y: 92
+        width: 219
+        height: 25
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 74f9364049700ef10800000000000000
+      internalID: 2296844142269144903
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: login_code_inputfield_17
+      rect:
+        serializedVersion: 2
+        x: 701
+        y: 92
+        width: 107
+        height: 25
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 465227078a9c11410800000000000000
+      internalID: 1446158680640857444
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      login_code_inputfield_0: 8107016706359135226
+      login_code_inputfield_1: 7249141361533741991
+      login_code_inputfield_10: 1377729544071214494
+      login_code_inputfield_11: -7096684649054641236
+      login_code_inputfield_12: 2251702945258222298
+      login_code_inputfield_13: -3078446244933645745
+      login_code_inputfield_14: -7308982219866952306
+      login_code_inputfield_15: -4894073819345085641
+      login_code_inputfield_16: 2296844142269144903
+      login_code_inputfield_17: 1446158680640857444
+      login_code_inputfield_2: 2794114055724894245
+      login_code_inputfield_3: -2371559434409355206
+      login_code_inputfield_4: -5034776675445153130
+      login_code_inputfield_5: 6271204501982798011
+      login_code_inputfield_6: 4924677204402893891
+      login_code_inputfield_7: -2726586355397065384
+      login_code_inputfield_8: 4884201491811556720
+      login_code_inputfield_9: 6796004349334474630
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

@@ -1,19 +1,27 @@
+using System;
 using System.Collections;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Localization;
 using UnityEngine.UI;
 
 /// <summary>
 /// Manages the login UI functionality including input validation, 
-/// localization, and server communication simulation.
+/// localization, and server health check verification before scene transition.
 /// </summary>
-public class LoginUI : MonoBehaviour
-{
+public class LoginUI : MonoBehaviour {
     #region Serialized Fields
     [Header("Login Form")]
     [SerializeField] private TMP_InputField codeInputField;
     [SerializeField] private Button submitButton;
     [SerializeField] private TMP_Text errorText;
+
+    [Header("Error Background (Cloud Fly Left-To-Right Animation)")]
+    [SerializeField] private RectTransform errorBackground;
+    [SerializeField] private Vector2 hideLeftPosition = new Vector2(-1200f, -200f);
+    [SerializeField] private Vector2 targetPosition = new Vector2(0f, -200f);
+    [SerializeField] private Vector2 hideRightPosition = new Vector2(1200f, -200f);
+    [SerializeField] private float slideDuration = 0.25f;
 
     [Header("Loading Overlay")]
     [SerializeField] private GameObject loadingOverlay;
@@ -21,231 +29,258 @@ public class LoginUI : MonoBehaviour
 
     #region Private Fields
     private string currentErrorKey = string.Empty;
+    private Coroutine floatAnimationCoroutine;
+    private Coroutine slideAnimationCoroutine;
     #endregion
 
     #region Lifecycle
-    /// <summary>
-    /// Sets up event listeners and initial UI state.
-    /// </summary>
-    private void Awake()
-    {
-        if(submitButton != null)
-        {
+    private void Awake() {
+        if (submitButton != null) {
             submitButton.onClick.AddListener(OnSubmitClicked);
         }
 
-        if(codeInputField != null)
-        {
+        if (codeInputField != null) {
             codeInputField.onValueChanged.AddListener(OnInputChanged);
             codeInputField.onEndEdit.AddListener(OnInputEndEdit);
         }
 
         SetLoading(false);
+
+        if (errorBackground != null) {
+            errorBackground.anchoredPosition = hideLeftPosition;
+            errorBackground.gameObject.SetActive(false);
+        }
+
         ClearError();
     }
 
-    /// <summary>
-    /// Subscribes to language change events when the object becomes active.
-    /// </summary>
-    private void OnEnable()
-    {
-        LocalizationManager.OnLanguageChanged += RefreshLocalizedErrorText;
+    private void OnEnable() {
+        LocalizationManager.OnLanguageChanged += OnLanguageChanged;
     }
 
-    /// <summary>
-    /// Unsubscribes from language change events.
-    /// </summary>
-    private void OnDisable()
-    {
-        LocalizationManager.OnLanguageChanged -= RefreshLocalizedErrorText;
+    private void OnDisable() {
+        LocalizationManager.OnLanguageChanged -= OnLanguageChanged;
     }
     #endregion
 
     #region Private Methods
-    /// <summary>
-    /// Handles the submit button click event.
-    /// Validates the input code before sending to server.
-    /// </summary>
-    private void OnSubmitClicked()
-    {
-        string inputCode = codeInputField.text.Trim();
+    private void OnLanguageChanged(Locale newLocale) {
+        RefreshLocalizedErrorText();
+    }
 
-        // Validation 1: Check if code is empty
-        if (string.IsNullOrEmpty(inputCode))
-        {
+    private void OnSubmitClicked() {
+        string inputCode = codeInputField != null ? codeInputField.text.Trim() : string.Empty;
+
+        Debug.Log($"[LoginUI] === Submit Button Clicked ===");
+        Debug.Log($"[LoginUI] Raw Input Code: '{codeInputField?.text}', Trimmed Input Code: '{inputCode}' (Length: {inputCode.Length})");
+
+        // 1. Check if code is empty
+        if (string.IsNullOrEmpty(inputCode)) {
+            Debug.LogWarning("[LoginUI] Validation Failed: Code is empty. Displaying 'ERROR_EMPTY_CODE'.");
             DisplayError("ERROR_EMPTY_CODE");
             return;
         }
 
-        // Validation 2: Check if code has exactly 6 characters
-        if (inputCode.Length != 6)
-        {
+        // 2. Check if code has exactly 6 characters
+        if (inputCode.Length != 6) {
+            Debug.LogWarning($"[LoginUI] Validation Failed: Code length is {inputCode.Length} (Expected 6). Displaying 'ERROR_INVALID_CODE'.");
             DisplayError("ERROR_INVALID_CODE");
             return;
         }
 
+        Debug.Log("[LoginUI] Input validation passed. Clearing previous errors and starting Health Check...");
         ClearError();
-
-        //Submit code to server (will deploy later)
-        StartCoroutine(SubmitCode(inputCode));
+        StartCoroutine(CheckHealthAndProceed());
     }
 
     /// <summary>
-    /// Simulates server communication with a 2-second delay.
+    /// Calls Health Check API via NetworkManager before changing scene.
     /// </summary>
-    /// <param name="inputCode">The code submitted by the user</param>
-    private IEnumerator SubmitCode(string inputCode)
-    {
+    private IEnumerator CheckHealthAndProceed() {
+        Debug.Log("[LoginUI] CheckHealthAndProceed started. Displaying loading overlay...");
         SetLoading(true);
-        yield return new WaitForSeconds(2.0f);
+
+        bool isRequestFinished = false;
+        bool isSuccess = false;
+        string returnedErrorCode = null;
+
+        if (NetworkManager.Instance != null) {
+            Debug.Log("[LoginUI] Sending GET request to '/api/health' via NetworkManager...");
+            yield return StartCoroutine(NetworkManager.Instance.GetRequest(
+                "/api/health",
+                (success, errCode) => {
+                    isSuccess = success;
+                    returnedErrorCode = errCode;
+                    isRequestFinished = true;
+                    Debug.Log($"[LoginUI] NetworkManager Callback received -> Success: {isSuccess}, ErrorCode: '{returnedErrorCode}'");
+                }
+            ));
+        } else {
+            Debug.LogError("[LoginUI] NetworkManager Instance is null! Cannot proceed with health check.");
+            returnedErrorCode = ErrorCodes.ERROR_INTERNAL_SERVER;
+            isRequestFinished = true;
+        }
+
+        yield return new WaitUntil(() => isRequestFinished);
+        Debug.Log("[LoginUI] Request finished. Hiding loading overlay...");
         SetLoading(false);
 
-        //Will replace by real api one later
-        OnServerResponseMessage("MEOBEO");
+        if (isSuccess) {
+            Debug.Log("[LoginUI] Health Check SUCCESSFUL! Preparing to transition scene...");
+            StoryManager.CurrentStoryType = StoryManager.StoryType.Intro;
+
+            if (SceneController.Instance != null) {
+                Debug.Log($"[LoginUI] Loading Scene '{SceneController.STORY_SCENE}' via SceneController...");
+                SceneController.Instance.LoadScene(SceneController.STORY_SCENE);
+            } else {
+                Debug.LogWarning($"[LoginUI] SceneController Instance is null. Loading Scene '{SceneController.STORY_SCENE}' via SceneManager directly...");
+                UnityEngine.SceneManagement.SceneManager.LoadScene(SceneController.STORY_SCENE);
+            }
+        } else {
+            string errorCodeToDisplay = !string.IsNullOrEmpty(returnedErrorCode)
+                ? returnedErrorCode
+                : ErrorCodes.ERROR_DATABASE_OFFLINE;
+
+            Debug.LogError($"[LoginUI] Health Check FAILED. Displaying Error Code: '{errorCodeToDisplay}'");
+            DisplayError(errorCodeToDisplay);
+        }
     }
 
-    /// <summary>
-    /// Called when the code input field changes.
-    /// Converts input to uppercase and clears error text when user types.
-    /// </summary>
-    /// <param name="value">The current input value</param>
-    private void OnInputChanged(string value)
-    {
-        if (codeInputField != null)
-        {
+    private void OnInputChanged(string value) {
+        if (codeInputField != null) {
             string upperValue = value.ToUpper();
-            if (codeInputField.text != upperValue)
-            {
+            if (codeInputField.text != upperValue) {
                 codeInputField.text = upperValue;
             }
         }
 
-        // Clear error
-        if (!string.IsNullOrEmpty(currentErrorKey))
-        {
+        if (!string.IsNullOrEmpty(currentErrorKey)) {
             ClearError();
         }
     }
 
-    /// <summary>
-    /// Called when the user finishes editing the input field (presses Enter or tabs out).
-    /// Handles keyboard and mouse/controller submissions.
-    /// </summary>
-    /// <param name="text">The final input text</param>
-    private void OnInputEndEdit(string text)
-    {
-        //Not submit if user cancelled
+    private void OnInputEndEdit(string text) {
         if (codeInputField.wasCanceled) return;
 
-        // Handle touchscreen keyboard submission
-        if (TouchScreenKeyboard.isSupported)
-        {
+        if (TouchScreenKeyboard.isSupported) {
+            Debug.Log("[LoginUI] Input EndEdit triggered via TouchScreenKeyboard.");
             OnSubmitClicked();
-        }
-        // Handle physical keyboard Enter key
-        else if (UnityEngine.InputSystem.Keyboard.current != null &&
-            (UnityEngine.InputSystem.Keyboard.current.enterKey.wasPressedThisFrame ||
-             UnityEngine.InputSystem.Keyboard.current.numpadEnterKey.wasPressedThisFrame))
-        {
-            //Only submit when loading panel is not active
-            if (loadingOverlay != null && !loadingOverlay.activeSelf)
-            {
+        } else if (UnityEngine.InputSystem.Keyboard.current != null &&
+              (UnityEngine.InputSystem.Keyboard.current.enterKey.wasPressedThisFrame ||
+               UnityEngine.InputSystem.Keyboard.current.numpadEnterKey.wasPressedThisFrame)) {
+            if (loadingOverlay != null && !loadingOverlay.activeSelf) {
+                Debug.Log("[LoginUI] Input EndEdit triggered via Enter key.");
                 OnSubmitClicked();
             }
         }
     }
 
-    /// <summary>
-    /// Displays an error message using a localization key.
-    /// </summary>
-    /// <param name="errorKey">The localization key for the error message</param>
-    private void DisplayError(string errorKey)
-    {
+    private void DisplayError(string errorKey) {
+        bool isAlreadyShowingSameError = (currentErrorKey == errorKey) &&
+                                          (errorBackground != null && errorBackground.gameObject.activeSelf);
+
         currentErrorKey = errorKey;
 
-        if(errorText == null)
-        {
-            return;
-        }
+        if (errorText == null) return;
 
-        string translatedMessage = GetLocalizedString(errorKey);
-        errorText.text = translatedMessage;
+        FetchAndSetErrorText(errorKey);
         errorText.gameObject.SetActive(true);
+
+        if (!isAlreadyShowingSameError) {
+            AnimateCloudInFromLeft();
+        }
     }
 
-    /// <summary>
-    /// Clears the currently displayed error message.
-    /// </summary>
-    private void ClearError()
-    {
+    private void ClearError() {
         currentErrorKey = string.Empty;
 
-        if(errorText != null)
-        {
+        if (errorText != null) {
             errorText.text = string.Empty;
             errorText.gameObject.SetActive(false);
         }
+
+        AnimateCloudOutToRight();
     }
 
-    /// <summary>
-    /// Refreshes the error text when language changes
-    /// </summary>
-    private void RefreshLocalizedErrorText()
-    {
-        // Only update if there is an active error message
-        if (!string.IsNullOrEmpty(currentErrorKey) && errorText != null && errorText.gameObject.activeSelf)
-        {
-            errorText.text = GetLocalizedString(currentErrorKey);
+    #region Cloud Animation Logic (In From Left -> Out To Right)
+    private void AnimateCloudInFromLeft() {
+        if (errorBackground == null) return;
+
+        StopCloudCoroutines();
+
+        errorBackground.gameObject.SetActive(true);
+        errorBackground.anchoredPosition = hideLeftPosition;
+
+        slideAnimationCoroutine = StartCoroutine(SlideCloud(hideLeftPosition, targetPosition, slideDuration, () => {
+            floatAnimationCoroutine = StartCoroutine(FloatCloudLoop());
+        }));
+    }
+
+    private void AnimateCloudOutToRight() {
+        if (errorBackground == null || !errorBackground.gameObject.activeSelf) return;
+
+        StopCloudCoroutines();
+
+        Vector2 currentPos = errorBackground.anchoredPosition;
+
+        slideAnimationCoroutine = StartCoroutine(SlideCloud(currentPos, hideRightPosition, slideDuration, () => {
+            errorBackground.gameObject.SetActive(false);
+            errorBackground.anchoredPosition = hideLeftPosition;
+        }));
+    }
+
+    private void StopCloudCoroutines() {
+        if (slideAnimationCoroutine != null) StopCoroutine(slideAnimationCoroutine);
+        if (floatAnimationCoroutine != null) StopCoroutine(floatAnimationCoroutine);
+    }
+
+    private IEnumerator SlideCloud(Vector2 start, Vector2 end, float duration, Action onComplete = null) {
+        float elapsed = 0f;
+        while (elapsed < duration) {
+            elapsed += Time.deltaTime;
+            float t = Mathf.SmoothStep(0f, 1f, elapsed / duration);
+            errorBackground.anchoredPosition = Vector2.Lerp(start, end, t);
+            yield return null;
+        }
+        errorBackground.anchoredPosition = end;
+        onComplete?.Invoke();
+    }
+
+    private IEnumerator FloatCloudLoop() {
+        float floatSpeed = 2.0f;
+        float floatAmount = 8.0f;
+
+        while (true) {
+            float newY = targetPosition.y + (Mathf.Sin(Time.time * floatSpeed) * floatAmount);
+            errorBackground.anchoredPosition = new Vector2(targetPosition.x, newY);
+            yield return null;
+        }
+    }
+    #endregion
+
+    private void RefreshLocalizedErrorText() {
+        if (!string.IsNullOrEmpty(currentErrorKey) && errorText != null && errorText.gameObject.activeSelf) {
+            FetchAndSetErrorText(currentErrorKey);
         }
     }
 
-    /// <summary>
-    /// Gets a localized string from the LocalizationManager.
-    /// </summary>
-    /// <param name="key">The localization key</param>
-    /// <returns>The localized string, or the key itself in case manager is missing</returns>
-    private string GetLocalizedString(string key)
-    {
-        if(LocalizationManager.Instance == null)
-        {
-            Debug.LogError("There is no LocalizationManager in Scene.");
-            return key;
+    private void FetchAndSetErrorText(string key) {
+        if (LocalizationManager.Instance != null) {
+            LocalizationManager.Instance.GetLocalizedString(key, (translatedText) => {
+                if (errorText != null) {
+                    errorText.text = translatedText;
+                }
+            });
+        } else {
+            Debug.LogError("[LoginUI] There is no LocalizationManager in Scene.");
+            if (errorText != null) errorText.text = key;
         }
-        return LocalizationManager.Instance.GetText(key);
     }
 
-    /// <summary>
-    /// Shows or hides the loading overlay.
-    /// </summary>
-    /// <param name="isLoading">True to show loading, false to hide</param>
-    private void SetLoading(bool isLoading)
-    {
-        if (loadingOverlay != null)
-        {
+    private void SetLoading(bool isLoading) {
+        if (loadingOverlay != null) {
             loadingOverlay.SetActive(isLoading);
         }
-    }
-
-    /// <summary>
-    /// Handles the server response message.
-    /// </summary>
-    /// <param name="errorCode">The response code from the server</param>
-    private void OnServerResponseMessage(string errorCode)
-    {
-        SetLoading(false);
-        //Fake success response -> will handle later (update data for each code, load to story scene)
-        if(errorCode == "MEOBEO")
-        {
-            StoryManager.CurrentStoryType = StoryManager.StoryType.Intro;
-
-            if(SceneController.Instance != null) {
-                SceneController.Instance.LoadScene(SceneController.STORY_SCENE);
-            } else {
-                UnityEngine.SceneManagement.SceneManager.LoadScene(SceneController.STORY_SCENE);
-            }
-            return;
-        }
-        DisplayError(errorCode);
     }
     #endregion
 }

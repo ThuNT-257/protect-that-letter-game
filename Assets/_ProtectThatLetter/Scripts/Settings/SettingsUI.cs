@@ -1,20 +1,25 @@
 ﻿using TMPro;
 using UnityEngine;
+using UnityEngine.Localization;
 using UnityEngine.UI;
 
 /// <summary>
-/// Manages the Settings UI including audio toggles and language selection
+/// Manages the Settings UI with SettingsPart and LanguagePart.
 /// </summary>
-public class SettingsUI : MonoBehaviour
-{
+[RequireComponent(typeof(CanvasGroup))]
+public class SettingsUI : MonoBehaviour {
     #region Serialized Fields
     [Header("Controller References")]
     [SerializeField] private SettingsController controller;
 
-    [Header("Main Settings UI")]
-    [SerializeField] private Button settingsButton;
-    [SerializeField] private Button settingsCloseButton;
-    [SerializeField] private Button settingsOverlayCloseButton;
+    [Header("Hierarchy Group Panels")]
+    [SerializeField] private GameObject settingsPart;       
+    [SerializeField] private GameObject languagePart;       
+
+    [Header("Main Settings UI Buttons")]
+    [SerializeField] private Button settingsButton;            
+    [SerializeField] private Button settingsCloseButton;       
+    [SerializeField] private Button settingsCloseOverlayButton;
 
     [Header("Sound On/Off Buttons")]
     [SerializeField] private Button bgmButton;
@@ -26,12 +31,11 @@ public class SettingsUI : MonoBehaviour
     [SerializeField] private Sprite sfxOffSprite;
 
     [Header("Language Selector")]
-    [SerializeField] private Button languageSelectorButton;
+    [SerializeField] private Button languageButton;           
 
-    [Header("Language Dropdown Popup")]
-    [SerializeField] private GameObject langDropdownPanel;
-    [SerializeField] private Button langCloseButton;
-    [SerializeField] private Button langOverlayCloseButton;
+    [Header("Language Popup UI")]
+    [SerializeField] private Button langCloseButton;           
+    [SerializeField] private Button languageOverlayButton;     
     [SerializeField] private Button btnVietnamese;
     [SerializeField] private Button btnEnglish;
 
@@ -41,140 +45,120 @@ public class SettingsUI : MonoBehaviour
     #endregion
 
     #region Private Fields
+    private CanvasGroup canvasGroup;
     private bool isBGMOn = true;
     private bool isSFXOn = true;
     #endregion
 
     #region Lifecycle
-    /// <summary>
-    /// Initializes the UI by setting up button listeners and hiding panels
-    /// </summary>
-    private void Awake()
-    {
-        if (controller == null)
-        {
-            controller = GetComponent<SettingsController>();
+    private void Awake() {
+        canvasGroup = GetComponent<CanvasGroup>();
+
+        if (controller == null) {
+            controller = SettingsController.Instance;
         }
 
-        // Main Settings UI
+        // 1. SettingsPart Events
         if (settingsButton != null) settingsButton.onClick.AddListener(OpenPopup);
         if (settingsCloseButton != null) settingsCloseButton.onClick.AddListener(ClosePopup);
-        if (settingsOverlayCloseButton != null) settingsOverlayCloseButton.onClick.AddListener(ClosePopup);
+        if (settingsCloseOverlayButton != null) settingsCloseOverlayButton.onClick.AddListener(ClosePopup);
 
-        // Sound toggle button listeners
+        // Sound Toggle Events
         if (bgmButton != null) bgmButton.onClick.AddListener(ToggleBGM);
         if (sfxButton != null) sfxButton.onClick.AddListener(ToggleSFX);
 
-        // Language Buttons
-        if (languageSelectorButton != null) languageSelectorButton.onClick.AddListener(OpenLanguagePopup);
+        // 2. LanguagePart Events
+        if (languageButton != null) languageButton.onClick.AddListener(OpenLanguagePopup);
         if (langCloseButton != null) langCloseButton.onClick.AddListener(CloseLanguagePopup);
-        if (langOverlayCloseButton != null) langOverlayCloseButton.onClick.AddListener(CloseLanguagePopup);
+        if (languageOverlayButton != null) languageOverlayButton.onClick.AddListener(CloseLanguagePopup);
 
         if (btnVietnamese != null) btnVietnamese.onClick.AddListener(() => OnSelectLanguage(LocalizationManager.VIETNAMESE));
         if (btnEnglish != null) btnEnglish.onClick.AddListener(() => OnSelectLanguage(LocalizationManager.ENGLISH));
 
-        CloseLanguagePopup();
-        gameObject.SetActive(false);
+        HideAllParts();
+        SetOverlayVisible(false);
     }
 
-    /// <summary>
-    /// Subscribes to events and syncs UI when enabled
-    /// </summary>
-    private void OnEnable()
-    {
-        LocalizationManager.OnLanguageChanged += UpdateLanguageCheckmarks;
+    private void OnEnable() {
+        if (controller == null) {
+            controller = SettingsController.Instance;
+        }
+
+        LocalizationManager.OnLanguageChanged += OnLanguageChanged;
 
         SyncSoundUI();
         UpdateLanguageCheckmarks();
     }
 
-    /// <summary>
-    /// Unsubscribes from events
-    /// </summary>
-    private void OnDisable()
-    {
-        LocalizationManager.OnLanguageChanged -= UpdateLanguageCheckmarks;
+    private void OnDisable() {
+        LocalizationManager.OnLanguageChanged -= OnLanguageChanged;
     }
     #endregion
 
-    #region Private Methods
-    /// <summary>
-    /// Opens the main settings popup
-    /// </summary>
-    private void OpenPopup()
-    {
-        gameObject.SetActive(true);
+    #region Public Methods
+    public void OpenPopup() {
+        SetOverlayVisible(true);
+        ShowSettingsPart();
         SyncSoundUI();
-        CloseLanguagePopup();
     }
 
-    /// <summary>
-    /// Closes the main settings popup
-    /// </summary
-    private void ClosePopup()
-    {
-        CloseLanguagePopup();
-        gameObject.SetActive(false);
+    public void ClosePopup() {
+        HideAllParts();
+        SetOverlayVisible(false);
+    }
+    #endregion
+
+    #region Private UI Logic
+    private void ShowSettingsPart() {
+        if (settingsPart != null) settingsPart.SetActive(true);
+        if (languagePart != null) languagePart.SetActive(false);
     }
 
-    /// <summary>
-    /// Opens the language popup
-    /// </summary>
-    private void OpenLanguagePopup()
-    {
-        if (langDropdownPanel != null)
-        {
-            langDropdownPanel.SetActive(true);
+    private void OpenLanguagePopup() {
+        if (settingsPart != null) settingsPart.SetActive(false);
+        if (languagePart != null) {
+            languagePart.SetActive(true);
             UpdateLanguageCheckmarks();
         }
     }
 
-    /// <summary>
-    /// Closes the language popup
-    /// </summary>
-    private void CloseLanguagePopup()
-    {
-        if (langDropdownPanel != null)
-        {
-            langDropdownPanel.SetActive(false);
-        }
+    private void CloseLanguagePopup() {
+        ShowSettingsPart();
     }
 
-    /// <summary>
-    /// Toggles BGM on/off
-    /// </summary>
-    private void ToggleBGM()
-    {
+    private void HideAllParts() {
+        if (settingsPart != null) settingsPart.SetActive(false);
+        if (languagePart != null) languagePart.SetActive(false);
+    }
+
+    private void SetOverlayVisible(bool isVisible) {
+        if (canvasGroup != null) {
+            canvasGroup.alpha = isVisible ? 1f : 0f;
+            canvasGroup.interactable = isVisible;
+            canvasGroup.blocksRaycasts = isVisible;
+        }
+
+        gameObject.SetActive(isVisible);
+    }
+    #endregion
+
+    #region Sound & Language Handlers
+    private void ToggleBGM() {
         isBGMOn = !isBGMOn;
         UpdateBGMVisual();
 
-        if (controller != null)
-        {
-            controller.SetBGM(isBGMOn);
-        }
+        if (controller != null) controller.SetBGM(isBGMOn);
     }
 
-    /// <summary>
-    /// Toggles SFX on/off
-    /// </summary>
-    private void ToggleSFX()
-    {
+    private void ToggleSFX() {
         isSFXOn = !isSFXOn;
         UpdateSFXVisual();
 
-        if (controller != null)
-        {
-            controller.SetSFX(isSFXOn);
-        }
+        if (controller != null) controller.SetSFX(isSFXOn);
     }
 
-    /// <summary>
-    /// Syncs sound UI state with the controller
-    /// </summary>
-    private void SyncSoundUI()
-    {
-        if (controller != null)
-        {
+    private void SyncSoundUI() {
+        if (SettingsController.Instance != null) {
             isBGMOn = SettingsController.Instance.IsBGMOn;
             isSFXOn = SettingsController.Instance.IsSFXOn;
         }
@@ -183,56 +167,44 @@ public class SettingsUI : MonoBehaviour
         UpdateSFXVisual();
     }
 
-    /// <summary>
-    /// Updates the BGM button sprite
-    /// </summary>
-    private void UpdateBGMVisual()
-    {
-        if (bgmButton != null && bgmButton.image != null)
-        {
+    private void UpdateBGMVisual() {
+        if (bgmButton != null && bgmButton.image != null) {
             bgmButton.image.sprite = isBGMOn ? bgmOnSprite : bgmOffSprite;
         }
     }
 
-    /// <summary>
-    /// Updates the SFX button sprite
-    /// </summary>
-    private void UpdateSFXVisual()
-    {
-        if (sfxButton != null && sfxButton.image != null)
-        {
+    private void UpdateSFXVisual() {
+        if (sfxButton != null && sfxButton.image != null) {
             sfxButton.image.sprite = isSFXOn ? sfxOnSprite : sfxOffSprite;
         }
     }
 
-    /// <summary>
-    /// Handles language selection
-    /// </summary>
-    private void OnSelectLanguage(string langCode)
-    {
-        if (controller != null)
-        {
-            controller.ChangeLanguage(langCode);
+    private void OnSelectLanguage(string langCode) {
+        SettingsController targetController = controller != null ? controller : SettingsController.Instance;
+
+        if (targetController != null) {
+            targetController.ChangeLanguage(langCode);
+        } else {
+            Debug.LogError("[SettingsUI] SettingsController.Instance is NULL!");
         }
+
         CloseLanguagePopup();
     }
 
-    /// <summary>
-    /// Updates language checkmarks based on current language
-    /// </summary>
-    private void UpdateLanguageCheckmarks()
-    {
+    private void OnLanguageChanged(Locale newLocale) {
+        UpdateLanguageCheckmarks();
+    }
+
+    private void UpdateLanguageCheckmarks() {
         if (LocalizationManager.Instance == null) return;
 
-        string currentLang = LocalizationManager.Instance.CurrentLanguage;
+        string currentLang = LocalizationManager.Instance.CurrentLanguageCode;
 
-        if (viCheckMark != null)
-        {
+        if (viCheckMark != null) {
             viCheckMark.SetActive(currentLang == LocalizationManager.VIETNAMESE);
         }
 
-        if (enCheckMark != null)
-        {
+        if (enCheckMark != null) {
             enCheckMark.SetActive(currentLang == LocalizationManager.ENGLISH);
         }
     }

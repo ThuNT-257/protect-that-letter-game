@@ -1,32 +1,30 @@
 using System;
-using System.Collections.Generic;
+using System.Collections;
 using UnityEngine;
+using UnityEngine.Localization;
+using UnityEngine.Localization.Settings;
 
 /// <summary>
-/// Manages localization (multi-language support) for the game.
+/// Wrapper Manager class for Unity's Localization Package.
+/// Handles language switching, table constants, and localized string fetching.
 /// </summary>
-public class LocalizationManager : MonoBehaviour
-{
+public class LocalizationManager : MonoBehaviour {
     #region Constants
     public const string VIETNAMESE = "vi";
     public const string ENGLISH = "en";
 
-    private const string LANGUAGE_KEY = "SelectedLanguage";
+    public const string STRING_TABLE_NAME = "PTL_String_Tables";
     #endregion
 
     #region Instance
     private static LocalizationManager instance;
 
-    public static LocalizationManager Instance
-    {
-        get
-        {
-            if(instance == null)
-            {
+    public static LocalizationManager Instance {
+        get {
+            if (instance == null) {
                 instance = FindAnyObjectByType<LocalizationManager>();
-                if (instance == null)
-                {
-                    Debug.LogError("There is no LocalizationManager in Scene.");
+                if (instance == null) {
+                    Debug.LogError("[LocalizationManager] No instance found in scene.");
                 }
             }
             return instance;
@@ -34,125 +32,87 @@ public class LocalizationManager : MonoBehaviour
     }
     #endregion
 
-    #region Private Fields
-    //dictionary to store json key-value pairs for localized text
-    private Dictionary<string, string> localizedText = new Dictionary<string, string>();
+    #region Events
+    public static event Action<Locale> OnLanguageChanged;
     #endregion
 
     #region Properties
-    //currently active language (default is Vietnamese)
-    public string CurrentLanguage { get; private set; } = LocalizationManager.VIETNAMESE;
-    #endregion
-
-    #region Events
-    //trigger whenever the language changes
-    public static event Action OnLanguageChanged;
+    public string CurrentLanguageCode {
+        get {
+            var locale = LocalizationSettings.SelectedLocale;
+            return locale != null ? locale.Identifier.Code : VIETNAMESE;
+        }
+    }
     #endregion
 
     #region Lifecycle
-    /// <summary>
-    /// Ensures to loads the default language.
-    /// </summary>
-    private void Awake()
-    {
-        if (instance != null && instance != this)
-        {
-            Destroy(this.gameObject);
+    private void Awake() {
+        if (instance != null && instance != this) {
+            Destroy(gameObject);
             return;
         }
+
         instance = this;
-
-        string savedLang = PlayerPrefs.GetString(LANGUAGE_KEY, VIETNAMESE);
-        LoadLanguage(savedLang);
-
         DontDestroyOnLoad(gameObject);
+
+        StartCoroutine(EnsureDefaultLocale());
+    }
+
+    private void OnEnable() {
+        LocalizationSettings.SelectedLocaleChanged += HandleLocaleChanged;
+    }
+
+    private void OnDisable() {
+        LocalizationSettings.SelectedLocaleChanged -= HandleLocaleChanged;
     }
     #endregion
 
     #region Public Methods
-    /// <summary>
-    /// Get the translated text by given key.
-    /// </summary>
-    /// <param name="key">The identifier key</param>
-    /// <returns>Translated text, or an error message if the key is not found(in case)</returns>
-    public string GetText(string key)
-    {
-        if (localizedText.TryGetValue(key, out string text))
-        {
-            return text;
-        }
-        return $"[LocalizationManager] - Get Text - {key}";
+    public void SwitchLanguage(string langCode) {
+        StartCoroutine(SetLocaleRoutine(langCode));
     }
 
-    /// <summary>
-    /// Switches the current language.
-    /// Only reloads if the new language differs from the current one.
-    /// </summary>
-    /// <param name="langCode">New language code</param>
-    public void SwitchLanguage(string langCode)
-    {
-        if(CurrentLanguage != langCode)
-        {
-            LoadLanguage(langCode);
+    public void GetLocalizedString(string key, Action<string> onCompleted, string tableName = STRING_TABLE_NAME) {
+        var handle = LocalizationSettings.StringDatabase.GetLocalizedStringAsync(tableName, key);
+        if (handle.IsDone) {
+            onCompleted?.Invoke(handle.Result);
+        } else {
+            handle.Completed += (op) => onCompleted?.Invoke(op.Result);
         }
     }
     #endregion
 
     #region Private Methods
-    /// <summary>
-    /// Loads localization data from JSON file located in Resources/Localization/
-    /// </summary>
-    /// <param name="langCode">Language code (e.g., "vi", "en")</param>
-    private void LoadLanguage(string langCode) 
-    {
-        CurrentLanguage = langCode;
+    private IEnumerator EnsureDefaultLocale() {
+        yield return LocalizationSettings.InitializationOperation;
 
-        //save to PlayerPrefs
-        PlayerPrefs.SetString(LANGUAGE_KEY, langCode);
-        PlayerPrefs.Save();
+        foreach (var locale in LocalizationSettings.AvailableLocales.Locales) {
+            Debug.Log($"[LocalizationCheck] Available Locale: {locale.Identifier.Code} ({locale.LocaleName})");
+        }
 
-        //load JSON file from folder
-        TextAsset textAsset = Resources.Load<TextAsset>($"Localization/{langCode}");
-        if (textAsset != null) 
-        {
-            //deserialize into object
-            LocalizationData data = JsonUtility.FromJson<LocalizationData>(textAsset.text);
-
-            localizedText.Clear();
-
-            //match the pair
-            if (data != null && data.items != null) 
-            {
-                foreach (LocalizationItem item in data.items) 
-                {
-                    localizedText[item.key] = item.value;
-                }
-            }
-
-            //notify change language event
-            OnLanguageChanged?.Invoke();
-        } 
-        else 
-        {
-            Debug.LogError($"[LocalizationManager] - Load Language - JSON File Not Found in Resources/Localization/{langCode}");
+        Locale defaultLocale = LocalizationSettings.AvailableLocales.GetLocale(VIETNAMESE);
+        if (defaultLocale != null && LocalizationSettings.SelectedLocale != defaultLocale) {
+            LocalizationSettings.SelectedLocale = defaultLocale;
+            Debug.Log("[LocalizationManager] Forced Default Locale to Vietnamese (vi)");
+        } else {
+            Debug.LogWarning("[LocalizationManager] Not found 'vi' or already set");
         }
     }
-    #endregion
 
-    #region Nested Classes
-    /// Represents a single localization entry (key-value pair)
-    [Serializable]
-    private class LocalizationItem
-    {
-        public string key;
-        public string value;
+    private IEnumerator SetLocaleRoutine(string langCode) {
+        yield return LocalizationSettings.InitializationOperation;
+
+        Locale targetLocale = LocalizationSettings.AvailableLocales.GetLocale(langCode);
+        if (targetLocale != null) {
+            LocalizationSettings.SelectedLocale = targetLocale;
+            Debug.Log($"[LocalizationManager] Changed language to: {langCode}");
+        } else {
+            Debug.LogWarning($"[LocalizationManager] Locale code '{langCode}' not found.");
+        }
     }
 
-    /// Represents list of localization items
-    [Serializable]
-    private class LocalizationData
-    {
-        public List<LocalizationItem> items;
+    private void HandleLocaleChanged(Locale newLocale) {
+        OnLanguageChanged?.Invoke(newLocale);
     }
     #endregion
 }

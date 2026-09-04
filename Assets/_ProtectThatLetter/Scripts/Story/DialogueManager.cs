@@ -1,12 +1,10 @@
-﻿using TMPro;
-using UnityEngine;
-using UnityEngine.UI;
+﻿using UnityEngine;
+using UnityEngine.Localization;
 
 /// <summary>
 /// Manages dialogue flow, loading story data and displaying lines
 /// </summary>
-public class DialogueManager : MonoBehaviour
-{
+public class DialogueManager : MonoBehaviour {
     #region Serialized Fields
     [SerializeField] private DialogueUI dialogueUI;
     #endregion
@@ -17,37 +15,40 @@ public class DialogueManager : MonoBehaviour
     #endregion
 
     #region Lifecycle
-    /// <summary>
-    /// Loads story data and displays the first line when the script starts
-    /// </summary>
     private void Start() {
         LoadStoryData();
         DisplayCurrentLine();
     }
 
-    /// <summary>
-    /// Subscribes to the next button click event when enabled
-    /// </summary>
     private void OnEnable() {
         DialogueUI.OnNextButtonClicked += OnNextClicked;
+        LocalizationManager.OnLanguageChanged += OnLanguageChanged;
     }
 
-    /// <summary>
-    /// Unsubscribes from events to prevent memory leaks
-    /// </summary>
     private void OnDisable() {
         DialogueUI.OnNextButtonClicked -= OnNextClicked;
+        LocalizationManager.OnLanguageChanged -= OnLanguageChanged;
     }
     #endregion
 
     #region Private Methods
+    /// <summary>
+    /// Event handler when language changes during dialogue scene
+    /// </summary>
+    private void OnLanguageChanged(Locale newLocale) {
+        LoadStoryData();
+        DisplayCurrentLine();
+    }
+
     /// <summary>
     /// Loads the story JSON file from Resources based on current story (Intro/Outro) and language
     /// </summary>
     private void LoadStoryData() {
         string storyFileName = StoryManager.GetCurrentStoryFileName();
 
-        string lang = LocalizationManager.Instance != null ? LocalizationManager.Instance.CurrentLanguage : "vi";
+        string lang = LocalizationManager.Instance != null
+            ? LocalizationManager.Instance.CurrentLanguageCode
+            : LocalizationManager.VIETNAMESE;
 
         if (!string.IsNullOrEmpty(lang) && lang.Contains("-")) {
             lang = lang.Split('-')[0];
@@ -60,7 +61,7 @@ public class DialogueManager : MonoBehaviour
 
         if (jsonFile == null) {
             fullPath = $"StoryData/{storyFileName}";
-            Debug.LogWarning($"[DialogueManager] Not found language files");
+            Debug.LogWarning($"[DialogueManager] Not found language files, fallback to base name.");
             jsonFile = Resources.Load<TextAsset>(fullPath);
         }
 
@@ -74,22 +75,16 @@ public class DialogueManager : MonoBehaviour
             currentStory = JsonUtility.FromJson<StoryData>(jsonFile.text);
             Debug.Log($"[DialogueManager] Load Story Data successfully!");
         } else {
-            Debug.LogError($"[DialogueManager] FAIL: Filed not found");
+            Debug.LogError($"[DialogueManager] FAIL: File not found");
             EndStory();
         }
     }
 
-    /// <summary>
-    /// Handles next button click by advancing to the next line
-    /// </summary>
     private void OnNextClicked() {
         currentLineIndex++;
         DisplayCurrentLine();
     }
 
-    /// <summary>
-    /// Ends the current story and loads the next scene
-    /// </summary>
     private void EndStory() {
         string nextScene = StoryManager.GetNextSceneName();
         if (SceneController.Instance != null) {
@@ -99,32 +94,24 @@ public class DialogueManager : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Displays the current dialogue line or ends the story if complete
-    /// </summary>
-    private void DisplayCurrentLine()
-    {
-        if (currentStory == null)
-        {
-            Debug.LogError("[DialogueManager] currentStory is being NULL! Pause to check.");
+    private void DisplayCurrentLine() {
+        if (currentStory == null) {
+            Debug.LogError("[DialogueManager] currentStory is NULL!");
             return;
         }
 
-        if (currentStory.lines == null || currentStory.lines.Count == 0)
-        {
-            Debug.LogError("[DialogueManager] Some thing wrong with dialogue!");
+        if (currentStory.lines == null || currentStory.lines.Count == 0) {
+            Debug.LogError("[DialogueManager] Story contains no dialogue lines!");
             return;
         }
 
-        if (currentLineIndex >= currentStory.lines.Count)
-        {
+        if (currentLineIndex >= currentStory.lines.Count) {
             EndStory();
             return;
         }
 
         DialogueLine line = currentStory.lines[currentLineIndex];
-        if (dialogueUI != null)
-        {
+        if (dialogueUI != null) {
             dialogueUI.DisplayLine(line);
         }
     }
