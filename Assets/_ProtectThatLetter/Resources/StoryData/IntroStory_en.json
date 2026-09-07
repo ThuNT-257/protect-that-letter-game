@@ -4,9 +4,9 @@
         {
             "speaker": "???",
             "content": "I have a mission for you, kid! Take this letter to the right place. No matter what, make sure it gets there! The journey may be long, but just like we practiced, do your best!",
-            "avatar": "default-avatar",
+            "avatar": "thu",
             "position": "left",
-            "background": "",
+            "background": "story_intro_background.png",
             "sound": ""
         },
         {
@@ -20,7 +20,7 @@
         {
             "speaker": "???",
             "content": "This letter is very important, so don't lose it under any circumstances. Make sure you deliver it to the right place! I believe in you, kid!",
-            "avatar": "default-avatar",
+            "avatar": "thu",
             "position": "left",
             "background": "",
             "sound": ""
@@ -36,7 +36,7 @@
         {
             "speaker": "???",
             "content": "Good! Off you go! Take care!",
-            "avatar": "default-avatar",
+            "avatar": "thu",
             "position": "left",
             "background": "",
             "sound": ""

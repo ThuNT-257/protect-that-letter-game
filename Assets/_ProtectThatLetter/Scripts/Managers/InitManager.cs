@@ -1,63 +1,90 @@
+using System;
 using System.Collections;
 using UnityEngine;
 
-/// <summary>
-/// Manages the initialization/splash screen sequence including fade effects
-/// </summary>
-public class InitManager : MonoBehaviour {
-    #region Serialized Fields
-    [Header("Time Settings")]
-    [SerializeField] private float fadeInDuration = 1.0f;
-    [SerializeField] private float minimumDisplayTime = 1.5f; // Minimum time to show splash
-    [SerializeField] private float fadeOutDuration = 1.0f;
-    #endregion
-
-    #region Lifecycle
+namespace ProtectThatLetter.Managers {
     /// <summary>
-    /// Starts the initialization routine when the scene loads
+    /// Controls the Bootstrap/Splash screen execution flow and handles smooth transition to the Login scene.
     /// </summary>
-    private void Start() {
-        StartCoroutine(InitAndSplashRoutine());
-    }
-    #endregion
+    [DisallowMultipleComponent]
+    public class InitManager : MonoBehaviour {
+        #region Serialized Fields
+        [Header("Splash Timing Settings")]
+        [SerializeField, Range(0.1f, 3f)] private float fadeInDuration = 1.0f;      
+        [SerializeField, Range(0.5f, 5f)] private float minimumDisplayTime = 1.5f;  
+        [SerializeField, Range(0.1f, 3f)] private float fadeOutDuration = 1.0f;     
+        #endregion
 
-    #region Private Methods
-    /// <summary>
-    /// Main initialization coroutine that handles splash sequence and scene transition
-    /// </summary>
-    private IEnumerator InitAndSplashRoutine() {
-        float startTime = Time.time;
+        #region Private Fields
+        private Coroutine initRoutine;
+        #endregion
 
-        // Step 1: Fade in the splash screen
-        if (UIFadeManager.Instance != null) {
-            yield return StartCoroutine(UIFadeManager.Instance.FadeInRoutine(fadeInDuration));
+        #region Lifecycle
+        /// <summary>
+        /// Starts the initialization routine when the scene loads
+        /// </summary>
+        private void Start() {
+            initRoutine = StartCoroutine(InitAndSplashRoutine());
         }
 
-        // Step 2: Load local systems/managers or offline data
-        yield return StartCoroutine(LoadGameManagersAndData());
+        /// <summary>
+        /// Stops the initialization coroutine if the object is disabled
+        /// </summary>
+        private void OnDisable() {
+            if (initRoutine != null) {
+                StopCoroutine(initRoutine);
+            }
+        }
+        #endregion
 
-        // Step 3: Ensure minimum display time before transitioning
-        float elapsedTime = Time.time - startTime;
-        if (elapsedTime < minimumDisplayTime) {
-            yield return new WaitForSeconds(minimumDisplayTime - elapsedTime);
+        #region Core Flow
+        /// <summary>
+        /// Main initialization coroutine that handles splash sequence and scene transition
+        /// </summary>
+        private IEnumerator InitAndSplashRoutine() {
+            float startTime = Time.unscaledTime; // Track when the process started (ignores time scale)
+
+            // Step 1: Fade in Logo / Splash screen
+            if (UIFadeManager.Instance != null) {
+                yield return UIFadeManager.Instance.FadeInRoutine(fadeInDuration);
+            }
+
+            // Step 2: Initialize Core Systems
+            yield return InitializeCoreSystemsRoutine();
+
+            // Step 3: Ensure minimum display time without GC Allocation
+            float elapsedTime = Time.unscaledTime - startTime;
+            if (elapsedTime < minimumDisplayTime) {
+                float remainingTime = minimumDisplayTime - elapsedTime;
+                yield return WaitForSecondsNoAlloc(remainingTime); 
+            }
+
+            // Step 4: Proceed to Next Scene
+            if (SceneController.Instance != null) {
+                SceneController.Instance.LoadNextScene(fadeOutDuration);
+            } else {
+                Debug.LogError("[InitManager] SceneController.Instance is null! Cannot load next scene.");
+            }
         }
 
-        // Step 4: Transition to the login scene
-        if (UIFadeManager.Instance != null) {
-            // Use fade manager for smooth transition
-            UIFadeManager.Instance.FadeToScene(SceneController.LOGIN_SCENE, fadeOutDuration);
-        } else if (SceneController.Instance != null) {
-            // Fallback to direct scene loading
-            SceneController.Instance.LoadScene(SceneController.LOGIN_SCENE);
+        /// <summary>
+        /// Delegates initialization tasks to their respective Managers instead of processing them here
+        /// </summary>
+        private IEnumerator InitializeCoreSystemsRoutine() {
+            yield return null; 
         }
-    }
 
-    /// <summary>
-    /// Loads local systems/managers or offline data required before entering the game
-    /// </summary>
-    private IEnumerator LoadGameManagersAndData() {
-        Debug.Log("[InitManager] Initializing local managers and offline resources...");
-        yield return null; // Placeholder for actual initialization logic
+        /// <summary>
+        /// Custom wait coroutine that avoids GC allocation 
+        /// </summary>
+        /// <param name="seconds">Time to wait in seconds</param>
+        private IEnumerator WaitForSecondsNoAlloc(float seconds) {
+            float timer = 0f;
+            while (timer < seconds) {
+                timer += Time.unscaledDeltaTime; // Use unscaled time to ignore time scale
+                yield return null;
+            }
+        }
+        #endregion
     }
-    #endregion
 }

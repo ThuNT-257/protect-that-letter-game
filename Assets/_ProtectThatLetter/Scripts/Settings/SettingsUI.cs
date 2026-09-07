@@ -59,7 +59,7 @@ public class SettingsUI : MonoBehaviour {
         }
 
         // 1. SettingsPart Events
-        if (settingsButton != null) settingsButton.onClick.AddListener(OpenPopup);
+        if (settingsButton != null) settingsButton.onClick.AddListener(OnSettingsButtonClicked);
         if (settingsCloseButton != null) settingsCloseButton.onClick.AddListener(ClosePopup);
         if (settingsCloseOverlayButton != null) settingsCloseOverlayButton.onClick.AddListener(ClosePopup);
 
@@ -96,6 +96,13 @@ public class SettingsUI : MonoBehaviour {
     #endregion
 
     #region Public Methods
+    public void OnSettingsButtonClicked() {
+        if(AudioManager.Instance != null) {
+            AudioManager.Instance.PlaySFX("settings_button_click");
+        }
+        OpenPopup();
+    }
+
     public void OpenPopup() {
         SetOverlayVisible(true);
         ShowSettingsPart();
@@ -115,6 +122,10 @@ public class SettingsUI : MonoBehaviour {
     }
 
     private void OpenLanguagePopup() {
+        if (AudioManager.Instance != null) {
+            AudioManager.Instance.PlaySFX("button_click");
+        }
+
         if (settingsPart != null) settingsPart.SetActive(false);
         if (languagePart != null) {
             languagePart.SetActive(true);
@@ -144,6 +155,9 @@ public class SettingsUI : MonoBehaviour {
 
     #region Sound & Language Handlers
     private void ToggleBGM() {
+        if(AudioManager.Instance != null) {
+            AudioManager.Instance.PlaySFX("button_click");
+        }
         isBGMOn = !isBGMOn;
         UpdateBGMVisual();
 
@@ -151,6 +165,10 @@ public class SettingsUI : MonoBehaviour {
     }
 
     private void ToggleSFX() {
+        if (AudioManager.Instance != null) {
+            AudioManager.Instance.PlaySFX("button_click");
+        }
+
         isSFXOn = !isSFXOn;
         UpdateSFXVisual();
 

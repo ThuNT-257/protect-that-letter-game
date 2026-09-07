@@ -6,6 +6,7 @@ using UnityEngine.Localization;
 /// </summary>
 public class DialogueManager : MonoBehaviour {
     #region Serialized Fields
+    [Header("UI References")]
     [SerializeField] private DialogueUI dialogueUI;
     #endregion
 
@@ -86,11 +87,10 @@ public class DialogueManager : MonoBehaviour {
     }
 
     private void EndStory() {
-        string nextScene = StoryManager.GetNextSceneName();
         if (SceneController.Instance != null) {
-            SceneController.Instance.LoadScene(nextScene);
+            SceneController.Instance.LoadNextScene();
         } else {
-            UnityEngine.SceneManagement.SceneManager.LoadScene(nextScene);
+            Debug.LogError("[DialogueManager] SceneController instance is missing!");
         }
     }
 

@@ -54,6 +54,16 @@ MonoBehaviour:
     m_Localized: "Ti\u1EBFng Anh"
     m_Metadata:
       m_Items: []
+  - m_Id: 842104661032960
+    m_Localized: "Database \u0111i ng\u1EE7 r\u1ED3i, b\u1EA3o Thu g\u1ECDi n\xF3
+      d\u1EADy \u0111i!"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 842485742911488
+    m_Localized: "Server ng\u1ECFm r\u1ED3i, b\u1EA3o Thu g\u1ECDi n\xF3 d\u1EADy
+      \u0111i!"
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

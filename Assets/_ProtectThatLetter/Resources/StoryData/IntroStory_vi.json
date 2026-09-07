@@ -4,9 +4,9 @@
         {
             "speaker": "???",
             "content": "Ta giao cho nhóc một nhiệm vụ! Hãy đưa bức thư này đến đúng nơi. Bằng mọi giá phải giao được nó đến nơi nhé! Quãng đường tuy có xa, nhưng như chúng ta đã luyện tập, hãy cố gắng!",
-            "avatar": "default-avatar",
+            "avatar": "thu",
             "position": "left",
-            "background": "",
+            "background": "story_intro_background",
             "sound": ""
         },
         {
@@ -20,7 +20,7 @@
         {
             "speaker": "???",
             "content": "Bức thư này rất quan trọng đấy, tuyệt đối đừng làm mất. Nhất định phải giao nó đến đúng nơi nhé! Ta tin nhóc!",
-            "avatar": "default-avatar",
+            "avatar": "thu",
             "position": "left",
             "background": "",
             "sound": ""
@@ -36,7 +36,7 @@
         {
             "speaker": "???",
             "content": "Tốt! Lên đường đi! Bảo trọng!",
-            "avatar": "default-avatar",
+            "avatar": "thu",
             "position": "left",
             "background": "",
             "sound": ""

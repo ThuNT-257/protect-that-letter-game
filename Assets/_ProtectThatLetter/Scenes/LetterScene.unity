@@ -1264,7 +1264,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &316000217
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1725,8 +1725,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0.085}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: -5, y: 258}
-  m_SizeDelta: {x: 538.1134, y: 332.4774}
+  m_AnchoredPosition: {x: 4, y: 240}
+  m_SizeDelta: {x: 583.2697, y: 388.8464}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &426669218
 MonoBehaviour:
@@ -1748,7 +1748,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: f99cd2d0927c233428fa0cc1b9e1a600, type: 3}
+  m_Sprite: {fileID: 21300000, guid: a1e34e2f65d5b354090ceb4e50bbff21, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -1800,13 +1800,13 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 818349146}
-  - {fileID: 835003766}
   - {fileID: 645697969}
   - {fileID: 639504781}
   - {fileID: 1400478347}
   - {fileID: 1786932160}
   - {fileID: 1647261797}
   - {fileID: 1172780750}
+  - {fileID: 835003766}
   m_Father: {fileID: 60162578}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -2946,6 +2946,7 @@ GameObject:
   - component: {fileID: 835003769}
   - component: {fileID: 835003768}
   - component: {fileID: 835003767}
+  - component: {fileID: 835003770}
   m_Layer: 5
   m_Name: SettingsPopup
   m_TagString: Untagged
@@ -2988,19 +2989,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   controller: {fileID: 1947489488}
+  settingsPart: {fileID: 0}
+  languagePart: {fileID: 0}
   settingsButton: {fileID: 818349147}
   settingsCloseButton: {fileID: 1312008367}
-  settingsOverlayCloseButton: {fileID: 1088907883}
+  settingsCloseOverlayButton: {fileID: 0}
   bgmButton: {fileID: 1761466338}
   bgmOnSprite: {fileID: 0}
   bgmOffSprite: {fileID: 0}
   sfxButton: {fileID: 455725284}
   sfxOnSprite: {fileID: 0}
   sfxOffSprite: {fileID: 0}
-  languageSelectorButton: {fileID: 1559597651}
-  langDropdownPanel: {fileID: 1643226538}
+  languageButton: {fileID: 0}
   langCloseButton: {fileID: 154766134}
-  langOverlayCloseButton: {fileID: 1477343546}
+  languageOverlayButton: {fileID: 0}
   btnVietnamese: {fileID: 1265737515}
   btnEnglish: {fileID: 2107955154}
   viCheckMark: {fileID: 20940571}
@@ -3043,6 +3045,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 835003765}
   m_CullTransparentMesh: 1
+--- !u!225 &835003770
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 835003765}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &859977239
 GameObject:
   m_ObjectHideFlags: 0
@@ -3907,7 +3921,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1172780750
 RectTransform:
   m_ObjectHideFlags: 0
@@ -5895,8 +5909,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0.35}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: -10.378806, y: -314.2376}
-  m_SizeDelta: {x: 582.5937, y: 428.6565}
+  m_AnchoredPosition: {x: 6.8005, y: -294.1025}
+  m_SizeDelta: {x: 582.5937, y: 380.9343}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1672024017
 MonoBehaviour:
@@ -5918,17 +5932,25 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: New Text
+  m_text: "G\u1EEDi H\xF9ng,\r\n\r\nT\xF4i v\u1EDBi b\u1EA1n ch\u01A1i v\u1EDBi nhau
+    t\u1EEB c\u1EA5p 3 \u0111\u1EBFn gi\u1EDD, c\u0169ng l\xE2u th\u1EADt \u0111\u1EA5y
+    =)) V\u1EDBi t\xF4i, b\u1EA1n l\xE0 ng\u01B0\u1EDDi b\u1EA1n tinh th\u1EA7n r\u1EA5t
+    \u0111\xE1ng gi\xE1. Nh\u1EEFng chuy\u1EBFn \u0111i ch\u01A1i, nh\u1EEFng l\u1EA7n
+    c\u1EAFm tr\u1EA1i, t\xF4i \u0111\u1EC1u th\u1EA5y b\u1EA1n l\xE0 ng\u01B0\u1EDDi
+    \u0111\xE1ng tin nh\u1EA5t. Nh\u1EEFng ng\xE0y th\xE1ng c\u1EA5p 3 \u0111\u01B0\u1EE3c
+    ch\u01A1i v\u1EDBi b\u1EA1n. Nh\u1EEFng k\u1EC9 ni\u1EC7m \u0111\xF3 th\u1EADt
+    \u0111\xE1ng qu\xFD.\r\n\r\nC\u1EA3m \u01A1n b\u1EA1n v\xEC t\xECnh b\u1EA1n
+    n\xE0y. M\xE3i l\xE0 b\u1EA1n t\u1ED1t nh\xE9! =)))"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 9dbcd24241b79c541b51d462892000e0, type: 2}
+  m_sharedMaterial: {fileID: 4814465707652757181, guid: 9dbcd24241b79c541b51d462892000e0, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
-  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
+    rgba: 4278190080
+  m_fontColor: {r: 0, g: 0, b: 0, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -5945,10 +5967,10 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 36
+  m_fontSize: 29.35
   m_fontSizeBase: 36
   m_fontWeight: 400
-  m_enableAutoSizing: 0
+  m_enableAutoSizing: 1
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 0
@@ -6721,7 +6743,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1939318407
 RectTransform:
   m_ObjectHideFlags: 0

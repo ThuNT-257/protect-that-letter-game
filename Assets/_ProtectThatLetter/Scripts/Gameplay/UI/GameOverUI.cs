@@ -1,10 +1,10 @@
+using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class GameOverUI : MonoBehaviour
-{
+public class GameOverUI : MonoBehaviour {
     #region Serialized Fields
     [Header("Panels & Titles")]
     [SerializeField] private GameObject gameOverOverlay;
@@ -21,60 +21,44 @@ public class GameOverUI : MonoBehaviour
 
     [Header("Buttons")]
     [SerializeField] private Button restartButton;
-    [SerializeField] private Button homeButton;
     #endregion
 
     #region Lifecycle
-    private void Awake()
-    {
+    private void Awake() {
         HidePanel();
     }
 
-    private void Start()
-    {
-        if (restartButton != null)
-        {
+    private void Start() {
+        if (restartButton != null) {
             restartButton.onClick.AddListener(OnRestartButtonClicked);
-        }
-
-        if (homeButton != null)
-        {
-            homeButton.onClick.AddListener(OnHomeButtonClicked);
         }
     }
     #endregion
 
     #region Public Methods
-    public void ShowPanel()
-    {
+    public void ShowPanel() {
         DisplayRandomComfortContent();
 
-        if (gameOverOverlay != null)
-        {
+        if (gameOverOverlay != null) {
             gameOverOverlay.SetActive(true);
         }
     }
 
-    public void HidePanel()
-    {
-        if (gameOverOverlay != null)
-        {
+    public void HidePanel() {
+        if (gameOverOverlay != null) {
             gameOverOverlay.SetActive(false);
         }
     }
     #endregion
 
     #region Private Methods
-    private void DisplayRandomComfortContent()
-    {
-        if (comfortText != null && comfortTextList != null && comfortTextList.Count > 0)
-        {
+    private void DisplayRandomComfortContent() {
+        if (comfortText != null && comfortTextList != null && comfortTextList.Count > 0) {
             int randomTextIndex = Random.Range(0, comfortTextList.Count);
             comfortText.text = comfortTextList[randomTextIndex];
         }
 
-        if (comfortThumbnailImage != null && comfortThumbnailList != null && comfortThumbnailList.Count > 0)
-        {
+        if (comfortThumbnailImage != null && comfortThumbnailList != null && comfortThumbnailList.Count > 0) {
             int randomSpriteIndex = Random.Range(0, comfortThumbnailList.Count);
             comfortThumbnailImage.sprite = comfortThumbnailList[randomSpriteIndex];
         }
@@ -82,24 +66,12 @@ public class GameOverUI : MonoBehaviour
     #endregion
 
     #region Event Handlers
-    private void OnRestartButtonClicked()
-    {
+    private void OnRestartButtonClicked() {
         HidePanel();
         Time.timeScale = 1f;
 
-        if (GameManager.Instance != null)
-        {
+        if (GameManager.Instance != null) {
             GameManager.Instance.RestartGame();
-        }
-    }
-
-    private void OnHomeButtonClicked()
-    {
-        Time.timeScale = 1f;
-
-        if (SceneController.Instance != null)
-        {
-            SceneController.Instance.LoadScene(SceneController.LOGIN_SCENE);
         }
     }
     #endregion

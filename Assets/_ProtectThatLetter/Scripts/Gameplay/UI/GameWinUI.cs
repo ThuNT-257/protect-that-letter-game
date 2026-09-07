@@ -2,8 +2,7 @@ using System.Collections;
 using TMPro;
 using UnityEngine;
 
-public class GameWinUI : MonoBehaviour
-{
+public class GameWinUI : MonoBehaviour {
     #region Serialized Fields
     [Header("UI Elements")]
     [SerializeField] private TextMeshProUGUI winTitleText;
@@ -39,12 +38,8 @@ public class GameWinUI : MonoBehaviour
     private IEnumerator TransitionRoutine() {
         yield return new WaitForSeconds(displayDuration);
 
-        StoryManager.CurrentStoryType = StoryManager.StoryType.Outro;
-
-        if (UIFadeManager.Instance != null) {
-            UIFadeManager.Instance.FadeToScene(SceneController.STORY_SCENE, fadeDuration);
-        } else if (SceneController.Instance != null) {
-            SceneController.Instance.LoadScene(SceneController.STORY_SCENE);
+        if (SceneController.Instance != null) {
+            SceneController.Instance.LoadNextScene(fadeDuration);
         }
     }
     #endregion

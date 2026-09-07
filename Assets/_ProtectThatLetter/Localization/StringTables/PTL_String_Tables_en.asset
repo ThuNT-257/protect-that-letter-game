@@ -54,6 +54,14 @@ MonoBehaviour:
     m_Localized: English
     m_Metadata:
       m_Items: []
+  - m_Id: 842104661032960
+    m_Localized: The database is sleeping. Tell Thu to wake it up!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 842485742911488
+    m_Localized: The server is dead. Tell Thu to wake it up!
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

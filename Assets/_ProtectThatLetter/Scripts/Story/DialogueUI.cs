@@ -107,6 +107,7 @@ public class DialogueUI : MonoBehaviour
             if (!string.IsNullOrEmpty(line.avatar)) {
                 avatarImage.gameObject.SetActive(true);
                 avatarImage.color = Color.white;
+                avatarImage.transform.localScale = Vector3.one;
 
                 Sprite avatarSprite = Resources.Load<Sprite>($"Avatars/{line.avatar}");
                 if (avatarSprite != null) {
@@ -130,6 +131,7 @@ public class DialogueUI : MonoBehaviour
 
         if (avatarImage != null && avatarImage.gameObject.activeSelf) {
             avatarImage.color = new Color(0.5f, 0.5f, 0.5f, 1f);
+            avatarImage.transform.localScale = transform.localScale = new Vector3(0.5f, 0.5f, 1f);
         }
     }
     #endregion

@@ -1,8 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class GameSettingsUI : MonoBehaviour
-{
+public class GameSettingsUI : MonoBehaviour {
     #region Serialized Fields
     [Header("Controller References")]
     [SerializeField] private SettingsController controller;
@@ -15,7 +14,6 @@ public class GameSettingsUI : MonoBehaviour
     [SerializeField] private Button pauseButton;
     [SerializeField] private Button resumeButton;
     [SerializeField] private Button restartButton;
-    [SerializeField] private Button homeButton;
 
     [Header("Sound On/Off Buttons")]
     [SerializeField] private Button bgmButton;
@@ -44,7 +42,6 @@ public class GameSettingsUI : MonoBehaviour
         if (pauseButton != null) pauseButton.onClick.AddListener(OnClickPause);
         if (resumeButton != null) resumeButton.onClick.AddListener(OnClickResume);
         if (restartButton != null) restartButton.onClick.AddListener(OnClickRestart);
-        if (homeButton != null) homeButton.onClick.AddListener(OnClickHome);
 
         // Sound Buttons
         if (bgmButton != null) bgmButton.onClick.AddListener(OnClickBGM);
@@ -59,7 +56,6 @@ public class GameSettingsUI : MonoBehaviour
         if (pauseButton != null) pauseButton.onClick.RemoveListener(OnClickPause);
         if (resumeButton != null) resumeButton.onClick.RemoveListener(OnClickResume);
         if (restartButton != null) restartButton.onClick.RemoveListener(OnClickRestart);
-        if (homeButton != null) homeButton.onClick.RemoveListener(OnClickHome);
 
         if (bgmButton != null) bgmButton.onClick.RemoveListener(OnClickBGM);
         if (sfxButton != null) sfxButton.onClick.RemoveListener(OnClickSFX);
@@ -68,11 +64,11 @@ public class GameSettingsUI : MonoBehaviour
 
     #region Private Methods
     private void SetOverlayActive(bool isActive) {
-        if(overlay != null) {
+        if (overlay != null) {
             overlay.SetActive(isActive);
         }
 
-        if(settingsPopup != null) {
+        if (settingsPopup != null) {
             settingsPopup.SetActive(isActive);
         }
     }
@@ -109,14 +105,6 @@ public class GameSettingsUI : MonoBehaviour
         if (GameManager.Instance != null) {
             GameManager.Instance.ResumeGame();
             GameManager.Instance.RestartGame();
-        }
-    }
-
-    private void OnClickHome() {
-        Time.timeScale = 1f;
-
-        if (SceneController.Instance != null) {
-            SceneController.Instance.LoadScene(SceneController.LOGIN_SCENE);
         }
     }
 

@@ -1,9 +1,7 @@
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class CollisionUI : MonoBehaviour
-{
+public class CollisionUI : MonoBehaviour {
     #region Serialized Fields
     [Header("Panels")]
     [SerializeField] private GameObject collisionPanel;
@@ -11,25 +9,16 @@ public class CollisionUI : MonoBehaviour
     [Header("Buttons")]
     [SerializeField] private Button quizButton;
     [SerializeField] private Button restartButton;
-    [SerializeField] private Button homeButton;
     #endregion
 
     #region Lifecycle
-    private void Start()
-    {
-        if(quizButton != null)
-        {
+    private void Start() {
+        if (quizButton != null) {
             quizButton.onClick.AddListener(OnQuizButtonClicked);
         }
 
-        if (restartButton != null)
-        {
+        if (restartButton != null) {
             restartButton.onClick.AddListener(OnRestartButtonClicked);
-        }
-
-        if (homeButton != null)
-        {
-            homeButton.onClick.AddListener(OnHomeButtonClicked);
         }
 
         HidePanel();
@@ -37,45 +26,35 @@ public class CollisionUI : MonoBehaviour
     #endregion
 
     #region Public Methods
-    public void ShowPanel()
-    {
-        if (collisionPanel != null)
-        {
+    public void ShowPanel() {
+        if (collisionPanel != null) {
             collisionPanel.SetActive(true);
         }
     }
 
-    public void HidePanel()
-    {
-        if (collisionPanel != null)
-        {
+    public void HidePanel() {
+        if (collisionPanel != null) {
             collisionPanel.SetActive(false);
         }
     }
     #endregion
 
     #region Event Handlers
-    private void OnQuizButtonClicked()
-    {
+    private void OnQuizButtonClicked() {
         HidePanel();
-        QuizManager.Instance.StartQuiz();
-    }
+        Time.timeScale = 1f;
 
-    private void OnRestartButtonClicked()
-    {
-        HidePanel();
-        if (GameManager.Instance != null)
-        {
-            GameManager.Instance.RestartGame();
+        if (QuizManager.Instance != null) {
+            QuizManager.Instance.StartQuiz();
         }
     }
 
-    private void OnHomeButtonClicked()
-    {
+    private void OnRestartButtonClicked() {
+        HidePanel();
         Time.timeScale = 1f;
-        if (SceneController.Instance != null)
-        {
-            SceneController.Instance.LoadScene(SceneController.LOGIN_SCENE);
+
+        if (GameManager.Instance != null) {
+            GameManager.Instance.RestartGame();
         }
     }
     #endregion

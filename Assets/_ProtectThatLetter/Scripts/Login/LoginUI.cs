@@ -7,7 +7,7 @@ using UnityEngine.UI;
 
 /// <summary>
 /// Manages the login UI functionality including input validation, 
-/// localization, and server health check verification before scene transition.
+/// localization, and guest send-code API verification before scene transition.
 /// </summary>
 public class LoginUI : MonoBehaviour {
     #region Serialized Fields
@@ -31,6 +31,22 @@ public class LoginUI : MonoBehaviour {
     private string currentErrorKey = string.Empty;
     private Coroutine floatAnimationCoroutine;
     private Coroutine slideAnimationCoroutine;
+    #endregion
+
+    #region Data DTOs
+    [Serializable]
+    private class SendCodeRequestData {
+        public string code;
+    }
+
+    [Serializable]
+    private class CheckCodeResponseData {
+        public bool hasCompletedGame;
+        public string guestName;
+        public string letterContentVn;
+        public string letterContentEn;
+        public string imageUrl;
+    }
     #endregion
 
     #region Lifecycle
@@ -58,6 +74,12 @@ public class LoginUI : MonoBehaviour {
         LocalizationManager.OnLanguageChanged += OnLanguageChanged;
     }
 
+    private void Start() {
+        if (AudioManager.Instance != null) {
+            AudioManager.Instance.PlayBGMIndex(0);
+        }
+    }
+
     private void OnDisable() {
         LocalizationManager.OnLanguageChanged -= OnLanguageChanged;
     }
@@ -69,6 +91,10 @@ public class LoginUI : MonoBehaviour {
     }
 
     private void OnSubmitClicked() {
+        if (AudioManager.Instance != null) {
+            AudioManager.Instance.PlaySFX("button_click");
+        }
+
         string inputCode = codeInputField != null ? codeInputField.text.Trim() : string.Empty;
 
         Debug.Log($"[LoginUI] === Submit Button Clicked ===");
@@ -88,35 +114,41 @@ public class LoginUI : MonoBehaviour {
             return;
         }
 
-        Debug.Log("[LoginUI] Input validation passed. Clearing previous errors and starting Health Check...");
+        Debug.Log("[LoginUI] Input validation passed. Clearing previous errors and sending Code...");
         ClearError();
-        StartCoroutine(CheckHealthAndProceed());
+        StartCoroutine(SendCodeAndProceed(inputCode));
     }
 
     /// <summary>
-    /// Calls Health Check API via NetworkManager before changing scene.
+    /// Calls Send Code API via NetworkManager before changing scene.
     /// </summary>
-    private IEnumerator CheckHealthAndProceed() {
-        Debug.Log("[LoginUI] CheckHealthAndProceed started. Displaying loading overlay...");
+    private IEnumerator SendCodeAndProceed(string inputCode) {
+        Debug.Log("[LoginUI] SendCodeAndProceed started. Displaying loading overlay...");
         SetLoading(true);
 
         bool isRequestFinished = false;
         bool isSuccess = false;
         string returnedErrorCode = null;
+        CheckCodeResponseData responseData = null;
 
         if (NetworkManager.Instance != null) {
-            Debug.Log("[LoginUI] Sending GET request to '/api/health' via NetworkManager...");
-            yield return StartCoroutine(NetworkManager.Instance.GetRequest(
-                "/api/health",
-                (success, errCode) => {
+            var requestBody = new SendCodeRequestData { code = inputCode };
+            string jsonPayload = JsonUtility.ToJson(requestBody);
+
+            Debug.Log($"[LoginUI] Sending POST request to '/api/guest/send-code' with payload: {jsonPayload}");
+            yield return StartCoroutine(NetworkManager.Instance.PostRequest<CheckCodeResponseData>(
+                "/api/guest/send-code",
+                jsonPayload,
+                (success, data, errCode) => {
                     isSuccess = success;
+                    responseData = data;
                     returnedErrorCode = errCode;
                     isRequestFinished = true;
                     Debug.Log($"[LoginUI] NetworkManager Callback received -> Success: {isSuccess}, ErrorCode: '{returnedErrorCode}'");
                 }
             ));
         } else {
-            Debug.LogError("[LoginUI] NetworkManager Instance is null! Cannot proceed with health check.");
+            Debug.LogError("[LoginUI] NetworkManager Instance is null! Cannot proceed with send-code.");
             returnedErrorCode = ErrorCodes.ERROR_INTERNAL_SERVER;
             isRequestFinished = true;
         }
@@ -126,27 +158,35 @@ public class LoginUI : MonoBehaviour {
         SetLoading(false);
 
         if (isSuccess) {
-            Debug.Log("[LoginUI] Health Check SUCCESSFUL! Preparing to transition scene...");
-            StoryManager.CurrentStoryType = StoryManager.StoryType.Intro;
+            Debug.Log("[LoginUI] Send Code SUCCESSFUL! Preparing to transition scene...");
+
+            if (responseData != null && !responseData.hasCompletedGame) {
+                PlayerPrefs.SetString("SavedAccessCode", inputCode);
+                PlayerPrefs.Save();
+                Debug.Log($"[LoginUI] Code '{inputCode}' successfully saved to PlayerPrefs.");
+            }
 
             if (SceneController.Instance != null) {
-                Debug.Log($"[LoginUI] Loading Scene '{SceneController.STORY_SCENE}' via SceneController...");
-                SceneController.Instance.LoadScene(SceneController.STORY_SCENE);
+                SceneController.Instance.CurrentStoryMode = StoryMode.Intro;
+                SceneController.Instance.LoadNextScene();
             } else {
-                Debug.LogWarning($"[LoginUI] SceneController Instance is null. Loading Scene '{SceneController.STORY_SCENE}' via SceneManager directly...");
-                UnityEngine.SceneManagement.SceneManager.LoadScene(SceneController.STORY_SCENE);
+                Debug.LogError("[LoginUI] SceneController Instance is null! Cannot proceed.");
             }
         } else {
             string errorCodeToDisplay = !string.IsNullOrEmpty(returnedErrorCode)
                 ? returnedErrorCode
                 : ErrorCodes.ERROR_DATABASE_OFFLINE;
 
-            Debug.LogError($"[LoginUI] Health Check FAILED. Displaying Error Code: '{errorCodeToDisplay}'");
+            Debug.LogError($"[LoginUI] Send Code FAILED. Displaying Error Code: '{errorCodeToDisplay}'");
             DisplayError(errorCodeToDisplay);
         }
     }
 
     private void OnInputChanged(string value) {
+        if (AudioManager.Instance != null) {
+            AudioManager.Instance.PlaySFX("typing_one");
+        }
+
         if (codeInputField != null) {
             string upperValue = value.ToUpper();
             if (codeInputField.text != upperValue) {
