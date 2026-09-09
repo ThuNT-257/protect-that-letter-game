@@ -4,7 +4,7 @@ using UnityEngine.UI;
 public class GameSettingsUI : MonoBehaviour {
     #region Serialized Fields
     [Header("Controller References")]
-    [SerializeField] private SettingsController controller;
+    [SerializeField] private SettingsManager controller;
 
     [Header("UI Panels")]
     [SerializeField] private GameObject overlay;
@@ -33,7 +33,7 @@ public class GameSettingsUI : MonoBehaviour {
     #region Lifecycle
     private void Start() {
         if (controller == null) {
-            controller = GetComponent<SettingsController>();
+            controller = GetComponent<SettingsManager>();
         }
 
         SetOverlayActive(false);
@@ -114,8 +114,8 @@ public class GameSettingsUI : MonoBehaviour {
 
         if (controller != null) {
             controller.SetBGM(isBGMOn);
-        } else if (SettingsController.Instance != null) {
-            SettingsController.Instance.SetBGM(isBGMOn);
+        } else if (SettingsManager.Instance != null) {
+            SettingsManager.Instance.SetBGM(isBGMOn);
         }
     }
 
@@ -125,8 +125,8 @@ public class GameSettingsUI : MonoBehaviour {
 
         if (controller != null) {
             controller.SetSFX(isSFXOn);
-        } else if (SettingsController.Instance != null) {
-            SettingsController.Instance.SetSFX(isSFXOn);
+        } else if (SettingsManager.Instance != null) {
+            SettingsManager.Instance.SetSFX(isSFXOn);
         }
     }
 
@@ -134,9 +134,9 @@ public class GameSettingsUI : MonoBehaviour {
         if (controller != null) {
             isBGMOn = controller.IsBGMOn;
             isSFXOn = controller.IsSFXOn;
-        } else if (SettingsController.Instance != null) {
-            isBGMOn = SettingsController.Instance.IsBGMOn;
-            isSFXOn = SettingsController.Instance.IsSFXOn;
+        } else if (SettingsManager.Instance != null) {
+            isBGMOn = SettingsManager.Instance.IsBGMOn;
+            isSFXOn = SettingsManager.Instance.IsSFXOn;
         }
 
         UpdateBGMVisual();

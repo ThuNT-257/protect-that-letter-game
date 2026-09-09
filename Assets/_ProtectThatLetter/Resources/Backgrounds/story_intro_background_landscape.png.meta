@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: d6fdf4d1973b4674dadd45ee41c0d9b3
+guid: 1cc24128357dbfa41ae0328f5572863a
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -3967126746766113216
-    second: story_character_thu_0
+      213: -4506227701961088252
+    second: story_intro_background_landscape_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,13 +113,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: story_character_thu_0
+      name: story_intro_background_landscape_0
       rect:
         serializedVersion: 2
-        x: 124
+        x: 0
         y: 0
-        width: 850
-        height: 1272
+        width: 2560
+        height: 1440
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 0460e081e3fe1f8c0800000000000000
-      internalID: -3967126746766113216
+      spriteID: 403a593b7c9a671c0800000000000000
+      internalID: -4506227701961088252
       vertices: []
       indices: 
       edges: []
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      story_character_thu_0: -3967126746766113216
+      story_intro_background_landscape_0: -4506227701961088252
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: d6fdf4d1973b4674dadd45ee41c0d9b3
+guid: 5922756b873691243bbe2ea69f04a8b4
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -3967126746766113216
-    second: story_character_thu_0
+      213: -8486103045168285974
+    second: fatdove_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,13 +113,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: story_character_thu_0
+      name: fatdove_0
       rect:
         serializedVersion: 2
-        x: 124
-        y: 0
-        width: 850
-        height: 1272
+        x: 37
+        y: 44
+        width: 1011
+        height: 1100
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 0460e081e3fe1f8c0800000000000000
-      internalID: -3967126746766113216
+      spriteID: ae63261ed3e4b3a80800000000000000
+      internalID: -8486103045168285974
       vertices: []
       indices: 
       edges: []
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      story_character_thu_0: -3967126746766113216
+      fatdove_0: -8486103045168285974
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

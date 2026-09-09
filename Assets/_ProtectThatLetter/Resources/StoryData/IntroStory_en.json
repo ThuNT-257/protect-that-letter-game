@@ -6,16 +6,16 @@
             "content": "I have a mission for you, kid! Take this letter to the right place. No matter what, make sure it gets there! The journey may be long, but just like we practiced, do your best!",
             "avatar": "thu",
             "position": "left",
-            "background": "story_intro_background.png",
-            "sound": ""
+            "background": "story_intro_background_landscape.png",
+            "sound": "story_wind"
         },
         {
             "speaker": "Little Pigeon",
             "content": "Grr... grr... grr...??!",
-            "avatar": "default-avatar",
+            "avatar": "fatdove",
             "position": "right",
             "background": "",
-            "sound": ""
+            "sound": "fat_dove_1"
         },
         {
             "speaker": "???",
@@ -28,10 +28,10 @@
         {
             "speaker": "Little Pigeon",
             "content": "*nods repeatedly* Gruuu! Gruuu!!!",
-            "avatar": "default-avatar",
+            "avatar": "fatdove",
             "position": "right",
             "background": "",
-            "sound": ""
+            "sound": "fat_dove_2"
         },
         {
             "speaker": "???",
@@ -44,10 +44,10 @@
         {
             "speaker": "Little Pigeon",
             "content": "*flaps wings* GRUUUU!",
-            "avatar": "default-avatar",
+            "avatar": "fatdove",
             "position": "right",
             "background": "",
-            "sound": ""
+            "sound": "fat_dove_take_off"
         }
     ]
 }

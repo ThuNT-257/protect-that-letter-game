@@ -60,8 +60,8 @@ namespace ProtectThatLetter.Managers {
             }
 
             // Step 4: Proceed to Next Scene
-            if (SceneController.Instance != null) {
-                SceneController.Instance.LoadNextScene(fadeOutDuration);
+            if (SceneManager.Instance != null) {
+                SceneManager.Instance.LoadNextScene(fadeOutDuration);
             } else {
                 Debug.LogError("[InitManager] SceneController.Instance is null! Cannot load next scene.");
             }

@@ -1,3 +1,4 @@
+using ProtectThatLetter.Managers;
 using System.Collections;
 using TMPro;
 using UnityEngine;
@@ -38,8 +39,8 @@ public class GameWinUI : MonoBehaviour {
     private IEnumerator TransitionRoutine() {
         yield return new WaitForSeconds(displayDuration);
 
-        if (SceneController.Instance != null) {
-            SceneController.Instance.LoadNextScene(fadeDuration);
+        if (SceneManager.Instance != null) {
+            SceneManager.Instance.LoadNextScene(fadeDuration);
         }
     }
     #endregion

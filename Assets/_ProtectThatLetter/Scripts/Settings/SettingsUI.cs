@@ -10,7 +10,7 @@ using UnityEngine.UI;
 public class SettingsUI : MonoBehaviour {
     #region Serialized Fields
     [Header("Controller References")]
-    [SerializeField] private SettingsController controller;
+    [SerializeField] private SettingsManager controller;
 
     [Header("Hierarchy Group Panels")]
     [SerializeField] private GameObject settingsPart;       
@@ -55,7 +55,7 @@ public class SettingsUI : MonoBehaviour {
         canvasGroup = GetComponent<CanvasGroup>();
 
         if (controller == null) {
-            controller = SettingsController.Instance;
+            controller = SettingsManager.Instance;
         }
 
         // 1. SettingsPart Events
@@ -81,7 +81,7 @@ public class SettingsUI : MonoBehaviour {
 
     private void OnEnable() {
         if (controller == null) {
-            controller = SettingsController.Instance;
+            controller = SettingsManager.Instance;
         }
 
         LocalizationManager.OnLanguageChanged += OnLanguageChanged;
@@ -176,9 +176,9 @@ public class SettingsUI : MonoBehaviour {
     }
 
     private void SyncSoundUI() {
-        if (SettingsController.Instance != null) {
-            isBGMOn = SettingsController.Instance.IsBGMOn;
-            isSFXOn = SettingsController.Instance.IsSFXOn;
+        if (SettingsManager.Instance != null) {
+            isBGMOn = SettingsManager.Instance.IsBGMOn;
+            isSFXOn = SettingsManager.Instance.IsSFXOn;
         }
 
         UpdateBGMVisual();
@@ -198,7 +198,7 @@ public class SettingsUI : MonoBehaviour {
     }
 
     private void OnSelectLanguage(string langCode) {
-        SettingsController targetController = controller != null ? controller : SettingsController.Instance;
+        SettingsManager targetController = controller != null ? controller : SettingsManager.Instance;
 
         if (targetController != null) {
             targetController.ChangeLanguage(langCode);

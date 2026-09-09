@@ -4,14 +4,15 @@ using UnityEngine;
 /// Manages game settings such as audio preferences and language selection.
 /// Delegates audio muting directly to the AudioManager runtime state.
 /// </summary>
-public class SettingsController : MonoBehaviour {
+public class SettingsManager : MonoBehaviour {
     #region Instance
-    private static SettingsController instance;
+    // Singleton instance
+    private static SettingsManager instance;
 
-    public static SettingsController Instance {
+    public static SettingsManager Instance {
         get {
             if (instance == null) {
-                instance = FindAnyObjectByType<SettingsController>();
+                instance = FindAnyObjectByType<SettingsManager>();
                 if (instance == null) {
                     Debug.LogError("[SettingsController] There is no SettingsController in Scene.");
                 }
@@ -22,12 +23,17 @@ public class SettingsController : MonoBehaviour {
     #endregion
 
     #region Properties
+    // Current audio state (default: ON)
     public bool IsBGMOn { get; private set; } = true;
     public bool IsSFXOn { get; private set; } = true;
     #endregion
 
     #region Lifecycle
+    /// <summary>
+    /// Ensures singleton integrity and makes the object persistent across scenes
+    /// </summary>
     private void Awake() {
+        // Destroy duplicate instances
         if (instance != null && instance != this) {
             Destroy(this.gameObject);
             return;
@@ -36,6 +42,9 @@ public class SettingsController : MonoBehaviour {
         DontDestroyOnLoad(gameObject);
     }
 
+    /// <summary>
+    /// Applies audio settings when the game starts
+    /// </summary>
     private void Start() {
         ApplyAudioSettings();
     }
@@ -76,12 +85,11 @@ public class SettingsController : MonoBehaviour {
     #region Private Methods
     /// <summary>
     /// Applies the current audio settings directly to AudioManager.
-    /// Note: AudioSource.mute requires 'true' to mute, so we invert the 'isOn' state (!IsBGMOn).
     /// </summary>
     private void ApplyAudioSettings() {
         if (AudioManager.Instance != null) {
-            AudioManager.Instance.SetBGMMute(!IsBGMOn);
-            AudioManager.Instance.SetSFXMute(!IsSFXOn);
+            AudioManager.Instance.SetBGMMute(!IsBGMOn); // true = mute
+            AudioManager.Instance.SetSFXMute(!IsSFXOn); 
         } else {
             Debug.LogWarning("[SettingsController] AudioManager Instance not found to apply settings.");
         }

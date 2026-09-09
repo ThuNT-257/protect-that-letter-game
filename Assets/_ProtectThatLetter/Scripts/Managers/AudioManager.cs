@@ -9,6 +9,7 @@ public class AudioManager : MonoBehaviour {
     [Header("--- Audio Sources ---")]
     [SerializeField] private AudioSource bgmSource;
     [SerializeField] private AudioSource sfxSource;
+    [SerializeField] private AudioSource storyAudioSource;
 
     [Header("--- Audio Clips ---")]
     [SerializeField] private List<AudioClip> bgmList = new List<AudioClip>();
@@ -18,6 +19,7 @@ public class AudioManager : MonoBehaviour {
     #region Private Fields
     private int currentBgmIndex = 0;
     private bool isBgmPlayingRequested = false;
+    private bool isStoryMuted = false;
     private Dictionary<string, AudioClip> sfxDictionary = new Dictionary<string, AudioClip>();
     #endregion
 
@@ -90,6 +92,35 @@ public class AudioManager : MonoBehaviour {
     public void SetSFXMute(bool isMuted) {
         if (sfxSource != null) {
             sfxSource.mute = isMuted;
+        }
+    }
+    #endregion
+
+    #region Public Story Audio Methods
+    public void PlayStorySFX(AudioClip clip) {
+        if (storyAudioSource == null || clip == null || isStoryMuted) return;
+        storyAudioSource.PlayOneShot(clip);
+    }
+
+    public void PlayStorySFX(string clipName) {
+        if (storyAudioSource == null || string.IsNullOrEmpty(clipName) || isStoryMuted) return;
+
+        if (sfxDictionary.TryGetValue(clipName, out AudioClip clip)) {
+            storyAudioSource.PlayOneShot(clip);
+        } else {
+            AudioClip loadedClip = Resources.Load<AudioClip>($"Sounds/{clipName}");
+            if (loadedClip != null) {
+                storyAudioSource.PlayOneShot(loadedClip);
+            } else {
+                Debug.LogWarning($"[AudioManager] Story SFX Clip '{clipName}' not found!");
+            }
+        }
+    }
+
+    public void SetStoryMute(bool isMuted) {
+        isStoryMuted = isMuted;
+        if (storyAudioSource != null) {
+            storyAudioSource.mute = isMuted;
         }
     }
     #endregion

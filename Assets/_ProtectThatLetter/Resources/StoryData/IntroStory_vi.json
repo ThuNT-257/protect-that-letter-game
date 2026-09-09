@@ -6,16 +6,16 @@
             "content": "Ta giao cho nhóc một nhiệm vụ! Hãy đưa bức thư này đến đúng nơi. Bằng mọi giá phải giao được nó đến nơi nhé! Quãng đường tuy có xa, nhưng như chúng ta đã luyện tập, hãy cố gắng!",
             "avatar": "thu",
             "position": "left",
-            "background": "story_intro_background",
-            "sound": ""
+            "background": "story_intro_background_landscape",
+            "sound": "story_wind"
         },
         {
             "speaker": "Nhóc Bồ Câu",
             "content": "Grừ... grừ... grừ...??!",
-            "avatar": "default-avatar",
+            "avatar": "fatdove",
             "position": "right",
             "background": "",
-            "sound": ""
+            "sound": "fat_dove_1"
         },
         {
             "speaker": "???",
@@ -28,10 +28,10 @@
         {
             "speaker": "Nhóc Bồ Câu",
             "content": "*gật gật đầu* Gruuu Gruuu!!!",
-            "avatar": "default-avatar",
+            "avatar": "fatdove",
             "position": "right",
             "background": "",
-            "sound": ""
+            "sound": "fat_dove_2"
         },
         {
             "speaker": "???",
@@ -44,10 +44,10 @@
         {
             "speaker": "Nhóc Bồ Câu",
             "content": "*vỗ cánh* GRUUUU",
-            "avatar": "default-avatar",
+            "avatar": "fatdove",
             "position": "right",
             "background": "",
-            "sound": ""
+            "sound": "fat_dove_take_off"
         }
     ]
 }

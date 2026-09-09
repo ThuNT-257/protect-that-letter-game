@@ -15,11 +15,10 @@ public class DialogueLine {
 }
 
 /// <summary>
-/// Container for a full story/dialogue scene with background music and dialogue lines
+/// Container for a full story/dialogue scene containing dialogue lines
 /// </summary>
 [Serializable]
 public class StoryData
 {
-    public string bgm;
     public List<DialogueLine> lines;
 }

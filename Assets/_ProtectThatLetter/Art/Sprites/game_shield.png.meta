@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 635387df1ba6ca640b3627ecfae9165c
+guid: f7024c55fa537e743b8464d76113889c
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -8996532388036297563
-    second: story_intro_background_0
+      213: -8415657947155322758
+    second: game_shield_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,13 +113,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: story_intro_background_0
+      name: game_shield_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 2560
-        height: 1440
+        x: 6
+        y: 7
+        width: 346
+        height: 344
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 5acbcc07575e52380800000000000000
-      internalID: -8996532388036297563
+      spriteID: a782d946fa3953b80800000000000000
+      internalID: -8415657947155322758
       vertices: []
       indices: 
       edges: []
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      story_intro_background_0: -8996532388036297563
+      game_shield_0: -8415657947155322758
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
