@@ -59,6 +59,42 @@ MonoBehaviour:
     m_Key: ERROR_INTERNAL_SERVER
     m_Metadata:
       m_Items: []
+  - m_Id: 2826883715514368
+    m_Key: guide_text
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2837202177310720
+    m_Key: pause_title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2837821042671616
+    m_Key: continue_button_text
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2849683964641280
+    m_Key: restart_button_text
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2851346968428544
+    m_Key: collision_title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2852406105686016
+    m_Key: quiz_button_text
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2915502497153024
+    m_Key: gameover_title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2926185989226496
+    m_Key: back_button_text
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2950927077031936
+    m_Key: win_title
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

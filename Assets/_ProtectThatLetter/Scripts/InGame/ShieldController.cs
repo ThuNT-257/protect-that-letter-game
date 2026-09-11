@@ -22,6 +22,9 @@ namespace ProtectThatLetter.Controllers {
         private Vector2 maxBounds;
         private int lastScreenWidth;
         private int lastScreenHeight;
+
+        private Vector3 initialPosition;
+        private Quaternion initialRotation;
         #endregion
 
         #region Lifecycle
@@ -33,6 +36,9 @@ namespace ProtectThatLetter.Controllers {
             if (rb == null) {
                 rb = GetComponent<Rigidbody2D>();
             }
+
+            initialPosition = transform.position;
+            initialRotation = transform.rotation;
 
             rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
             CheckScreenBounds();
@@ -50,9 +56,10 @@ namespace ProtectThatLetter.Controllers {
                 Collider2D hitCollider = Physics2D.OverlapPoint(currentMousePos);
                 if (hitCollider != null && hitCollider.gameObject == gameObject) {
                     isDragging = true;
-                    offset = (Vector2)transform.position - currentMousePos;
-                    lastMouseWorldPos = currentMousePos;
-                    rb.linearVelocity = Vector2.zero;
+
+                    if (GameManager.Instance != null && !GameManager.Instance.HasGameStarted) {
+                        GameManager.Instance.StartGame();
+                    }
                 }
             }
 
@@ -98,6 +105,31 @@ namespace ProtectThatLetter.Controllers {
         }
         #endregion
 
+        #region Public Methods
+        public void ResetShield() {
+            gameObject.SetActive(true);
+            isDragging = false;
+
+            transform.position = initialPosition;
+            transform.rotation = initialRotation;
+
+            if (rb != null) {
+                rb.linearVelocity = Vector2.zero;
+                rb.angularVelocity = 0f;
+                rb.position = initialPosition;
+            }
+        }
+
+        public void HideShield() {
+            isDragging = false;
+            if (rb != null) {
+                rb.linearVelocity = Vector2.zero;
+                rb.angularVelocity = 0f;
+            }
+            gameObject.SetActive(false);
+        }
+        #endregion
+
         #region Private Methods
         private void CheckScreenBounds() {
             if (Screen.width != lastScreenWidth || Screen.height != lastScreenHeight) {
@@ -119,6 +151,14 @@ namespace ProtectThatLetter.Controllers {
             Vector2 pointerPos = Pointer.current.position.ReadValue();
             Vector3 worldPos = mainCamera.ScreenToWorldPoint(pointerPos);
             return new Vector2(worldPos.x, worldPos.y);
+        }
+
+        private void OnCollisionEnter2D(Collision2D collision) {
+            if (collision.gameObject.tag == "Obstacles") {
+                if(AudioManager.Instance != null) {
+                    AudioManager.Instance.PlaySFX("hit");
+                }
+            }
         }
         #endregion
     }

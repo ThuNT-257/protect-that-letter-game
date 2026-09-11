@@ -50,33 +50,38 @@ public class QuizUI : MonoBehaviour
     #endregion
 
     #region Public Methods
-    public void DisplayQuestion(string question, string[] options, System.Action<int> onAnswerSelected)
-    {
+    public void DisplayQuestion(string question, string[] options, System.Action<int> onAnswerSelected) {
         ResetButtonColors();
 
-        if (questionText != null)
-        {
+        if (questionText != null) {
             questionText.text = question;
         }
 
-        for (int i = 0; i < answerButtons.Count; i++)
-        {
-            if (i < options.Length)
-            {
+        for (int i = 0; i < answerButtons.Count; i++) {
+            bool hasOption = options != null && i < options.Length;
+
+            if (hasOption) {
                 answerButtons[i].gameObject.SetActive(true);
                 answerButtons[i].interactable = true;
-                answerTexts[i].text = options[i];
-            }
-            else
-            {
-                answerButtons[i].gameObject.SetActive(false);
+
+                if (i < answerTexts.Count && answerTexts[i] != null) {
+                    answerTexts[i].gameObject.SetActive(true);
+                    answerTexts[i].text = options[i];
+                }
+            } else {
+                if (answerButtons[i] != null) {
+                    answerButtons[i].gameObject.SetActive(false);
+                }
+
+                if (i < answerTexts.Count && answerTexts[i] != null) {
+                    answerTexts[i].gameObject.SetActive(false);
+                }
             }
         }
 
         onAnswerSelectedCallback = onAnswerSelected;
 
-        if (quizOverlay != null)
-        {
+        if (quizOverlay != null) {
             quizOverlay.SetActive(true);
         }
     }

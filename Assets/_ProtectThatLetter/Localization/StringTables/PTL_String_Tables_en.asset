@@ -62,6 +62,42 @@ MonoBehaviour:
     m_Localized: The server is dead. Tell Thu to wake it up!
     m_Metadata:
       m_Items: []
+  - m_Id: 2826883715514368
+    m_Localized: Protect the bird
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2837202177310720
+    m_Localized: PAUSED
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2837821042671616
+    m_Localized: FLY!!!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2849683964641280
+    m_Localized: RESTART?
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2851346968428544
+    m_Localized: COLLISION DETECTED!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2852406105686016
+    m_Localized: SECOND CHANCE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2915502497153024
+    m_Localized: GAME OVER
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2926185989226496
+    m_Localized: BACK
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2950927077031936
+    m_Localized: THE LITTLE DOVE ARRIVED SAFELY!
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

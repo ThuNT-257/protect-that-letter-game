@@ -5,8 +5,12 @@ using UnityEngine;
 /// Delegates audio muting directly to the AudioManager runtime state.
 /// </summary>
 public class SettingsManager : MonoBehaviour {
+    #region Constants
+    private const string BGM_KEY = "BGM_STATE";
+    private const string SFX_KEY = "SFX_STATE";
+    #endregion
+
     #region Instance
-    // Singleton instance
     private static SettingsManager instance;
 
     public static SettingsManager Instance {
@@ -14,7 +18,7 @@ public class SettingsManager : MonoBehaviour {
             if (instance == null) {
                 instance = FindAnyObjectByType<SettingsManager>();
                 if (instance == null) {
-                    Debug.LogError("[SettingsController] There is no SettingsController in Scene.");
+                    Debug.LogError("[SettingsManager] There is no SettingsManager in Scene.");
                 }
             }
             return instance;
@@ -23,76 +27,68 @@ public class SettingsManager : MonoBehaviour {
     #endregion
 
     #region Properties
-    // Current audio state (default: ON)
     public bool IsBGMOn { get; private set; } = true;
     public bool IsSFXOn { get; private set; } = true;
     #endregion
 
     #region Lifecycle
-    /// <summary>
-    /// Ensures singleton integrity and makes the object persistent across scenes
-    /// </summary>
     private void Awake() {
-        // Destroy duplicate instances
         if (instance != null && instance != this) {
-            Destroy(this.gameObject);
+            Destroy(gameObject);
             return;
         }
         instance = this;
         DontDestroyOnLoad(gameObject);
+
+        LoadSettings();
     }
 
-    /// <summary>
-    /// Applies audio settings when the game starts
-    /// </summary>
     private void Start() {
         ApplyAudioSettings();
     }
     #endregion
 
     #region Public Methods
-    /// <summary>
-    /// Sets the BGM (Background Music) state and applies it directly to AudioManager.
-    /// </summary>
-    /// <param name="isOn">True to enable BGM, false to disable</param>
     public void SetBGM(bool isOn) {
         IsBGMOn = isOn;
+        SaveSettings();
         ApplyAudioSettings();
-        Debug.Log($"[SettingsController] BGM State Changed: {isOn}");
+        Debug.Log($"[SettingsManager] BGM State Changed: {isOn}");
     }
 
-    /// <summary>
-    /// Sets the SFX (Sound Effects) state and applies it directly to AudioManager.
-    /// </summary>
-    /// <param name="isOn">True to enable SFX, false to disable</param>
     public void SetSFX(bool isOn) {
         IsSFXOn = isOn;
+        SaveSettings();
         ApplyAudioSettings();
-        Debug.Log($"[SettingsController] SFX State Changed: {isOn}");
+        Debug.Log($"[SettingsManager] SFX State Changed: {isOn}");
     }
 
-    /// <summary>
-    /// Changes the application's language using the LocalizationManager.
-    /// </summary>
-    /// <param name="langCode">Language code (e.g., "vi", "en", "ja")</param>
     public void ChangeLanguage(string langCode) {
         if (LocalizationManager.Instance != null) {
             LocalizationManager.Instance.SwitchLanguage(langCode);
         }
     }
+
+    public void ApplyAudioSettings() {
+        if (AudioManager.Instance != null) {
+            AudioManager.Instance.SetBGMMute(!IsBGMOn);
+            AudioManager.Instance.SetSFXMute(!IsSFXOn);
+        } else {
+            Debug.LogWarning("[SettingsManager] AudioManager Instance not found to apply settings.");
+        }
+    }
     #endregion
 
     #region Private Methods
-    /// <summary>
-    /// Applies the current audio settings directly to AudioManager.
-    /// </summary>
-    private void ApplyAudioSettings() {
-        if (AudioManager.Instance != null) {
-            AudioManager.Instance.SetBGMMute(!IsBGMOn); // true = mute
-            AudioManager.Instance.SetSFXMute(!IsSFXOn); 
-        } else {
-            Debug.LogWarning("[SettingsController] AudioManager Instance not found to apply settings.");
-        }
+    private void SaveSettings() {
+        PlayerPrefs.SetInt(BGM_KEY, IsBGMOn ? 1 : 0);
+        PlayerPrefs.SetInt(SFX_KEY, IsSFXOn ? 1 : 0);
+        PlayerPrefs.Save();
+    }
+
+    private void LoadSettings() {
+        IsBGMOn = PlayerPrefs.GetInt(BGM_KEY, 1) == 1;
+        IsSFXOn = PlayerPrefs.GetInt(SFX_KEY, 1) == 1;
     }
     #endregion
 }

@@ -33,19 +33,21 @@ public class GameSettingsUI : MonoBehaviour {
     #region Lifecycle
     private void Start() {
         if (controller == null) {
-            controller = GetComponent<SettingsManager>();
+            controller = SettingsManager.Instance != null ? SettingsManager.Instance : GetComponent<SettingsManager>();
         }
 
         SetOverlayActive(false);
 
-        // Action Buttons
+        // Action Buttons Listener Setup
         if (pauseButton != null) pauseButton.onClick.AddListener(OnClickPause);
         if (resumeButton != null) resumeButton.onClick.AddListener(OnClickResume);
         if (restartButton != null) restartButton.onClick.AddListener(OnClickRestart);
 
-        // Sound Buttons
+        // Sound Buttons Listener Setup
         if (bgmButton != null) bgmButton.onClick.AddListener(OnClickBGM);
         if (sfxButton != null) sfxButton.onClick.AddListener(OnClickSFX);
+
+        SyncSoundUI();
     }
 
     private void OnEnable() {
@@ -74,6 +76,10 @@ public class GameSettingsUI : MonoBehaviour {
     }
 
     private void OnClickPause() {
+        if (AudioManager.Instance != null) {
+            AudioManager.Instance.PlaySFX("settings_button_click"); 
+        }
+
         if (GameManager.Instance != null) {
             GameManager.Instance.PauseGame();
         }
@@ -85,6 +91,10 @@ public class GameSettingsUI : MonoBehaviour {
     }
 
     private void OnClickResume() {
+        if (AudioManager.Instance != null) {
+            AudioManager.Instance.PlaySFX("button_click");
+        }
+
         if (GameManager.Instance != null) {
             GameManager.Instance.ResumeGame();
         }
@@ -95,6 +105,10 @@ public class GameSettingsUI : MonoBehaviour {
     }
 
     private void OnClickRestart() {
+        if (AudioManager.Instance != null) {
+            AudioManager.Instance.PlaySFX("button_click");
+        }
+
         Time.timeScale = 1f;
         SetOverlayActive(false);
 
@@ -109,6 +123,10 @@ public class GameSettingsUI : MonoBehaviour {
     }
 
     private void OnClickBGM() {
+        if (AudioManager.Instance != null) {
+            AudioManager.Instance.PlaySFX("button_click");
+        }
+
         isBGMOn = !isBGMOn;
         UpdateBGMVisual();
 
@@ -120,6 +138,10 @@ public class GameSettingsUI : MonoBehaviour {
     }
 
     private void OnClickSFX() {
+        if (AudioManager.Instance != null) {
+            AudioManager.Instance.PlaySFX("button_click");
+        }
+
         isSFXOn = !isSFXOn;
         UpdateSFXVisual();
 

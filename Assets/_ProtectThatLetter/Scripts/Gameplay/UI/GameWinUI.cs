@@ -1,3 +1,4 @@
+using ProtectThatLetter.Controllers;
 using ProtectThatLetter.Managers;
 using System.Collections;
 using TMPro;
@@ -7,6 +8,9 @@ public class GameWinUI : MonoBehaviour {
     #region Serialized Fields
     [Header("UI Elements")]
     [SerializeField] private TextMeshProUGUI winTitleText;
+
+    [Header("References")]
+    [SerializeField] private BirdController birdController;
 
     [Header("Settings")]
     [SerializeField] private float displayDuration = 2.0f;
@@ -25,6 +29,19 @@ public class GameWinUI : MonoBehaviour {
             winTitleText.gameObject.SetActive(true);
         }
 
+        ShieldController shield = FindAnyObjectByType<ShieldController>();
+        if (shield != null) {
+            shield.HideShield();
+        }
+
+        if (birdController == null) {
+            birdController = FindAnyObjectByType<BirdController>();
+        }
+
+        if (birdController != null) {
+            birdController.PlayWinFlyAnimation();
+        }
+
         StartCoroutine(TransitionRoutine());
     }
 
@@ -39,8 +56,8 @@ public class GameWinUI : MonoBehaviour {
     private IEnumerator TransitionRoutine() {
         yield return new WaitForSeconds(displayDuration);
 
-        if (SceneManager.Instance != null) {
-            SceneManager.Instance.LoadNextScene(fadeDuration);
+        if (SceneController.Instance != null) {
+            SceneController.Instance.LoadNextScene(fadeDuration);
         }
     }
     #endregion

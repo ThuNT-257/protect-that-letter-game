@@ -9,6 +9,7 @@ public class AudioManager : MonoBehaviour {
     [Header("--- Audio Sources ---")]
     [SerializeField] private AudioSource bgmSource;
     [SerializeField] private AudioSource sfxSource;
+    [SerializeField] private AudioSource loopSfxSource;
     [SerializeField] private AudioSource storyAudioSource;
 
     [Header("--- Audio Clips ---")]
@@ -34,6 +35,12 @@ public class AudioManager : MonoBehaviour {
         }
     }
 
+    private void Start() {
+        if (SettingsManager.Instance != null) {
+            SettingsManager.Instance.ApplyAudioSettings();
+        }
+    }
+
     private void Update() {
         if (isBgmPlayingRequested && bgmSource != null && !bgmSource.isPlaying && bgmList.Count > 0) {
             PlayNextBGM();
@@ -48,9 +55,7 @@ public class AudioManager : MonoBehaviour {
         currentBgmIndex = index % bgmList.Count;
         AudioClip nextClip = bgmList[currentBgmIndex];
 
-        if (bgmSource.isPlaying && bgmSource.clip == nextClip) {
-            return;
-        }
+        if (bgmSource.isPlaying && bgmSource.clip == nextClip) return;
 
         bgmSource.clip = nextClip;
         bgmSource.Play();
@@ -89,10 +94,30 @@ public class AudioManager : MonoBehaviour {
         }
     }
 
-    public void SetSFXMute(bool isMuted) {
-        if (sfxSource != null) {
-            sfxSource.mute = isMuted;
+    public void PlayLoopSFX(string clipName) {
+        AudioSource targetSource = loopSfxSource != null ? loopSfxSource : sfxSource;
+        if (targetSource == null || string.IsNullOrEmpty(clipName)) return;
+
+        if (sfxDictionary.TryGetValue(clipName, out AudioClip clip)) {
+            targetSource.clip = clip;
+            targetSource.loop = true;
+            targetSource.Play();
+        } else {
+            Debug.LogWarning($"[AudioManager] Loop SFX Clip '{clipName}' not found in sfxList!");
         }
+    }
+
+    public void StopLoopSFX() {
+        AudioSource targetSource = loopSfxSource != null ? loopSfxSource : sfxSource;
+        if (targetSource != null) {
+            targetSource.Stop();
+            targetSource.loop = false;
+        }
+    }
+
+    public void SetSFXMute(bool isMuted) {
+        if (sfxSource != null) sfxSource.mute = isMuted;
+        if (loopSfxSource != null) loopSfxSource.mute = isMuted;
     }
     #endregion
 
@@ -121,6 +146,16 @@ public class AudioManager : MonoBehaviour {
         isStoryMuted = isMuted;
         if (storyAudioSource != null) {
             storyAudioSource.mute = isMuted;
+        }
+    }
+
+    public void StopSFX() {
+        if (sfxSource != null) {
+            sfxSource.Stop();
+        }
+        if (loopSfxSource != null) {
+            loopSfxSource.Stop();
+            loopSfxSource.loop = false;
         }
     }
     #endregion

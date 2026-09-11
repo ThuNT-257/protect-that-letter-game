@@ -2,33 +2,33 @@
     "bgm": "",
     "lines": [
         {
-            "speaker": "Little Pigeon",
+            "speaker": "Little Dove",
             "content": "GRUUUUU!!!",
             "avatar": "default-avatar",
             "position": "left",
-            "background": "",
-            "sound": ""
+            "background": "story_outro_background",
+            "sound": "fat_dove_3"
         },
         {
-            "speaker": "AAA",
+            "speaker": "{GuestName}",
             "content": "Huh!? A bird??",
-            "avatar": "default-avatar",
+            "avatar": "thu",
             "position": "right",
             "background": "",
             "sound": ""
         },
         {
-            "speaker": "Little Pigeon",
+            "speaker": "Little Dove",
             "content": "Gruu Gruu *holds out its foot with the letter*",
-            "avatar": "default-avatar",
+            "avatar": "little-dove",
             "position": "left",
-            "background": "",
+            "background": "fat_dove_4",
             "sound": ""
         },
         {
-            "speaker": "AAA",
+            "speaker": "{GuestName}",
             "content": "There's a letter here?? Let's open it and see.",
-            "avatar": "default-avatar",
+            "avatar": "thu",
             "position": "right",
             "background": "",
             "sound": ""

@@ -177,8 +177,8 @@ namespace ProtectThatLetter.UI {
                     Debug.Log($"[LoginUI] Code '{inputCode}' successfully saved to PlayerPrefs.");
                 }
 
-                if (SceneManager.Instance != null) {
-                    SceneManager.Instance.LoadNextScene();
+                if (SceneController.Instance != null) {
+                    SceneController.Instance.LoadNextScene();
                 } else {
                     Debug.LogError("[LoginUI] SceneController Instance is null! Cannot proceed.");
                 }

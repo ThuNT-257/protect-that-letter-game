@@ -1,3 +1,4 @@
+using ProtectThatLetter.Controllers;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -7,7 +8,6 @@ using static ObstacleSpawner;
 public class GameManager : MonoBehaviour {
     #region Instance
     private static GameManager instance;
-
     public static GameManager Instance {
         get {
             if (instance == null) {
@@ -22,11 +22,17 @@ public class GameManager : MonoBehaviour {
     [Header("UI References")]
     [SerializeField] private Slider timebarSlider;
     [SerializeField] private GameWinUI gameWinUI;
+    [SerializeField] private GuideTextController guideTextController;
 
     [Header("Game Settings")]
-    [SerializeField] private ObstacleSpawner spawner;
+    [SerializeField] private ObstacleSpawner obstacleSpawner;
+    [SerializeField] private CloudSpawner cloudSpawner;
+    [SerializeField] private LevelBackgroundManager backgroundManager;
+    [SerializeField] private ShieldController shieldController;
+    [SerializeField] private BirdController birdController;
     [SerializeField] private float transitionDelay = 2f;
     [SerializeField] private List<LevelConfig> levels = new List<LevelConfig>();
+    [SerializeField] private bool autoStartOnLoad = false;
     #endregion
 
     #region Private Fields
@@ -37,6 +43,8 @@ public class GameManager : MonoBehaviour {
 
     #region Properties
     public bool IsPaused { get; private set; } = false;
+    public bool HasGameStarted { get; private set; } = false;
+    public bool HasCompletedQuiz { get; set; } = false; 
     #endregion
 
     #region Lifecycle
@@ -50,10 +58,14 @@ public class GameManager : MonoBehaviour {
 
     private void Start() {
         InitGame();
+
+        if (autoStartOnLoad) {
+            StartGame();
+        }
     }
 
     private void Update() {
-        if (IsPaused || totalGameDuration <= 0f) return;
+        if (!HasGameStarted || IsPaused || totalGameDuration <= 0f) return;
 
         if (currentGameTime < totalGameDuration) {
             currentGameTime += Time.deltaTime;
@@ -71,7 +83,30 @@ public class GameManager : MonoBehaviour {
     #endregion
 
     #region Public Methods
+    public void StartGame() {
+        if (HasGameStarted) return;
+
+        HasGameStarted = true;
+
+        if (AudioManager.Instance != null) {
+            AudioManager.Instance.PlayLoopSFX("wind_sfx");
+        }
+
+        if (cloudSpawner != null) {
+            cloudSpawner.StartSpawning();
+        }
+
+        if (guideTextController != null) {
+            guideTextController.HideGuideWithFade();
+        }
+
+        if (gameLoopCoroutine != null) StopCoroutine(gameLoopCoroutine);
+        gameLoopCoroutine = StartCoroutine(GameLoopRoutine());
+    }
+
     public void PauseGame() {
+        if (QuizManager.Instance != null && QuizManager.Instance.IsCountingDown) return;
+
         IsPaused = true;
         Time.timeScale = 0f;
     }
@@ -85,13 +120,21 @@ public class GameManager : MonoBehaviour {
         Time.timeScale = 1f;
         IsPaused = false;
 
+        if (AudioManager.Instance != null) {
+            AudioManager.Instance.StopSFX();
+        }
+
         if (gameLoopCoroutine != null) {
             StopCoroutine(gameLoopCoroutine);
             gameLoopCoroutine = null;
         }
 
-        if (spawner != null) {
-            spawner.ResetSpawner();
+        if (obstacleSpawner != null) {
+            obstacleSpawner.ResetSpawner();
+        }
+
+        if (cloudSpawner != null) {
+            cloudSpawner.StopAndResetSpawner();
         }
 
         InitGame();
@@ -108,8 +151,44 @@ public class GameManager : MonoBehaviour {
     private void InitGame() {
         Time.timeScale = 1f;
         IsPaused = false;
+        HasGameStarted = false;
+        HasCompletedQuiz = false; 
         currentGameTime = 0f;
         totalGameDuration = 0f;
+
+        if (guideTextController != null) {
+            guideTextController.ShowGuide();
+        }
+
+        if (backgroundManager == null) {
+            backgroundManager = FindAnyObjectByType<LevelBackgroundManager>();
+        }
+
+        if (backgroundManager != null) {
+            backgroundManager.ChangeLevel(0);
+        }
+
+        if (shieldController != null) {
+            shieldController.ResetShield();
+        } else {
+            shieldController = FindAnyObjectByType<ShieldController>();
+            if (shieldController != null) {
+                shieldController.ResetShield();
+            }
+        }
+
+        if (birdController != null) {
+            birdController.ResetCollisionCount();
+        } else {
+            birdController = FindAnyObjectByType<BirdController>();
+            if (birdController != null) {
+                birdController.ResetCollisionCount();
+            }
+        }
+
+        if (QuizManager.Instance != null) {
+            QuizManager.Instance.ResetQuizState();
+        }
 
         for (int i = 0; i < levels.Count; i++) {
             if (levels[i] != null) {
@@ -125,9 +204,6 @@ public class GameManager : MonoBehaviour {
             timebarSlider.maxValue = 1f;
             timebarSlider.value = 0f;
         }
-
-        if (gameLoopCoroutine != null) StopCoroutine(gameLoopCoroutine);
-        gameLoopCoroutine = StartCoroutine(GameLoopRoutine());
     }
 
     private IEnumerator GameLoopRoutine() {
@@ -137,11 +213,16 @@ public class GameManager : MonoBehaviour {
 
         for (int i = 0; i < levels.Count; i++) {
             LevelConfig currentLevel = levels[i];
-            spawner.StartLevel(currentLevel);
+
+            if (backgroundManager != null) {
+                backgroundManager.ChangeLevel(i);
+            }
+
+            obstacleSpawner.StartLevel(currentLevel);
 
             yield return new WaitForSeconds(currentLevel.duration);
 
-            spawner.StopSpawning();
+            obstacleSpawner.StopSpawning();
 
             if (i < levels.Count - 1) {
                 yield return new WaitForSeconds(transitionDelay);
@@ -162,9 +243,9 @@ public class GameManager : MonoBehaviour {
     }
 
     private bool ValidateReferences() {
-        if (spawner == null) {
-            spawner = FindAnyObjectByType<ObstacleSpawner>();
-            if (spawner == null) return false;
+        if (obstacleSpawner == null) {
+            obstacleSpawner = FindAnyObjectByType<ObstacleSpawner>();
+            if (obstacleSpawner == null) return false;
         }
 
         if (levels == null || levels.Count == 0) return false;

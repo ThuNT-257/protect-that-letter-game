@@ -4,15 +4,15 @@
         {
             "speaker": "Nhóc Bồ Câu",
             "content": "GRUUUUU!!!",
-            "avatar": "default-avatar",
+            "avatar": "fatdove",
             "position": "left",
-            "background": "",
-            "sound": ""
+            "background": "story_outro_background",
+            "sound": "fat_dove_3"
         },
         {
-            "speaker": "AAA",
-            "content": "Ý!? Một con chim??",
-            "avatar": "default-avatar",
+            "speaker": "{GuestName}",
+            "content": "Ý!? Một chú chim??",
+            "avatar": "thu",
             "position": "right",
             "background": "",
             "sound": ""
@@ -20,15 +20,15 @@
         {
             "speaker": "Nhóc Bồ Câu",
             "content": "Gruu Gruu *giơ chân để thư lên*",
-            "avatar": "default-avatar",
+            "avatar": "fatdove",
             "position": "left",
             "background": "",
-            "sound": ""
+            "sound": "fat_dove_4"
         },
         {
-            "speaker": "AAA",
+            "speaker": "{GuestName}",
             "content": "Ở đây có một bức thư?? Mở ra xem nào",
-            "avatar": "default-avatar",
+            "avatar": "thu",
             "position": "right",
             "background": "",
             "sound": ""

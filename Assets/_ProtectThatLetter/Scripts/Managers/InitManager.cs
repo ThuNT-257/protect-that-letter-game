@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using UnityEngine;
 
@@ -10,13 +9,13 @@ namespace ProtectThatLetter.Managers {
     public class InitManager : MonoBehaviour {
         #region Serialized Fields
         [Header("Splash Timing Settings")]
-        [SerializeField, Range(0.1f, 3f)] private float fadeInDuration = 1.0f;      
-        [SerializeField, Range(0.5f, 5f)] private float minimumDisplayTime = 1.5f;  
-        [SerializeField, Range(0.1f, 3f)] private float fadeOutDuration = 1.0f;     
+        [SerializeField, Range(0.1f, 3f)] private float fadeInDuration = 1.0f;     // Fade in Splash duration
+        [SerializeField, Range(0.5f, 5f)] private float minimumDisplayTime = 1.5f;   // Time splash is fully visible
+        [SerializeField, Range(0.1f, 3f)] private float fadeOutDuration = 1.0f;     // Fade out to next scene duration
         #endregion
 
         #region Private Fields
-        private Coroutine initRoutine;
+        private Coroutine initRoutine; // Reference to the initialization coroutine
         #endregion
 
         #region Lifecycle
@@ -33,6 +32,7 @@ namespace ProtectThatLetter.Managers {
         private void OnDisable() {
             if (initRoutine != null) {
                 StopCoroutine(initRoutine);
+                initRoutine = null; // Clean reference to avoid dangling coroutine
             }
         }
         #endregion
@@ -42,48 +42,24 @@ namespace ProtectThatLetter.Managers {
         /// Main initialization coroutine that handles splash sequence and scene transition
         /// </summary>
         private IEnumerator InitAndSplashRoutine() {
-            float startTime = Time.unscaledTime; // Track when the process started (ignores time scale)
-
-            // Step 1: Fade in Logo / Splash screen
+            // Step 1: Fade in the splash screen
             if (UIFadeManager.Instance != null) {
                 yield return UIFadeManager.Instance.FadeInRoutine(fadeInDuration);
-            }
-
-            // Step 2: Initialize Core Systems
-            yield return InitializeCoreSystemsRoutine();
-
-            // Step 3: Ensure minimum display time without GC Allocation
-            float elapsedTime = Time.unscaledTime - startTime;
-            if (elapsedTime < minimumDisplayTime) {
-                float remainingTime = minimumDisplayTime - elapsedTime;
-                yield return WaitForSecondsNoAlloc(remainingTime); 
-            }
-
-            // Step 4: Proceed to Next Scene
-            if (SceneManager.Instance != null) {
-                SceneManager.Instance.LoadNextScene(fadeOutDuration);
             } else {
-                Debug.LogError("[InitManager] SceneController.Instance is null! Cannot load next scene.");
+                Debug.LogWarning("[InitManager] UIFadeManager.Instance is null! Skipping FadeIn sequence.");
             }
-        }
 
-        /// <summary>
-        /// Delegates initialization tasks to their respective Managers instead of processing them here
-        /// </summary>
-        private IEnumerator InitializeCoreSystemsRoutine() {
-            yield return null; 
-        }
+            // Step 2: Wait for the minimum display time (unscaled, ignores Time.timeScale)
+            yield return new WaitForSecondsRealtime(minimumDisplayTime);
 
-        /// <summary>
-        /// Custom wait coroutine that avoids GC allocation 
-        /// </summary>
-        /// <param name="seconds">Time to wait in seconds</param>
-        private IEnumerator WaitForSecondsNoAlloc(float seconds) {
-            float timer = 0f;
-            while (timer < seconds) {
-                timer += Time.unscaledDeltaTime; // Use unscaled time to ignore time scale
-                yield return null;
+            // Step 3: Transition to the next scene
+            if (SceneController.Instance != null) {
+                SceneController.Instance.LoadNextScene(fadeOutDuration);
+            } else {
+                Debug.LogError("[InitManager] SceneManager.Instance is null! Cannot load next scene.");
             }
+
+            initRoutine = null; // Clean up after completion
         }
         #endregion
     }

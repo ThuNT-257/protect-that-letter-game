@@ -11,7 +11,7 @@ namespace ProtectThatLetter.UI {
         [SerializeField] private DialogueUI dialogueUI;
 
         [Header("Intro Settings")]
-        [SerializeField] private float introDelayDuration = 2.5f; 
+        [SerializeField] private float introDelayDuration = 2.5f;
         #endregion
 
         #region Private Fields
@@ -63,8 +63,8 @@ namespace ProtectThatLetter.UI {
         }
 
         private void LoadStoryData() {
-            string storyFileName = SceneManager.Instance != null
-                ? SceneManager.Instance.GetCurrentStoryFileName()
+            string storyFileName = SceneController.Instance != null
+                ? SceneController.Instance.GetCurrentStoryFileName()
                 : "IntroStory";
 
             string lang = LocalizationManager.Instance != null
@@ -102,8 +102,8 @@ namespace ProtectThatLetter.UI {
         }
 
         private void EndStory() {
-            if (SceneManager.Instance != null) {
-                SceneManager.Instance.LoadNextScene();
+            if (SceneController.Instance != null) {
+                SceneController.Instance.LoadNextScene();
             } else {
                 Debug.LogError("[DialogueManager] SceneController instance is missing!");
             }
@@ -117,11 +117,38 @@ namespace ProtectThatLetter.UI {
                 return;
             }
 
-            DialogueLine line = currentStory.lines[currentLineIndex];
+            DialogueLine rawLine = currentStory.lines[currentLineIndex];
+
+            string guestName = GetCurrentGuestName();
+
+            DialogueLine processedLine = new DialogueLine {
+                speaker = ProcessTextTokens(rawLine.speaker, guestName),
+                content = ProcessTextTokens(rawLine.content, guestName),
+                avatar = rawLine.avatar,
+                position = rawLine.position,
+                background = rawLine.background,
+                sound = rawLine.sound
+            };
+
             if (dialogueUI != null) {
                 bool isFirstLine = (currentLineIndex == 0);
-                dialogueUI.DisplayLine(line, isFirstLine);
+                dialogueUI.DisplayLine(processedLine, isFirstLine);
             }
+        }
+
+        private string ProcessTextTokens(string text, string replacementName) {
+            if (string.IsNullOrEmpty(text)) return string.Empty;
+
+            return text.Replace("{GuestName}", replacementName);
+        }
+
+        private string GetCurrentGuestName() {
+            if (PlayerPrefs.HasKey("GuestName")) {
+                string savedName = PlayerPrefs.GetString("GuestName");
+                if (!string.IsNullOrEmpty(savedName)) return savedName;
+            }
+
+            return "Guest";
         }
         #endregion
     }
