@@ -2,6 +2,18 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class CollisionUI : MonoBehaviour {
+    #region Singleton
+    public static CollisionUI Instance { get; private set; }
+
+    private void Awake() {
+        if (Instance == null) {
+            Instance = this;
+        } else {
+            Destroy(gameObject);
+        }
+    }
+    #endregion
+
     #region Serialized Fields
     [Header("Panels")]
     [SerializeField] private GameObject collisionPanel;
@@ -22,6 +34,16 @@ public class CollisionUI : MonoBehaviour {
         }
 
         HidePanel();
+    }
+
+    private void OnDestroy() {
+        if (quizButton != null) {
+            quizButton.onClick.RemoveListener(OnQuizButtonClicked);
+        }
+
+        if (restartButton != null) {
+            restartButton.onClick.RemoveListener(OnRestartButtonClicked);
+        }
     }
     #endregion
 

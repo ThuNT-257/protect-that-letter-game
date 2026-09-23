@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using ProtectThatLetter.Managers;
 
 public class QuizManager : MonoBehaviour {
     #region Instance
@@ -17,7 +18,7 @@ public class QuizManager : MonoBehaviour {
     [SerializeField] private Transform birdTransform;
     [SerializeField] private float destroyRadius = 2.0f;
     [SerializeField] private LayerMask obstacleLayer;
-    [SerializeField] private GameObject explosionFXPrefab; 
+    [SerializeField] private GameObject explosionFXPrefab;
 
     [Header("Localization Data Lists")]
     [SerializeField] private List<QuizQuestion> vietnameseQuestions = new List<QuizQuestion>();
@@ -26,7 +27,8 @@ public class QuizManager : MonoBehaviour {
 
     #region Private Fields
     private Coroutine quizRoutine;
-    private QuizQuestion currentQuestion;
+    private int currentQuestionIndex = -1;
+    private bool isQuizActive = false;
     #endregion
 
     #region Properties
@@ -41,6 +43,14 @@ public class QuizManager : MonoBehaviour {
             Destroy(gameObject);
         }
     }
+
+    private void OnEnable() {
+        LocalizationManager.OnLanguageChanged += HandleLanguageChanged;
+    }
+
+    private void OnDisable() {
+        LocalizationManager.OnLanguageChanged -= HandleLanguageChanged;
+    }
     #endregion
 
     #region Public Methods
@@ -54,17 +64,19 @@ public class QuizManager : MonoBehaviour {
         }
 
         Time.timeScale = 0f;
+        isQuizActive = true;
 
-        int randomIndex = Random.Range(0, activeQuestionList.Count);
-        currentQuestion = activeQuestionList[randomIndex];
-
-        if (quizUI != null) {
-            quizUI.DisplayQuestion(currentQuestion.question, currentQuestion.options, OnAnswerSubmitted);
+        if (currentQuestionIndex < 0 || currentQuestionIndex >= activeQuestionList.Count) {
+            currentQuestionIndex = Random.Range(0, activeQuestionList.Count);
         }
+
+        DisplayCurrentQuestion();
     }
 
     public void ResetQuizState() {
         IsCountingDown = false;
+        isQuizActive = false;
+        currentQuestionIndex = -1;
         SetHUDInteraction(true);
 
         if (quizRoutine != null) {
@@ -79,6 +91,21 @@ public class QuizManager : MonoBehaviour {
     #endregion
 
     #region Private Methods
+    private void HandleLanguageChanged(string langCode) {
+        if (isQuizActive) {
+            DisplayCurrentQuestion();
+        }
+    }
+
+    private void DisplayCurrentQuestion() {
+        List<QuizQuestion> activeQuestionList = GetActiveQuestionList();
+
+        if (quizUI != null && activeQuestionList != null && currentQuestionIndex >= 0 && currentQuestionIndex < activeQuestionList.Count) {
+            QuizQuestion q = activeQuestionList[currentQuestionIndex];
+            quizUI.DisplayQuestion(q.question, q.options, OnAnswerSubmitted);
+        }
+    }
+
     private List<QuizQuestion> GetActiveQuestionList() {
         if (LocalizationManager.Instance == null) {
             return vietnameseQuestions;
@@ -94,6 +121,10 @@ public class QuizManager : MonoBehaviour {
     }
 
     private void OnAnswerSubmitted(int selectedIndex) {
+        List<QuizQuestion> activeQuestionList = GetActiveQuestionList();
+        if (currentQuestionIndex < 0 || currentQuestionIndex >= activeQuestionList.Count) return;
+
+        QuizQuestion currentQuestion = activeQuestionList[currentQuestionIndex];
         bool isCorrect = (selectedIndex == currentQuestion.correctIndex);
 
         if (quizUI != null) {
@@ -109,6 +140,7 @@ public class QuizManager : MonoBehaviour {
 
         if (isCorrect) {
             IsCountingDown = true;
+            isQuizActive = false;
             SetHUDInteraction(false);
 
             if (GameManager.Instance != null) {
@@ -127,11 +159,14 @@ public class QuizManager : MonoBehaviour {
 
             IsCountingDown = false;
             SetHUDInteraction(true);
+            currentQuestionIndex = -1;
 
             Time.timeScale = 1f;
         } else {
             IsCountingDown = false;
+            isQuizActive = false;
             SetHUDInteraction(true);
+            currentQuestionIndex = -1;
 
             if (quizUI != null) {
                 quizUI.HidePanel();

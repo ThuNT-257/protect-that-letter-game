@@ -10,7 +10,7 @@ public class ObstacleSpawner : MonoBehaviour {
     [Header("Settings")]
     [SerializeField] private float spawnPadding = 0.5f;
     [SerializeField] private float referenceWorldWidth = 10f;
-    [SerializeField] private float extraTopBuffer = 1.5f; 
+    [SerializeField] private float extraTopBuffer = 2.5f;
 
     [Header("Pool Limits")]
     [SerializeField] private int maxPoolSizePerPrefab = 15;
@@ -24,7 +24,15 @@ public class ObstacleSpawner : MonoBehaviour {
     private float dynamicSpawnInterval;
 
     private Dictionary<GameObject, Queue<GameObject>> poolDictionary = new Dictionary<GameObject, Queue<GameObject>>();
-    private List<GameObject> activeSpawnedObstacles = new List<GameObject>();
+    private HashSet<GameObject> activeSpawnedObstacles = new HashSet<GameObject>();
+
+    private Dictionary<GameObject, Rigidbody2D> rbCache = new Dictionary<GameObject, Rigidbody2D>();
+    private Dictionary<GameObject, Obstacles[]> childObstaclesCache = new Dictionary<GameObject, Obstacles[]>();
+    private Dictionary<GameObject, float> prefabHeightOffsetCache = new Dictionary<GameObject, float>();
+    #endregion
+
+    #region Properties
+    public int ActiveObstacleCount => activeSpawnedObstacles.Count;
     #endregion
 
     #region Lifecycle
@@ -64,9 +72,9 @@ public class ObstacleSpawner : MonoBehaviour {
     public void ResetSpawner() {
         StopSpawning();
 
-        for (int i = activeSpawnedObstacles.Count - 1; i >= 0; i--) {
-            if (activeSpawnedObstacles[i] != null) {
-                activeSpawnedObstacles[i].SetActive(false);
+        foreach (var obstacle in activeSpawnedObstacles) {
+            if (obstacle != null) {
+                obstacle.SetActive(false);
             }
         }
         activeSpawnedObstacles.Clear();
@@ -75,8 +83,17 @@ public class ObstacleSpawner : MonoBehaviour {
     public void ReturnToPool(GameObject obj) {
         if (obj == null) return;
         obj.SetActive(false);
-        if (activeSpawnedObstacles.Contains(obj)) {
-            activeSpawnedObstacles.Remove(obj);
+        activeSpawnedObstacles.Remove(obj);
+    }
+
+    public HashSet<GameObject> GetActiveObstacles() {
+        return activeSpawnedObstacles;
+    }
+
+    public void ClearAllActiveObstacles() {
+        List<GameObject> activeList = new List<GameObject>(activeSpawnedObstacles);
+        foreach (var obstacle in activeList) {
+            ReturnToPool(obstacle);
         }
     }
     #endregion
@@ -108,32 +125,30 @@ public class ObstacleSpawner : MonoBehaviour {
 
         if (currentConfig != null && referenceWorldWidth > 0f) {
             float widthRatio = currentWorldWidth / referenceWorldWidth;
-            dynamicSpawnInterval = currentConfig.spawnInterval / Mathf.Max(widthRatio, 0.5f);
+            float intervalMultiplier = Mathf.Clamp(1f / widthRatio, 0.5f, 2.0f);
+            dynamicSpawnInterval = currentConfig.spawnInterval * intervalMultiplier;
         } else if (currentConfig != null) {
             dynamicSpawnInterval = currentConfig.spawnInterval;
         }
     }
 
     private float GetSpawnYForPrefab(GameObject prefab) {
-        float objectHeightOffset = 0f;
+        if (prefabHeightOffsetCache.TryGetValue(prefab, out float cachedOffset)) {
+            return screenTopY + cachedOffset + extraTopBuffer;
+        }
 
+        float objectHeightOffset = 0f;
         SpriteRenderer sr = prefab.GetComponentInChildren<SpriteRenderer>();
         Collider2D col = prefab.GetComponentInChildren<Collider2D>();
 
         if (sr != null) {
             objectHeightOffset = sr.bounds.extents.y;
-            Debug.Log($"[Debug Spawn] {prefab.name} Bounds from SpriteRenderer: {sr.bounds.extents.y}");
         } else if (col != null) {
             objectHeightOffset = col.bounds.extents.y;
-            Debug.Log($"[Debug Spawn] {prefab.name} Bounds from Collider2D: {col.bounds.extents.y}");
-        } else {
-            Debug.LogWarning($"[Debug Spawn] {prefab.name} Not found SpriteRenderer or Collider2D!");
         }
 
-        float finalY = screenTopY + objectHeightOffset + extraTopBuffer;
-        Debug.Log($"[Debug Spawn] Camera Pos Y: {mainCamera.transform.position.y} | ScreenTopY: {screenTopY} | Final Spawn Y: {finalY}");
-
-        return finalY;
+        prefabHeightOffsetCache[prefab] = objectHeightOffset;
+        return screenTopY + objectHeightOffset + extraTopBuffer;
     }
 
     private void SpawnStaticGroup() {
@@ -164,11 +179,10 @@ public class ObstacleSpawner : MonoBehaviour {
                 float spawnY = GetSpawnYForPrefab(prefabToSpawn);
 
                 float randomX;
-                float roll = Random.value; 
+                float roll = Random.value;
 
-                float midRegionWidth = (maxX - minX) * 0.5f; 
                 float midLeftBound = minX + (maxX - minX) * 0.25f;
-                float midRightBound = maxX - (maxX - minX) * 0.25f; 
+                float midRightBound = maxX - (maxX - minX) * 0.25f;
 
                 if (roll < 0.5f) {
                     randomX = Random.Range(midLeftBound, midRightBound);
@@ -188,14 +202,14 @@ public class ObstacleSpawner : MonoBehaviour {
     }
 
     private GameObject GetPooledObject(GameObject prefab, Vector3 position, Quaternion rotation) {
-        if (!poolDictionary.ContainsKey(prefab)) {
-            poolDictionary[prefab] = new Queue<GameObject>();
+        if (!poolDictionary.TryGetValue(prefab, out Queue<GameObject> poolQueue)) {
+            poolQueue = new Queue<GameObject>();
+            poolDictionary[prefab] = poolQueue;
         }
 
-        Queue<GameObject> poolQueue = poolDictionary[prefab];
         GameObject objToUse = null;
-
         int checkCount = poolQueue.Count;
+
         for (int i = 0; i < checkCount; i++) {
             GameObject candidate = poolQueue.Dequeue();
             if (candidate != null && !candidate.activeSelf) {
@@ -209,6 +223,9 @@ public class ObstacleSpawner : MonoBehaviour {
         if (objToUse == null) {
             if (poolQueue.Count < maxPoolSizePerPrefab) {
                 objToUse = Instantiate(prefab, transform);
+                // Cache components ngay khi Instantiate
+                rbCache[objToUse] = objToUse.GetComponent<Rigidbody2D>();
+                childObstaclesCache[objToUse] = objToUse.GetComponentsInChildren<Obstacles>(true);
             } else {
                 return null;
             }
@@ -220,32 +237,27 @@ public class ObstacleSpawner : MonoBehaviour {
         objToUse.transform.position = position;
         objToUse.transform.rotation = rotation;
 
-        Rigidbody2D rb2d = objToUse.GetComponent<Rigidbody2D>();
-        if (rb2d != null) {
+        if (rbCache.TryGetValue(objToUse, out Rigidbody2D rb2d) && rb2d != null) {
             rb2d.linearVelocity = Vector2.zero;
             rb2d.angularVelocity = 0f;
         }
 
         objToUse.SetActive(true);
-        ResetAllChildren(objToUse);
+        ResetAllChildrenCached(objToUse);
 
-        if (!activeSpawnedObstacles.Contains(objToUse)) {
-            activeSpawnedObstacles.Add(objToUse);
-        }
+        activeSpawnedObstacles.Add(objToUse);
 
         return objToUse;
     }
 
-    private void ResetAllChildren(GameObject root) {
-        Obstacles rootObstacle = root.GetComponent<Obstacles>();
-        if (rootObstacle != null) {
-            rootObstacle.OnSpawned();
-        }
-
-        Obstacles[] childObstacles = root.GetComponentsInChildren<Obstacles>(true);
-        foreach (var child in childObstacles) {
-            child.gameObject.SetActive(true);
-            child.OnSpawned();
+    private void ResetAllChildrenCached(GameObject root) {
+        if (childObstaclesCache.TryGetValue(root, out Obstacles[] childObstacles)) {
+            for (int i = 0; i < childObstacles.Length; i++) {
+                if (childObstacles[i] != null) {
+                    childObstacles[i].gameObject.SetActive(true);
+                    childObstacles[i].OnSpawned();
+                }
+            }
         }
     }
 

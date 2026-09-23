@@ -1,6 +1,6 @@
-﻿using TMPro;
+﻿using ProtectThatLetter.Managers;
+using TMPro;
 using UnityEngine;
-using UnityEngine.Localization;
 using UnityEngine.UI;
 
 /// <summary>
@@ -13,12 +13,12 @@ public class SettingsUI : MonoBehaviour {
     [SerializeField] private SettingsManager controller;
 
     [Header("Hierarchy Group Panels")]
-    [SerializeField] private GameObject settingsPart;       
-    [SerializeField] private GameObject languagePart;       
+    [SerializeField] private GameObject settingsPart;
+    [SerializeField] private GameObject languagePart;
 
     [Header("Main Settings UI Buttons")]
-    [SerializeField] private Button settingsButton;            
-    [SerializeField] private Button settingsCloseButton;       
+    [SerializeField] private Button settingsButton;
+    [SerializeField] private Button settingsCloseButton;
     [SerializeField] private Button settingsCloseOverlayButton;
 
     [Header("Sound On/Off Buttons")]
@@ -31,11 +31,11 @@ public class SettingsUI : MonoBehaviour {
     [SerializeField] private Sprite sfxOffSprite;
 
     [Header("Language Selector")]
-    [SerializeField] private Button languageButton;           
+    [SerializeField] private Button languageButton;
 
     [Header("Language Popup UI")]
-    [SerializeField] private Button langCloseButton;           
-    [SerializeField] private Button languageOverlayButton;     
+    [SerializeField] private Button langCloseButton;
+    [SerializeField] private Button languageOverlayButton;
     [SerializeField] private Button btnVietnamese;
     [SerializeField] private Button btnEnglish;
 
@@ -97,7 +97,7 @@ public class SettingsUI : MonoBehaviour {
 
     #region Public Methods
     public void OnSettingsButtonClicked() {
-        if(AudioManager.Instance != null) {
+        if (AudioManager.Instance != null) {
             AudioManager.Instance.PlaySFX("settings_button_click");
         }
         OpenPopup();
@@ -155,7 +155,7 @@ public class SettingsUI : MonoBehaviour {
 
     #region Sound & Language Handlers
     private void ToggleBGM() {
-        if(AudioManager.Instance != null) {
+        if (AudioManager.Instance != null) {
             AudioManager.Instance.PlaySFX("button_click");
         }
         isBGMOn = !isBGMOn;
@@ -209,7 +209,7 @@ public class SettingsUI : MonoBehaviour {
         CloseLanguagePopup();
     }
 
-    private void OnLanguageChanged(Locale newLocale) {
+    private void OnLanguageChanged(string newLanguageCode) {
         UpdateLanguageCheckmarks();
     }
 

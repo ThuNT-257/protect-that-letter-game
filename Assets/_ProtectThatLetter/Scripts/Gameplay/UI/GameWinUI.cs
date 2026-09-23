@@ -1,5 +1,7 @@
-using ProtectThatLetter.Controllers;
+﻿using ProtectThatLetter.Controllers;
+using ProtectThatLetter.Definitions;
 using ProtectThatLetter.Managers;
+using System;
 using System.Collections;
 using TMPro;
 using UnityEngine;
@@ -15,6 +17,31 @@ public class GameWinUI : MonoBehaviour {
     [Header("Settings")]
     [SerializeField] private float displayDuration = 2.0f;
     [SerializeField] private float fadeDuration = 1.0f;
+    #endregion
+
+    #region Private Fields
+    private Coroutine winTransitionCoroutine; // Quản lý Coroutine Win
+    #endregion
+
+    #region Data DTOs
+    [Serializable]
+    private class CompleteGameRequestData {
+        public string code;
+    }
+
+    [Serializable]
+    public class CompleteGameResponseData {
+        public int inviteId;
+        public bool hasCompletedGame;
+        public string guestName;
+        public string guestNickname;
+        public bool isLetterRead;
+        public string letterContentVn;
+        public string letterContentEn;
+        public string imageUrl;
+        public bool? isAttending;
+        public string guestNote;
+    }
     #endregion
 
     #region Lifecycle
@@ -42,7 +69,11 @@ public class GameWinUI : MonoBehaviour {
             birdController.PlayWinFlyAnimation();
         }
 
-        StartCoroutine(TransitionRoutine());
+        // Hủy Coroutine cũ nếu có trước khi chạy mới
+        if (winTransitionCoroutine != null) {
+            StopCoroutine(winTransitionCoroutine);
+        }
+        winTransitionCoroutine = StartCoroutine(CompleteGameAndTransitionRoutine());
     }
 
     public void HideTitle() {
@@ -50,11 +81,67 @@ public class GameWinUI : MonoBehaviour {
             winTitleText.gameObject.SetActive(false);
         }
     }
+
+    // HÀM MỚI: Reset toàn bộ trạng thái Win khi Replay / Restart / Game Over
+    public void ResetWinUI() {
+        if (winTransitionCoroutine != null) {
+            StopCoroutine(winTransitionCoroutine);
+            winTransitionCoroutine = null;
+        }
+        HideTitle();
+    }
     #endregion
 
     #region Private Methods
-    private IEnumerator TransitionRoutine() {
+    private IEnumerator CompleteGameAndTransitionRoutine() {
         yield return new WaitForSeconds(displayDuration);
+
+        string accessCode = GuestDataManager.Instance != null ? GuestDataManager.Instance.AccessCode : string.Empty;
+        if (string.IsNullOrEmpty(accessCode)) {
+            accessCode = PlayerPrefs.GetString("SavedAccessCode", string.Empty);
+        }
+
+        if (string.IsNullOrEmpty(accessCode)) {
+            if (SceneController.Instance != null) {
+                SceneController.Instance.LoadSceneByName(SceneName.LOGIN_SCENE, fadeDuration);
+            }
+            yield break;
+        }
+
+        bool isApiFinished = false;
+
+        if (NetworkManager.Instance != null) {
+            var requestBody = new CompleteGameRequestData { code = accessCode };
+
+            StartCoroutine(NetworkManager.Instance.PostRequest<CompleteGameRequestData, CompleteGameResponseData>(
+                "/api/guest/complete-game",
+                requestBody,
+                (success, responseData, errCode) => {
+                    if (success && responseData != null) {
+                        if (GuestDataManager.Instance != null) {
+                            GuestDataManager.Instance.SaveGuestData(
+                                responseData.inviteId,
+                                accessCode,
+                                responseData.guestName,
+                                responseData.guestNickname,
+                                responseData.letterContentVn,
+                                responseData.letterContentEn,
+                                responseData.imageUrl,
+                                responseData.hasCompletedGame,
+                                responseData.isLetterRead,
+                                responseData.isAttending,
+                                responseData.guestNote
+                            );
+                        }
+                    } else {
+                        Debug.LogWarning($"[GameWinUI] Complete game API Failed. Error: {errCode}");
+                    }
+                    isApiFinished = true;
+                }
+            ));
+
+            yield return new WaitUntil(() => isApiFinished);
+        }
 
         if (SceneController.Instance != null) {
             SceneController.Instance.LoadNextScene(fadeDuration);

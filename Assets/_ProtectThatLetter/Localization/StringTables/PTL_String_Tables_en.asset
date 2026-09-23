@@ -63,7 +63,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 2826883715514368
-    m_Localized: Protect the bird
+    m_Localized: Hold the circle to protect the little dove
     m_Metadata:
       m_Items: []
   - m_Id: 2837202177310720
@@ -96,6 +96,58 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 2950927077031936
     m_Localized: THE LITTLE DOVE ARRIVED SAFELY!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3425237969354752
+    m_Localized: Enter to open!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3425935192702976
+    m_Localized: Send your answer back!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3426521292161024
+    m_Localized: before the dove takes off!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3465627351072768
+    m_Localized: An invitation for
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3473159457030144
+    m_Localized: to Thu's graduation ceremony
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3473473790754816
+    m_Localized: on September 16, 2026
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3473728133349376
+    m_Localized: at the National Convention Center
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3473991514669056
+    m_Localized: at 17:15
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3592157934862336
+    m_Localized: CONFIRM
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3626674951241728
+    m_Localized: RETURN
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3627280076062720
+    m_Localized: SAVE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3984942684913664
+    m_Localized: 'A few words for Thu (if any):'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3985375444811776
+    m_Localized: SAVED.
     m_Metadata:
       m_Items: []
   references:

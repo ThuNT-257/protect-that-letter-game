@@ -2,8 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Localization;
 using UnityEngine.UI;
+using ProtectThatLetter.Managers;
 
 public class GameOverUI : MonoBehaviour {
     #region Serialized Fields
@@ -37,13 +37,11 @@ public class GameOverUI : MonoBehaviour {
     }
 
     private void OnEnable() {
-        LocalizationManager.OnLanguageChanged += OnLanguageChanged;
-        Debug.Log("[GameOverUI] Subscribed to OnLanguageChanged event.");
+        LocalizationManager.OnLanguageChanged += HandleLanguageChanged;
     }
 
     private void OnDisable() {
-        LocalizationManager.OnLanguageChanged -= OnLanguageChanged;
-        Debug.Log("[GameOverUI] Unsubscribed from OnLanguageChanged event.");
+        LocalizationManager.OnLanguageChanged -= HandleLanguageChanged;
     }
 
     private void Start() {
@@ -57,7 +55,6 @@ public class GameOverUI : MonoBehaviour {
 
     #region Public Methods
     public void ShowPanel() {
-        Debug.Log("[GameOverUI] ShowPanel() called.");
         currentTextIndex = -1;
         currentSpriteIndex = -1;
 
@@ -77,13 +74,9 @@ public class GameOverUI : MonoBehaviour {
     }
     #endregion
 
-    #region Private Methods
-    private void OnLanguageChanged(Locale newLocale) {
-        string localeCode = newLocale != null ? newLocale.Identifier.Code : "null";
-        Debug.Log($"[GameOverUI] OnLanguageChanged triggered. New Locale: {localeCode}");
-
+    #region Event Handlers & Private Methods
+    private void HandleLanguageChanged(string langCode) {
         bool isOverlayActive = gameOverOverlay != null && gameOverOverlay.activeSelf;
-        Debug.Log($"[GameOverUI] Overlay Active State: {isOverlayActive}, GameObject Active State: {gameObject.activeInHierarchy}");
 
         if (isOverlayActive) {
             RefreshComfortText();
@@ -100,7 +93,6 @@ public class GameOverUI : MonoBehaviour {
         } else {
             currentTextIndex = Random.Range(0, activeTextList.Count);
             comfortText.text = activeTextList[currentTextIndex];
-            Debug.Log($"[GameOverUI] Applied initial text index {currentTextIndex}: \"{comfortText.text}\"");
         }
 
         if (comfortThumbnailImage != null && comfortThumbnailList != null && comfortThumbnailList.Count > 0) {
@@ -112,13 +104,7 @@ public class GameOverUI : MonoBehaviour {
     private void RefreshComfortText() {
         List<string> activeTextList = GetActiveComfortTextList();
 
-        if (comfortText == null) {
-            Debug.LogError("[GameOverUI] 'comfortText' is NOT assigned when refreshing!");
-            return;
-        }
-
-        if (activeTextList == null || activeTextList.Count == 0) {
-            Debug.LogWarning("[GameOverUI] Target text list is empty during refresh!");
+        if (comfortText == null || activeTextList == null || activeTextList.Count == 0) {
             return;
         }
 
@@ -126,31 +112,23 @@ public class GameOverUI : MonoBehaviour {
             currentTextIndex = 0;
         }
 
-        string oldText = comfortText.text;
         comfortText.text = activeTextList[currentTextIndex];
-        Debug.Log($"[GameOverUI] Refreshed text at index {currentTextIndex}. Old: \"{oldText}\" -> New: \"{comfortText.text}\"");
     }
 
     private List<string> GetActiveComfortTextList() {
         if (LocalizationManager.Instance == null) {
-            Debug.LogWarning("[GameOverUI] LocalizationManager.Instance is NULL! Defaulting to Vietnamese list.");
             return vietnameseComfortTextList;
         }
 
         string currentCode = LocalizationManager.Instance.CurrentLanguageCode;
-        Debug.Log($"[GameOverUI] Fetching list for language code: '{currentCode}'");
 
         if (currentCode.Equals(LocalizationManager.ENGLISH, System.StringComparison.OrdinalIgnoreCase)) {
-            Debug.Log($"[GameOverUI] Returning English List (Count: {englishComfortTextList.Count})");
             return englishComfortTextList;
         }
 
-        Debug.Log($"[GameOverUI] Returning Vietnamese List (Count: {vietnameseComfortTextList.Count})");
         return vietnameseComfortTextList;
     }
-    #endregion
 
-    #region Event Handlers
     private void OnRestartButtonClicked() {
         HidePanel();
         Time.timeScale = 1f;

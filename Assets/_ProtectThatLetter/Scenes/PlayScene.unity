@@ -2647,8 +2647,8 @@ Transform:
   m_GameObject: {fileID: 584312877}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.0915, y: -0.055, z: 0}
-  m_LocalScale: {x: 18.18, y: 11.11, z: 1.01}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -2685,7 +2685,7 @@ MonoBehaviour:
   mainCamera: {fileID: 136384937}
   spawnPadding: 0.5
   referenceWorldWidth: 10
-  extraTopBuffer: 1
+  extraTopBuffer: 2.5
   maxPoolSizePerPrefab: 15
 --- !u!4 &590047453
 Transform:
@@ -3558,6 +3558,7 @@ GameObject:
   - component: {fileID: 975917420}
   - component: {fileID: 975917419}
   - component: {fileID: 975917421}
+  - component: {fileID: 975917422}
   m_Layer: 0
   m_Name: Shield
   m_TagString: Shield
@@ -3630,7 +3631,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0.04, y: 1.223, z: 0}
-  m_LocalScale: {x: 0.3081181, y: 0.3081181, z: 0.25676507}
+  m_LocalScale: {x: 0.28169015, y: 0.28169015, z: 0.25676507}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -3713,9 +3714,24 @@ MonoBehaviour:
   mainCamera: {fileID: 136384937}
   rb: {fileID: 975917419}
   throwForceMultiplier: 8
-  objectRadius: 0.6
   dragSpeed: 25
   maxThrowVelocity: 25
+--- !u!114 &975917422
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 975917416}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e4f3de2e46a8dd64ba625aa5c19be9e0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  isDynamicObject: 1
+  portraitWidthPercent: 0.1
+  landscapeWidthPercent: 0.1
+  fitToHeightInLandscape: 1
 --- !u!1 &993545145
 GameObject:
   m_ObjectHideFlags: 0
@@ -3918,6 +3934,7 @@ GameObject:
   - component: {fileID: 1027912494}
   - component: {fileID: 1027912495}
   - component: {fileID: 1027912496}
+  - component: {fileID: 1027912497}
   m_Layer: 0
   m_Name: Pigeon
   m_TagString: Pigeon
@@ -3990,7 +4007,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: -3.37, z: 0}
-  m_LocalScale: {x: 0.68031996, y: 0.68031996, z: 0.8504}
+  m_LocalScale: {x: 0.6544503, y: 0.6544503, z: 0.8504}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -4034,7 +4051,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 16d17f6c3c780e0409ce136bde580e1d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  collisionUI: {fileID: 1635958767}
+  collisionUI: {fileID: 0}
   gameOverUI: {fileID: 1239329897}
   pauseOnCollision: 1
   flyUpSpeed: 6
@@ -4180,6 +4197,22 @@ PolygonCollider2D:
       - {x: 0.089999996, y: -0.84999996}
       - {x: 0.17999999, y: -0.88}
   m_UseDelaunayMesh: 0
+--- !u!114 &1027912497
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1027912489}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e4f3de2e46a8dd64ba625aa5c19be9e0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  isDynamicObject: 1
+  portraitWidthPercent: 0.4
+  landscapeWidthPercent: 0.25
+  fitToHeightInLandscape: 1
 --- !u!1 &1095783912
 GameObject:
   m_ObjectHideFlags: 0
@@ -5634,6 +5667,7 @@ GameObject:
   - component: {fileID: 1490686059}
   - component: {fileID: 1490686060}
   - component: {fileID: 1490686061}
+  - component: {fileID: 1490686062}
   m_Layer: 5
   m_Name: PlayCanvas
   m_TagString: Untagged
@@ -5757,6 +5791,7 @@ MonoBehaviour:
   - {fileID: 271654385}
   - {fileID: 346396451}
   - {fileID: 1363800999}
+  returnButton: {fileID: 1095783914}
   countdownText: {fileID: 1334911079}
   normalColor: {r: 1, g: 1, b: 1, a: 1}
   correctColor: {r: 0, g: 1, b: 0, a: 1}
@@ -5789,6 +5824,21 @@ CanvasGroup:
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
+--- !u!114 &1490686062
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1490686054}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e83d5fbed06410943bdd530e1288a444, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  collisionPanel: {fileID: 1635958763}
+  quizButton: {fileID: 2136747750}
+  restartButton: {fileID: 865531963}
 --- !u!1 &1491766462
 GameObject:
   m_ObjectHideFlags: 0
@@ -5965,7 +6015,6 @@ GameObject:
   - component: {fileID: 1635958764}
   - component: {fileID: 1635958766}
   - component: {fileID: 1635958765}
-  - component: {fileID: 1635958767}
   m_Layer: 5
   m_Name: CollisionOverlay
   m_TagString: Untagged
@@ -6031,21 +6080,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1635958763}
   m_CullTransparentMesh: 1
---- !u!114 &1635958767
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1635958763}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e83d5fbed06410943bdd530e1288a444, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  collisionPanel: {fileID: 1635958763}
-  quizButton: {fileID: 2136747750}
-  restartButton: {fileID: 865531963}
 --- !u!1 &1684856246
 GameObject:
   m_ObjectHideFlags: 0
@@ -6264,7 +6298,7 @@ MonoBehaviour:
   levels:
   - levelName: Level 0
     spawnType: 1
-    duration: 3
+    duration: 2
     staticGroupPrefab: {fileID: 8651024158602252291, guid: 474875867cdedfd49b57063f12f0280d, type: 3}
     spawnInterval: 0
     obstaclePrefabs: []
@@ -6272,14 +6306,14 @@ MonoBehaviour:
     spawnType: 0
     duration: 10
     staticGroupPrefab: {fileID: 0}
-    spawnInterval: 1
+    spawnInterval: 0.7
     obstaclePrefabs:
     - {fileID: 3257345380632339942, guid: 2da9d3c2489c69045a385f9ea4bce879, type: 3}
   - levelName: Level 2
     spawnType: 0
     duration: 10
     staticGroupPrefab: {fileID: 0}
-    spawnInterval: 0.5
+    spawnInterval: 0.4
     obstaclePrefabs:
     - {fileID: 8951818895851607130, guid: d2d58417c4cbbff449740d1d8fc64c06, type: 3}
   autoStartOnLoad: 0
@@ -6354,6 +6388,12 @@ MonoBehaviour:
     - "Nguy\u1EC5n Th\u1ECB Thanh Thu"
     - "Nguy\u1EC5n Thanh Thu"
     correctIndex: 3
+  - question: "Khi \u0111i quan s\xE1t v\xE0 h\u1ECDc h\u1ECFi th\u1EF1c t\u1EBF,
+      ch\xFAng ta n\xEAn d\xF9ng t\u1EEB n\xE0o d\u01B0\u1EDBi \u0111\xE2y?"
+    options:
+    - Tham quan
+    - "Th\u0103m quan"
+    correctIndex: 0
   englishQuestions:
   - question: You are running a race and you overtake the person in second place.
       What place are you in now?
@@ -6383,6 +6423,13 @@ MonoBehaviour:
     - South Korea
     - Switzerland
     - Thailand
+    correctIndex: 0
+  - question: Ted and Amy _____ for 24 years.
+    options:
+    - have been married
+    - married
+    - were married
+    - has been married
     correctIndex: 0
 --- !u!1 &1886050302
 GameObject:

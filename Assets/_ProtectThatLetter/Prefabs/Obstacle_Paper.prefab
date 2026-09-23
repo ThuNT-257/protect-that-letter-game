@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 8240807638759227276}
   - component: {fileID: 3568479856476310088}
   - component: {fileID: 2187558786856216725}
+  - component: {fileID: 8040350754738455391}
   m_Layer: 3
   m_Name: Obstacle_Paper
   m_TagString: Obstacles
@@ -31,7 +32,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.077, y: 0.077, z: 0.077}
+  m_LocalScale: {x: 0.14025246, y: 0.14025246, z: 0.077}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -198,3 +199,19 @@ MonoBehaviour:
   maxAngularVelocity: 60
   offScreenLimitDuration: 3
   viewportBuffer: 0.15
+--- !u!114 &8040350754738455391
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3257345380632339942}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e4f3de2e46a8dd64ba625aa5c19be9e0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  isDynamicObject: 0
+  portraitWidthPercent: 0.2
+  landscapeWidthPercent: 0.15
+  fitToHeightInLandscape: 1

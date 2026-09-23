@@ -1,4 +1,4 @@
-using ProtectThatLetter.Controllers;
+﻿using ProtectThatLetter.Controllers;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,6 +6,16 @@ using UnityEngine.UI;
 using static ObstacleSpawner;
 
 public class GameManager : MonoBehaviour {
+    #region State Enum
+    public enum GameState {
+        Init,
+        Playing,
+        Paused,
+        GameOver,
+        GameWin
+    }
+    #endregion
+
     #region Instance
     private static GameManager instance;
     public static GameManager Instance {
@@ -39,12 +49,16 @@ public class GameManager : MonoBehaviour {
     private float totalGameDuration = 0f;
     private float currentGameTime = 0f;
     private Coroutine gameLoopCoroutine;
+    private Coroutine winWaitCoroutine;
+    private WaitForEndOfFrame waitForEndOfFrame = new WaitForEndOfFrame();
+    private bool areAllLevelsFinished = false;
     #endregion
 
     #region Properties
-    public bool IsPaused { get; private set; } = false;
-    public bool HasGameStarted { get; private set; } = false;
-    public bool HasCompletedQuiz { get; set; } = false; 
+    public GameState CurrentState { get; private set; } = GameState.Init;
+    public bool IsPaused => CurrentState == GameState.Paused;
+    public bool HasGameStarted => CurrentState == GameState.Playing || CurrentState == GameState.Paused;
+    public bool HasCompletedQuiz { get; set; } = false;
     #endregion
 
     #region Lifecycle
@@ -65,13 +79,11 @@ public class GameManager : MonoBehaviour {
     }
 
     private void Update() {
-        if (!HasGameStarted || IsPaused || totalGameDuration <= 0f) return;
+        if (CurrentState != GameState.Playing || totalGameDuration <= 0f) return;
 
-        if (currentGameTime < totalGameDuration) {
-            currentGameTime += Time.deltaTime;
-            if (timebarSlider != null) {
-                timebarSlider.value = currentGameTime / totalGameDuration;
-            }
+        if (timebarSlider != null && !areAllLevelsFinished) {
+            float targetValue = Mathf.Clamp01(currentGameTime / totalGameDuration);
+            timebarSlider.value = targetValue;
         }
     }
 
@@ -84,9 +96,8 @@ public class GameManager : MonoBehaviour {
 
     #region Public Methods
     public void StartGame() {
-        if (HasGameStarted) return;
-
-        HasGameStarted = true;
+        CurrentState = GameState.Playing;
+        areAllLevelsFinished = false;
 
         if (AudioManager.Instance != null) {
             AudioManager.Instance.PlayLoopSFX("wind_sfx");
@@ -100,33 +111,39 @@ public class GameManager : MonoBehaviour {
             guideTextController.HideGuideWithFade();
         }
 
-        if (gameLoopCoroutine != null) StopCoroutine(gameLoopCoroutine);
+        StopAllGameCoroutines();
         gameLoopCoroutine = StartCoroutine(GameLoopRoutine());
     }
 
     public void PauseGame() {
         if (QuizManager.Instance != null && QuizManager.Instance.IsCountingDown) return;
+        if (CurrentState != GameState.Playing) return;
 
-        IsPaused = true;
+        CurrentState = GameState.Paused;
         Time.timeScale = 0f;
+    }
+    public void OnLevelComplete() {
+        obstacleSpawner.StopSpawning();
+
+        obstacleSpawner.ClearAllActiveObstacles();
+
+        birdController.PlayWinFlyAnimation();
     }
 
     public void ResumeGame() {
-        IsPaused = false;
+        if (CurrentState != GameState.Paused) return;
+
+        CurrentState = GameState.Playing;
         Time.timeScale = 1f;
     }
 
     public void RestartGame() {
         Time.timeScale = 1f;
-        IsPaused = false;
+
+        StopAllGameCoroutines();
 
         if (AudioManager.Instance != null) {
             AudioManager.Instance.StopSFX();
-        }
-
-        if (gameLoopCoroutine != null) {
-            StopCoroutine(gameLoopCoroutine);
-            gameLoopCoroutine = null;
         }
 
         if (obstacleSpawner != null) {
@@ -140,21 +157,43 @@ public class GameManager : MonoBehaviour {
         InitGame();
     }
 
-    public void OnAllObstaclesCleared() {
-        if (gameWinUI != null) {
-            gameWinUI.ShowWinAndTransition();
+    // HÀM XỬ LÝ KHI THUA
+    public void GameOver() {
+        CurrentState = GameState.GameOver;
+
+        // KIỂM SOÁT TRIỆT ĐỂ: Dừng sạch mọi Coroutine đang chạy
+        StopAllGameCoroutines();
+
+        if (obstacleSpawner != null) {
+            obstacleSpawner.StopSpawning();
         }
+
+        if (gameWinUI != null) {
+            gameWinUI.ResetWinUI();
+        }
+    }
+
+    public void OnAllObstaclesCleared() {
+        if (!areAllLevelsFinished || CurrentState != GameState.Playing) return;
+
+        TriggerWin();
     }
     #endregion
 
     #region Private Methods
     private void InitGame() {
         Time.timeScale = 1f;
-        IsPaused = false;
-        HasGameStarted = false;
-        HasCompletedQuiz = false; 
+        CurrentState = GameState.Init;
+        HasCompletedQuiz = false;
+        areAllLevelsFinished = false;
         currentGameTime = 0f;
         totalGameDuration = 0f;
+
+        StopAllGameCoroutines();
+
+        if (gameWinUI != null) {
+            gameWinUI.ResetWinUI();
+        }
 
         if (guideTextController != null) {
             guideTextController.ShowGuide();
@@ -209,7 +248,7 @@ public class GameManager : MonoBehaviour {
     private IEnumerator GameLoopRoutine() {
         if (!ValidateReferences()) yield break;
 
-        yield return new WaitForEndOfFrame();
+        yield return waitForEndOfFrame;
 
         for (int i = 0; i < levels.Count; i++) {
             LevelConfig currentLevel = levels[i];
@@ -220,26 +259,116 @@ public class GameManager : MonoBehaviour {
 
             obstacleSpawner.StartLevel(currentLevel);
 
-            yield return new WaitForSeconds(currentLevel.duration);
+            float timer = 0f;
+            while (timer < currentLevel.duration) {
+                if (CurrentState == GameState.Playing) {
+                    float dt = Time.deltaTime;
+                    timer += dt;
+                    currentGameTime += dt;
+                } else if (CurrentState == GameState.GameOver || CurrentState == GameState.GameWin) {
+                    yield break;
+                }
+                yield return null;
+            }
 
             obstacleSpawner.StopSpawning();
 
             if (i < levels.Count - 1) {
-                yield return new WaitForSeconds(transitionDelay);
+                float delayTimer = 0f;
+                while (delayTimer < transitionDelay) {
+                    if (CurrentState == GameState.Playing) {
+                        float dt = Time.deltaTime;
+                        delayTimer += dt;
+                        currentGameTime += dt;
+                    } else if (CurrentState == GameState.GameOver || CurrentState == GameState.GameWin) {
+                        yield break;
+                    }
+                    yield return null;
+                }
             }
         }
 
+        areAllLevelsFinished = true;
+        currentGameTime = totalGameDuration;
         if (timebarSlider != null) timebarSlider.value = 1f;
 
-        yield return StartCoroutine(WaitAndTriggerWinRoutine());
+        winWaitCoroutine = StartCoroutine(WaitUntilAllObstaclesCleared());
     }
 
-    private IEnumerator WaitAndTriggerWinRoutine() {
-        yield return new WaitUntil(() => GameObject.FindGameObjectsWithTag("Obstacles").Length == 0);
+    private IEnumerator WaitUntilAllObstaclesCleared() {
+        if (obstacleSpawner != null) {
+            obstacleSpawner.StopSpawning();
+        }
+
+        float safetyTimeout = 10.0f;
+        float elapsed = 0f;
+
+        while (elapsed < safetyTimeout) {
+            if (CurrentState != GameState.Playing) yield break;
+
+            elapsed += Time.deltaTime;
+
+            if (IsScreenClear()) {
+                break;
+            }
+
+            yield return null;
+        }
+
+        TriggerWin();
+    }
+
+    private void TriggerWin() {
+        if (CurrentState != GameState.Playing) return;
+
+        CurrentState = GameState.GameWin;
+
+        if (obstacleSpawner != null) {
+            obstacleSpawner.StopSpawning();
+            obstacleSpawner.ClearAllActiveObstacles();
+        }
+
+        if (birdController != null) {
+            birdController.PlayWinFlyAnimation();
+        }
 
         if (gameWinUI != null) {
             gameWinUI.ShowWinAndTransition();
         }
+    }
+
+    private bool IsScreenClear() {
+        if (obstacleSpawner == null) return true;
+        if (obstacleSpawner.ActiveObstacleCount == 0) return true;
+
+        var activeObstacles = obstacleSpawner.GetActiveObstacles();
+        if (activeObstacles == null || activeObstacles.Count == 0) return true;
+
+        Camera mainCam = Camera.main;
+        if (mainCam == null) return false;
+
+        foreach (GameObject obstacle in activeObstacles) {
+            if (obstacle != null && obstacle.activeInHierarchy) {
+                Vector3 viewportPos = mainCam.WorldToViewportPoint(obstacle.transform.position);
+                if (viewportPos.y > -0.2f && viewportPos.y < 1.2f) {
+                    return false; 
+                }
+            }
+        }
+
+        return true;
+    }
+
+    private void StopAllGameCoroutines() {
+        if (gameLoopCoroutine != null) {
+            StopCoroutine(gameLoopCoroutine);
+            gameLoopCoroutine = null;
+        }
+        if (winWaitCoroutine != null) {
+            StopCoroutine(winWaitCoroutine);
+            winWaitCoroutine = null;
+        }
+        StopAllCoroutines();
     }
 
     private bool ValidateReferences() {

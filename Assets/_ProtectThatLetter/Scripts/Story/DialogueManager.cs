@@ -1,6 +1,5 @@
 ﻿using System.Collections;
 using UnityEngine;
-using UnityEngine.Localization;
 using ProtectThatLetter.Managers;
 
 namespace ProtectThatLetter.UI {
@@ -57,14 +56,14 @@ namespace ProtectThatLetter.UI {
             DisplayCurrentLine();
         }
 
-        private void OnLanguageChanged(Locale newLocale) {
+        private void OnLanguageChanged(string newLanguageCode) {
             LoadStoryData();
             DisplayCurrentLine();
         }
 
         private void LoadStoryData() {
             string storyFileName = SceneController.Instance != null
-                ? SceneController.Instance.GetCurrentStoryFileName()
+                ? StoryManager.Instance.GetCurrentStoryFileName()
                 : "IntroStory";
 
             string lang = LocalizationManager.Instance != null
@@ -143,9 +142,8 @@ namespace ProtectThatLetter.UI {
         }
 
         private string GetCurrentGuestName() {
-            if (PlayerPrefs.HasKey("GuestName")) {
-                string savedName = PlayerPrefs.GetString("GuestName");
-                if (!string.IsNullOrEmpty(savedName)) return savedName;
+            if (GuestDataManager.Instance != null && !string.IsNullOrEmpty(GuestDataManager.Instance.GuestName)) {
+                return GuestDataManager.Instance.GuestName;
             }
 
             return "Guest";

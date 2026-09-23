@@ -22,8 +22,8 @@ public class BirdController : MonoBehaviour {
 
     #region Private Fields
     private int collisionCount = 0;
-
     private bool isFlyingUp = false;
+    private bool isHandlingCollision = false;
     #endregion
 
     private void Update() {
@@ -49,8 +49,8 @@ public class BirdController : MonoBehaviour {
     #region Public Methods
     public void ResetCollisionCount() {
         collisionCount = 0;
-
         isFlyingUp = false;
+        isHandlingCollision = false;
     }
 
     public void PlayWinFlyAnimation() {
@@ -60,25 +60,42 @@ public class BirdController : MonoBehaviour {
 
     #region Private Methods
     private void HandleCollision() {
+        if (isHandlingCollision || Time.timeScale == 0f) return;
+        isHandlingCollision = true;
+
         bool hasDoneQuiz = (GameManager.Instance != null) && GameManager.Instance.HasCompletedQuiz;
 
         if (!hasDoneQuiz && collisionCount == 0) {
             collisionCount = 1;
 
-            if (collisionUI != null) {
+            if (CollisionUI.Instance != null) {
+                CollisionUI.Instance.ShowPanel();
+            } else if (collisionUI != null) {
                 collisionUI.ShowPanel();
+            } else {
+                CollisionUI ui = FindFirstObjectByType<CollisionUI>(FindObjectsInactive.Include);
+                if (ui != null) ui.ShowPanel();
             }
         } else {
             collisionCount = 2;
 
+            if (GameManager.Instance != null) {
+                GameManager.Instance.GameOver();
+            }
+
             if (gameOverUI != null) {
                 gameOverUI.ShowPanel();
+            } else {
+                GameOverUI ui = FindFirstObjectByType<GameOverUI>(FindObjectsInactive.Include);
+                if (ui != null) ui.ShowPanel();
             }
         }
 
         if (pauseOnCollision) {
             Time.timeScale = 0f;
         }
+
+        isHandlingCollision = false;
     }
 
     private IEnumerator WinFlyRoutine() {

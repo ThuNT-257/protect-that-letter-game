@@ -1,16 +1,12 @@
+﻿using ProtectThatLetter.Definitions;
 using ProtectThatLetter.Managers;
 using System;
 using System.Collections;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Localization;
 using UnityEngine.UI;
 
 namespace ProtectThatLetter.UI {
-    /// <summary>
-    /// Manages the login UI functionality including input validation, 
-    /// localization, and guest send-code API verification before scene transition.
-    /// </summary>
     [DisallowMultipleComponent]
     public class LoginUI : MonoBehaviour {
         #region Serialized Fields
@@ -44,11 +40,16 @@ namespace ProtectThatLetter.UI {
 
         [Serializable]
         private class CheckCodeResponseData {
+            public int inviteId;
             public bool hasCompletedGame;
             public string guestName;
+            public string guestNickname;
+            public bool isLetterRead;
             public string letterContentVn;
             public string letterContentEn;
             public string imageUrl;
+            public bool? isAttending;
+            public string guestNote;
         }
         #endregion
 
@@ -100,7 +101,7 @@ namespace ProtectThatLetter.UI {
         #endregion
 
         #region Private Methods
-        private void OnLanguageChanged(Locale newLocale) {
+        private void OnLanguageChanged(string newLanguageCode) {
             RefreshLocalizedErrorText();
         }
 
@@ -111,33 +112,21 @@ namespace ProtectThatLetter.UI {
 
             string inputCode = codeInputField != null ? codeInputField.text.Trim() : string.Empty;
 
-            Debug.Log($"[LoginUI] === Submit Button Clicked ===");
-            Debug.Log($"[LoginUI] Raw Input Code: '{codeInputField?.text}', Trimmed Input Code: '{inputCode}' (Length: {inputCode.Length})");
-
-            // 1. Check if code is empty
             if (string.IsNullOrEmpty(inputCode)) {
-                Debug.LogWarning("[LoginUI] Validation Failed: Code is empty. Displaying 'ERROR_EMPTY_CODE'.");
                 DisplayError("ERROR_EMPTY_CODE");
                 return;
             }
 
-            // 2. Check if code has exactly 6 characters
             if (inputCode.Length != 6) {
-                Debug.LogWarning($"[LoginUI] Validation Failed: Code length is {inputCode.Length} (Expected 6). Displaying 'ERROR_INVALID_CODE'.");
                 DisplayError("ERROR_INVALID_CODE");
                 return;
             }
 
-            Debug.Log("[LoginUI] Input validation passed. Clearing previous errors and sending Code...");
             ClearError();
             StartCoroutine(SendCodeAndProceed(inputCode));
         }
 
-        /// <summary>
-        /// Calls Send Code API via NetworkManager before changing scene.
-        /// </summary>
         private IEnumerator SendCodeAndProceed(string inputCode) {
-            Debug.Log("[LoginUI] SendCodeAndProceed started. Displaying loading overlay...");
             SetLoading(true);
 
             bool isSuccess = false;
@@ -148,8 +137,6 @@ namespace ProtectThatLetter.UI {
                 var requestBody = new SendCodeRequestData { code = inputCode };
                 string jsonPayload = JsonUtility.ToJson(requestBody);
 
-                Debug.Log($"[LoginUI] Sending POST request to '/api/guest/send-code' with payload: {jsonPayload}");
-
                 yield return StartCoroutine(NetworkManager.Instance.PostRequest<CheckCodeResponseData>(
                     "/api/guest/send-code",
                     jsonPayload,
@@ -157,37 +144,48 @@ namespace ProtectThatLetter.UI {
                         isSuccess = success;
                         responseData = data;
                         returnedErrorCode = errCode;
-                        Debug.Log($"[LoginUI] NetworkManager Callback received -> Success: {isSuccess}, ErrorCode: '{returnedErrorCode}'");
                     }
                 ));
             } else {
-                Debug.LogError("[LoginUI] NetworkManager Instance is null! Cannot proceed with send-code.");
                 returnedErrorCode = ErrorCodes.ERROR_INTERNAL_SERVER;
             }
 
-            Debug.Log("[LoginUI] Request finished. Hiding loading overlay...");
             SetLoading(false);
 
-            if (isSuccess) {
-                Debug.Log("[LoginUI] Send Code SUCCESSFUL! Preparing to transition scene...");
+            if (isSuccess && responseData != null) {
+                PlayerPrefs.SetString("SavedAccessCode", inputCode);
+                PlayerPrefs.Save();
 
-                if (responseData != null && !responseData.hasCompletedGame) {
-                    PlayerPrefs.SetString("SavedAccessCode", inputCode);
-                    PlayerPrefs.Save();
-                    Debug.Log($"[LoginUI] Code '{inputCode}' successfully saved to PlayerPrefs.");
+                if (GuestDataManager.Instance != null) {
+                    Debug.Log($"[LoginUI] Received isAttending from API: {responseData.isAttending}");
+
+                    GuestDataManager.Instance.SaveGuestData(
+                        responseData.inviteId,
+                        inputCode,
+                        responseData.guestName,
+                        responseData.guestNickname,
+                        responseData.letterContentVn,
+                        responseData.letterContentEn,
+                        responseData.imageUrl,
+                        responseData.hasCompletedGame,
+                        responseData.isLetterRead,
+                        responseData.isAttending,
+                        responseData.guestNote
+                    );
                 }
 
                 if (SceneController.Instance != null) {
-                    SceneController.Instance.LoadNextScene();
-                } else {
-                    Debug.LogError("[LoginUI] SceneController Instance is null! Cannot proceed.");
+                    if (responseData.hasCompletedGame) {
+                        SceneController.Instance.LoadSceneByName(SceneName.LETTER_SCENE);
+                    } else {
+                        SceneController.Instance.LoadNextScene();
+                    }
                 }
             } else {
                 string errorCodeToDisplay = !string.IsNullOrEmpty(returnedErrorCode)
                     ? returnedErrorCode
                     : ErrorCodes.ERROR_DATABASE_OFFLINE;
 
-                Debug.LogError($"[LoginUI] Send Code FAILED. Displaying Error Code: '{errorCodeToDisplay}'");
                 DisplayError(errorCodeToDisplay);
             }
         }
@@ -210,16 +208,25 @@ namespace ProtectThatLetter.UI {
         }
 
         private void OnInputEndEdit(string text) {
-            if (codeInputField.wasCanceled) return;
+            if (codeInputField != null && codeInputField.wasCanceled) return;
 
-            if (TouchScreenKeyboard.isSupported) {
-                Debug.Log("[LoginUI] Input EndEdit triggered via TouchScreenKeyboard.");
-                OnSubmitClicked();
-            } else if (UnityEngine.InputSystem.Keyboard.current != null &&
-                      (UnityEngine.InputSystem.Keyboard.current.enterKey.wasPressedThisFrame ||
-                       UnityEngine.InputSystem.Keyboard.current.numpadEnterKey.wasPressedThisFrame)) {
+            bool isEnterPressed = false;
+
+            if (UnityEngine.InputSystem.Keyboard.current != null) {
+                var keyboard = UnityEngine.InputSystem.Keyboard.current;
+                if (keyboard.enterKey.wasPressedThisFrame || keyboard.numpadEnterKey.wasPressedThisFrame) {
+                    isEnterPressed = true;
+                }
+            }
+
+            if (!isEnterPressed && TouchScreenKeyboard.isSupported && codeInputField.touchScreenKeyboard != null) {
+                if (codeInputField.touchScreenKeyboard.status == TouchScreenKeyboard.Status.Done) {
+                    isEnterPressed = true;
+                }
+            }
+
+            if (isEnterPressed) {
                 if (loadingOverlay != null && !loadingOverlay.activeSelf) {
-                    Debug.Log("[LoginUI] Input EndEdit triggered via Enter key.");
                     OnSubmitClicked();
                 }
             }
@@ -227,7 +234,7 @@ namespace ProtectThatLetter.UI {
 
         private void DisplayError(string errorKey) {
             bool isAlreadyShowingSameError = (currentErrorKey == errorKey) &&
-                                              (errorBackground != null && errorBackground.gameObject.activeSelf);
+                                            (errorBackground != null && errorBackground.gameObject.activeSelf);
 
             currentErrorKey = errorKey;
 
@@ -252,7 +259,7 @@ namespace ProtectThatLetter.UI {
             AnimateCloudOutToRight();
         }
 
-        #region Cloud Animation Logic (In From Left -> Out To Right)
+        #region Cloud Animation Logic
         private void AnimateCloudInFromLeft() {
             if (errorBackground == null) return;
 
@@ -322,7 +329,6 @@ namespace ProtectThatLetter.UI {
                     }
                 });
             } else {
-                Debug.LogError("[LoginUI] There is no LocalizationManager in Scene.");
                 if (errorText != null) errorText.text = key;
             }
         }

@@ -197,7 +197,10 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      game_fatdovefly_0: 7531681264731100534
+      game_fatdovefly_1: 4130383097625151403
+      game_fatdovefly_2: 1599878907852936204
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

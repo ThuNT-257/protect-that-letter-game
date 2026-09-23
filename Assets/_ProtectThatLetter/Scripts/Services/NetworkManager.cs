@@ -4,6 +4,7 @@ using System.IO;
 using System.Text;
 using UnityEngine;
 using UnityEngine.Networking;
+using Newtonsoft.Json;
 
 #region API Models
 [Serializable]
@@ -12,6 +13,21 @@ public class ApiResponse<T> {
     public string message;
     public string errorCode;
     public T data;
+}
+
+[Serializable]
+public class ConfirmationRequest {
+    public string code;
+    public bool isAttending;
+    public string note;
+
+    public ConfirmationRequest() { }
+
+    public ConfirmationRequest(string code, bool isAttending, string note) {
+        this.code = code;
+        this.isAttending = isAttending;
+        this.note = note;
+    }
 }
 
 public static class ErrorCodes {
@@ -26,46 +42,54 @@ public class NetworkManager : MonoBehaviour {
     public static NetworkManager Instance { get; private set; }
 
     [Header("Server Config")]
-    [SerializeField] private string defaultLocalUrl = "http://localhost:5000";
+    [SerializeField] private string defaultLocalUrl = "https://api.lynxworld.space";
 
     private string baseUrl;
+    public bool IsInitialized { get; private set; } = false;
 
-    private void Awake() {
+    private IEnumerator Start() {
         if (Instance == null) {
             Instance = this;
             DontDestroyOnLoad(gameObject);
-            InitBaseUrl();
+            yield return StartCoroutine(InitBaseUrlCoroutine());
         } else {
             Destroy(gameObject);
         }
     }
 
-    private void InitBaseUrl() {
-        string configPath = Path.Combine(Application.streamingAssetsPath, "env.json");
-        Debug.Log($"[NetworkManager] Checking env.json at path: {configPath}");
+    private IEnumerator InitBaseUrlCoroutine() {
+        string rawPath = Path.Combine(Application.streamingAssetsPath, "env.json");
+        string configPath = rawPath.Replace("\\", "/");
 
-        if (File.Exists(configPath)) {
-            try {
-                string json = File.ReadAllText(configPath);
-                Debug.Log($"[NetworkManager] Found env.json! Raw Content: '{json}'");
+        configPath = $"{configPath}?t={DateTime.UtcNow.Ticks}";
 
-                EnvConfig config = JsonUtility.FromJson<EnvConfig>(json);
-                if (config != null && !string.IsNullOrEmpty(config.baseUrl)) {
-                    baseUrl = config.baseUrl.TrimEnd('/');
-                    Debug.Log($"[NetworkManager] Successfully set baseUrl from env.json -> '{baseUrl}'");
-                    return;
-                } else {
-                    Debug.LogWarning("[NetworkManager] env.json existed but 'baseUrl' field was null or empty.");
-                }
-            } catch (Exception ex) {
-                Debug.LogError($"[NetworkManager] Failed to read or parse env.json: {ex.Message}");
-            }
-        } else {
-            Debug.LogWarning($"[NetworkManager] env.json NOT found at '{configPath}'. Using defaultLocalUrl.");
+        if (!configPath.StartsWith("http://") && !configPath.StartsWith("https://") && !configPath.StartsWith("file://")) {
+            configPath = "file://" + configPath;
         }
 
-        baseUrl = defaultLocalUrl.TrimEnd('/');
-        Debug.Log($"[NetworkManager] Fallback baseUrl set to -> '{baseUrl}'");
+        using (UnityWebRequest request = UnityWebRequest.Get(configPath)) {
+            yield return request.SendWebRequest();
+
+            if (request.result == UnityWebRequest.Result.Success) {
+                try {
+                    EnvConfig config = JsonConvert.DeserializeObject<EnvConfig>(request.downloadHandler.text);
+                    if (config != null && !string.IsNullOrEmpty(config.baseUrl)) {
+                        baseUrl = config.baseUrl.TrimEnd('/');
+                    }
+                } catch (Exception ex) {
+                    Debug.LogError($"[NetworkManager] Failed to parse env.json: {ex.Message}");
+                }
+            } else {
+                Debug.LogWarning($"[NetworkManager] Could not load env.json ({request.error}). Fallback to defaultLocalUrl.");
+            }
+        }
+
+        if (string.IsNullOrEmpty(baseUrl)) {
+            baseUrl = defaultLocalUrl.TrimEnd('/');
+        }
+
+        Debug.Log($"[NetworkManager] Initialized with BaseUrl: '{baseUrl}'");
+        IsInitialized = true;
     }
 
     [Serializable]
@@ -73,21 +97,26 @@ public class NetworkManager : MonoBehaviour {
         public string baseUrl;
     }
 
+    private string BuildUrl(string endpoint) {
+        if (string.IsNullOrEmpty(endpoint)) return baseUrl;
+        string formattedEndpoint = endpoint.StartsWith("/") ? endpoint : "/" + endpoint;
+        return baseUrl + formattedEndpoint;
+    }
+
     public IEnumerator GetRequest(string endpoint, Action<bool, string> onComplete) {
-        string url = baseUrl + endpoint;
-        Debug.Log($"[NetworkManager] Sending GET Request to URL: '{url}'");
+        while (!IsInitialized) yield return null;
+
+        string url = BuildUrl(endpoint);
+        Debug.Log($"[NetworkManager] GET '{url}'");
 
         using (UnityWebRequest request = UnityWebRequest.Get(url)) {
             request.timeout = 10;
             yield return request.SendWebRequest();
 
-            Debug.Log($"[NetworkManager] Response Status Code: {request.responseCode}, Result: {request.result}");
-
             if (request.result == UnityWebRequest.Result.Success) {
-                Debug.Log($"[NetworkManager] GET Request SUCCESS! Response Body: {request.downloadHandler?.text}");
                 onComplete?.Invoke(true, null);
             } else {
-                Debug.LogError($"[NetworkManager] GET Request FAILED! Error: '{request.error}', Response Code: {request.responseCode}");
+                Debug.LogError($"[NetworkManager] GET Failed '{url}': {request.error}");
                 onComplete?.Invoke(false, ErrorCodes.ERROR_DATABASE_OFFLINE);
             }
         }
@@ -98,7 +127,7 @@ public class NetworkManager : MonoBehaviour {
         TRequest requestData,
         Action<bool, TResponse, string> onComplete) {
 
-        string jsonPayload = JsonUtility.ToJson(requestData);
+        string jsonPayload = JsonConvert.SerializeObject(requestData);
         yield return StartCoroutine(PostRequest<TResponse>(endpoint, jsonPayload, onComplete));
     }
 
@@ -107,10 +136,12 @@ public class NetworkManager : MonoBehaviour {
         string jsonPayload,
         Action<bool, TResponse, string> onComplete) {
 
-        string url = baseUrl + endpoint;
+        while (!IsInitialized) yield return null;
+
+        string url = BuildUrl(endpoint);
         byte[] bodyRaw = Encoding.UTF8.GetBytes(jsonPayload);
 
-        Debug.Log($"[NetworkManager] Sending POST Request to URL: '{url}', Body: {jsonPayload}");
+        Debug.Log($"[NetworkManager] POST '{url}' | Payload: {jsonPayload}");
 
         using (UnityWebRequest request = new UnityWebRequest(url, "POST")) {
             request.uploadHandler = new UploadHandlerRaw(bodyRaw);
@@ -121,29 +152,25 @@ public class NetworkManager : MonoBehaviour {
             yield return request.SendWebRequest();
 
             string jsonResponse = request.downloadHandler?.text;
-            Debug.Log($"[NetworkManager] POST Response Status Code: {request.responseCode}, Result: {request.result}");
 
             if (!string.IsNullOrEmpty(jsonResponse)) {
                 try {
-                    Debug.Log($"[NetworkManager] Raw Response Body: {jsonResponse}");
-                    var response = JsonUtility.FromJson<ApiResponse<TResponse>>(jsonResponse);
-
+                    var response = JsonConvert.DeserializeObject<ApiResponse<TResponse>>(jsonResponse);
                     if (response != null && response.success) {
                         onComplete?.Invoke(true, response.data, null);
                     } else {
                         string errCode = response != null && !string.IsNullOrEmpty(response.errorCode)
                             ? response.errorCode
                             : ErrorCodes.ERROR_INTERNAL_SERVER;
-
-                        Debug.LogWarning($"[NetworkManager] Server returned Business Error: {errCode}");
+                        Debug.LogWarning($"[NetworkManager] POST API Error '{url}': {errCode}");
                         onComplete?.Invoke(false, default, errCode);
                     }
                 } catch (Exception ex) {
-                    Debug.LogError($"[NetworkManager] JSON Parse Error: {ex.Message}");
+                    Debug.LogError($"[NetworkManager] JSON Parsing Exception '{url}': {ex.Message}");
                     onComplete?.Invoke(false, default, ErrorCodes.ERROR_INTERNAL_SERVER);
                 }
             } else {
-                Debug.LogError($"[NetworkManager] Network Error: {request.error}, Response Code: {request.responseCode}");
+                Debug.LogError($"[NetworkManager] POST Failed '{url}': {request.error}");
                 onComplete?.Invoke(false, default, ErrorCodes.ERROR_DATABASE_OFFLINE);
             }
         }

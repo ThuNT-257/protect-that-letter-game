@@ -3,15 +3,14 @@ using UnityEngine;
 
 namespace ProtectThatLetter.Managers {
     /// <summary>
-    /// Controls the Bootstrap/Splash screen execution flow and handles smooth transition to the Login scene.
+    /// Controls the Bootstrap execution flow and delegates scene transitions to SceneController.
     /// </summary>
     [DisallowMultipleComponent]
     public class InitManager : MonoBehaviour {
         #region Serialized Fields
         [Header("Splash Timing Settings")]
-        [SerializeField, Range(0.1f, 3f)] private float fadeInDuration = 1.0f;     // Fade in Splash duration
-        [SerializeField, Range(0.5f, 5f)] private float minimumDisplayTime = 1.5f;   // Time splash is fully visible
-        [SerializeField, Range(0.1f, 3f)] private float fadeOutDuration = 1.0f;     // Fade out to next scene duration
+        [SerializeField, Range(0.5f, 5f)] private float splashHoldDuration = 1.5f;  // Duration to hold splash before transitioning
+        [SerializeField, Range(0.1f, 3f)] private float transitionDuration = 1.0f;   // Fade duration for the scene transition
         #endregion
 
         #region Private Fields
@@ -39,24 +38,17 @@ namespace ProtectThatLetter.Managers {
 
         #region Core Flow
         /// <summary>
-        /// Main initialization coroutine that handles splash sequence and scene transition
+        /// Holds the splash screen for a fixed duration, then delegates the scene transition
         /// </summary>
         private IEnumerator InitAndSplashRoutine() {
-            // Step 1: Fade in the splash screen
-            if (UIFadeManager.Instance != null) {
-                yield return UIFadeManager.Instance.FadeInRoutine(fadeInDuration);
-            } else {
-                Debug.LogWarning("[InitManager] UIFadeManager.Instance is null! Skipping FadeIn sequence.");
-            }
+            // Wait for the splash hold duration (unscaled time, ignores Time.timeScale)
+            yield return new WaitForSecondsRealtime(splashHoldDuration);
 
-            // Step 2: Wait for the minimum display time (unscaled, ignores Time.timeScale)
-            yield return new WaitForSecondsRealtime(minimumDisplayTime);
-
-            // Step 3: Transition to the next scene
+            // Delegate scene transition to SceneController
             if (SceneController.Instance != null) {
-                SceneController.Instance.LoadNextScene(fadeOutDuration);
+                SceneController.Instance.LoadNextScene(transitionDuration);
             } else {
-                Debug.LogError("[InitManager] SceneManager.Instance is null! Cannot load next scene.");
+                Debug.LogError($"[{nameof(InitManager)}] SceneController.Instance is NULL! Cannot transition.");
             }
 
             initRoutine = null; // Clean up after completion

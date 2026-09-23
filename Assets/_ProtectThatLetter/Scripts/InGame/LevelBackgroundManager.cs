@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -121,11 +121,8 @@ public class LevelBackgroundManager : MonoBehaviour {
     private void TriggerCloudTransition(LevelColorData targetPalette) {
         if (Camera.main == null) return;
 
-        float distanceToCamera = Mathf.Abs(Camera.main.transform.position.z);
-        Vector3 spawnPos = Camera.main.ViewportToWorldPoint(new Vector3(0.5f, 1.2f, distanceToCamera));
-        spawnPos.z = 0f;
-
-        GameObject cloudObj = Instantiate(bigCloudPrefab, spawnPos, Quaternion.identity);
+        // Instantiate tạm thời, BigTransitionCloud sẽ tự căn chỉnh tọa độ spawn ẩn trên camera
+        GameObject cloudObj = Instantiate(bigCloudPrefab, Vector3.zero, Quaternion.identity);
         BigTransitionCloud cloudScript = cloudObj.GetComponent<BigTransitionCloud>();
 
         if (cloudScript != null) {

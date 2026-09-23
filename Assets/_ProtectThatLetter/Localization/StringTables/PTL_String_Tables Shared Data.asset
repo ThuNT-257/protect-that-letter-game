@@ -95,6 +95,58 @@ MonoBehaviour:
     m_Key: win_title
     m_Metadata:
       m_Items: []
+  - m_Id: 3425237969354752
+    m_Key: open_text
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3425935192702976
+    m_Key: confirm_text
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3426521292161024
+    m_Key: notice_text
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3465627351072768
+    m_Key: dear_text
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3473159457030144
+    m_Key: invite_content_0
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3473473790754816
+    m_Key: invite_content_1
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3473728133349376
+    m_Key: invite_content_2
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3473991514669056
+    m_Key: invite_content_3
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3592157934862336
+    m_Key: confirm_title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3626674951241728
+    m_Key: return_button_text
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3627280076062720
+    m_Key: save_button_text
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3984942684913664
+    m_Key: note_text
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3985375444811776
+    m_Key: save_text
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

@@ -4,158 +4,210 @@ using UnityEngine;
 using UnityEngine.Localization;
 using UnityEngine.Localization.Settings;
 
-/// <summary>
-/// Wrapper Manager class for Unity's Localization Package.
-/// Handles language switching, table constants, and localized string fetching.
-/// </summary>
-public class LocalizationManager : MonoBehaviour {
-    #region Constants
-    // Language code constants for easy reference
-    public const string VIETNAMESE = "vi";
-    public const string ENGLISH = "en";
+namespace ProtectThatLetter.Managers {
+    /// <summary>
+    /// Wrapper Manager for Unity's Localization Package.
+    /// Handles language switching, string fetching, and locale events.
+    /// </summary>
+    [DisallowMultipleComponent]
+    public class LocalizationManager : MonoBehaviour {
+        #region Constants
+        // Language code constants
+        public const string VIETNAMESE = "vi";
+        public const string ENGLISH = "en";
 
-    // Name of the string table in the Localization Package
-    public const string STRING_TABLE_NAME = "PTL_String_Tables";
-    #endregion
+        // String table name in the Localization Package
+        public const string STRING_TABLE_NAME = "PTL_String_Tables";
+        #endregion
 
-    #region Instance
-    // Singleton instance
-    private static LocalizationManager instance;
+        #region Singleton
+        // Singleton instance with public getter and private setter
+        public static LocalizationManager Instance { get; private set; }
+        #endregion
 
-    public static LocalizationManager Instance {
-        get {
-            if (instance == null) {
-                instance = FindAnyObjectByType<LocalizationManager>();
-                if (instance == null) {
-                    Debug.LogError("[LocalizationManager] No instance found in scene.");
-                }
+        #region Properties
+        // Gets the current language code from the Localization Package (null-safe)
+        public string CurrentLanguageCode {
+            get {
+                if (!LocalizationSettings.HasSettings) return VIETNAMESE;
+                Locale locale = LocalizationSettings.SelectedLocale;
+                return locale != null ? locale.Identifier.Code : VIETNAMESE;
             }
-            return instance;
-        }
-    }
-    #endregion
-
-    #region Events
-    // Triggered whenever the language/locale changes
-    public static event Action<Locale> OnLanguageChanged;
-    #endregion
-
-    #region Properties
-    // Gets the current language code from the Localization Package
-    public string CurrentLanguageCode {
-        get {
-            var locale = LocalizationSettings.SelectedLocale;
-            return locale != null ? locale.Identifier.Code : VIETNAMESE;
-        }
-    }
-    #endregion
-
-    #region Lifecycle
-    /// <summary>
-    /// Ensures singleton integrity and sets up the default locale
-    /// </summary>
-    private void Awake() {
-        // Destroy duplicate instances
-        if (instance != null && instance != this) {
-            Destroy(gameObject);
-            return;
         }
 
-        instance = this;
-        DontDestroyOnLoad(gameObject);
+        // Returns true if the Localization Package has finished initializing (null-safe)
+        public bool IsInitialized {
+            get {
+                if (!LocalizationSettings.HasSettings) return false;
 
-        // Ensure the default locale is set after initialization
-        StartCoroutine(EnsureDefaultLocale());
-    }
-
-    /// <summary>
-    /// Subscribes to locale change events when enabled
-    /// </summary>
-    private void OnEnable() {
-        LocalizationSettings.SelectedLocaleChanged += HandleLocaleChanged;
-    }
-
-    /// <summary>
-    /// Unsubscribes from locale change events to prevent memory leaks
-    /// </summary>
-    private void OnDisable() {
-        LocalizationSettings.SelectedLocaleChanged -= HandleLocaleChanged;
-    }
-    #endregion
-
-    #region Public Methods
-    /// <summary>
-    /// Switches the current language to the specified code
-    /// </summary>
-    /// <param name="langCode">Language code (e.g., "vi", "en")</param>
-    public void SwitchLanguage(string langCode) {
-        StartCoroutine(SetLocaleRoutine(langCode));
-    }
-
-    /// <summary>
-    /// Gets a localized string asynchronously from the string table
-    /// </summary>
-    /// <param name="key">The key to look up</param>
-    /// <param name="onCompleted">Callback invoked when the string is ready</param>
-    /// <param name="tableName">Name of the string table (defaults to STRING_TABLE_NAME)</param>
-    public void GetLocalizedString(string key, Action<string> onCompleted, string tableName = STRING_TABLE_NAME) {
-        var handle = LocalizationSettings.StringDatabase.GetLocalizedStringAsync(tableName, key);
-
-        if (handle.IsDone) {
-            onCompleted?.Invoke(handle.Result);
-        } else {
-            handle.Completed += (op) => onCompleted?.Invoke(op.Result);
+                var handle = LocalizationSettings.InitializationOperation;
+                return handle.IsValid() && handle.IsDone;
+            }
         }
-    }
-    #endregion
+        #endregion
 
-    #region Private Methods
-    /// <summary>
-    /// Ensures the default locale is set to Vietnamese after initialization
-    /// </summary>
-    private IEnumerator EnsureDefaultLocale() {
-        // Wait for the Localization system to initialize
-        yield return LocalizationSettings.InitializationOperation;
+        #region Events
+        // Triggered whenever the language/locale changes (passes the language code)
+        public static event Action<string> OnLanguageChanged;
+        #endregion
 
-        // Log all available locales for debugging
-        foreach (var locale in LocalizationSettings.AvailableLocales.Locales) {
-            Debug.Log($"[LocalizationCheck] Available Locale: {locale.Identifier.Code} ({locale.LocaleName})");
+        #region Lifecycle
+        /// <summary>
+        /// Ensures singleton integrity and makes the object persistent
+        /// </summary>
+        private void Awake() {
+            // Destroy duplicate instances
+            if (Instance != null && Instance != this) {
+                Destroy(gameObject);
+                return;
+            }
+
+            Instance = this;
+            DontDestroyOnLoad(gameObject); // Persist across scenes
         }
 
-        // Force default locale to Vietnamese if available
-        Locale defaultLocale = LocalizationSettings.AvailableLocales.GetLocale(VIETNAMESE);
-        if (defaultLocale != null && LocalizationSettings.SelectedLocale != defaultLocale) {
-            LocalizationSettings.SelectedLocale = defaultLocale;
-            Debug.Log("[LocalizationManager] Forced Default Locale to Vietnamese (vi)");
-        } else {
-            Debug.LogWarning("[LocalizationManager] Not found 'vi' or already set");
+        /// <summary>
+        /// Clears the singleton reference and flushes subscribers when destroyed
+        /// </summary>
+        private void OnDestroy() {
+            if (Instance == this) {
+                OnLanguageChanged = null; // Clear static event subscribers to prevent memory leak
+                Instance = null;
+            }
         }
-    }
 
-    /// <summary>
-    /// Coroutine that changes the locale after the Localization system is initialized
-    /// </summary>
-    /// <param name="langCode">Language code to switch to</param>
-    private IEnumerator SetLocaleRoutine(string langCode) {
-        // Wait for the Localization system to initialize
-        yield return LocalizationSettings.InitializationOperation;
-
-        // Find and apply the target locale
-        Locale targetLocale = LocalizationSettings.AvailableLocales.GetLocale(langCode);
-        if (targetLocale != null) {
-            LocalizationSettings.SelectedLocale = targetLocale;
-            Debug.Log($"[LocalizationManager] Changed language to: {langCode}");
-        } else {
-            Debug.LogWarning($"[LocalizationManager] Locale code '{langCode}' not found.");
+        /// <summary>
+        /// Subscribes to locale change events when enabled
+        /// </summary>
+        private void OnEnable() {
+            LocalizationSettings.SelectedLocaleChanged += HandleLocaleChanged;
         }
-    }
 
-    /// <summary>
-    /// Handles locale change events from the Localization Package
-    /// </summary>
-    /// <param name="newLocale">The new locale that was selected</param>
-    private void HandleLocaleChanged(Locale newLocale) {
-        OnLanguageChanged?.Invoke(newLocale);
+        /// <summary>
+        /// Unsubscribes from locale change events to prevent memory leaks
+        /// </summary>
+        private void OnDisable() {
+            LocalizationSettings.SelectedLocaleChanged -= HandleLocaleChanged;
+        }
+        #endregion
+
+        #region Public Methods
+        /// <summary>
+        /// Initializes the Localization system and sets the default locale
+        /// </summary>
+        /// <param name="defaultLangCode">Default language code (defaults to Vietnamese)</param>
+        public IEnumerator InitializeRoutine(string defaultLangCode = VIETNAMESE) {
+            // Wait for the Localization Package to initialize (with timeout)
+            yield return WaitForInitializationRoutine();
+
+            // Validate AvailableLocales before using it
+            if (LocalizationSettings.AvailableLocales == null) {
+                Debug.LogWarning($"[{nameof(LocalizationManager)}] AvailableLocales is null.");
+                yield break;
+            }
+
+            // Apply the default locale if available and not already selected
+            Locale defaultLocale = LocalizationSettings.AvailableLocales.GetLocale(defaultLangCode);
+            if (defaultLocale != null && LocalizationSettings.SelectedLocale != defaultLocale) {
+                LocalizationSettings.SelectedLocale = defaultLocale;
+            }
+        }
+
+        /// <summary>
+        /// Switches the current language to the specified code
+        /// </summary>
+        /// <param name="langCode">Language code (e.g., "vi", "en")</param>
+        public void SwitchLanguage(string langCode) {
+            StartCoroutine(SetLocaleRoutine(langCode));
+        }
+
+        /// <summary>
+        /// Gets a localized string asynchronously from the string table
+        /// </summary>
+        /// <param name="key">The key to look up</param>
+        /// <param name="onCompleted">Callback invoked when the string is ready</param>
+        /// <param name="tableName">Name of the string table (defaults to STRING_TABLE_NAME)</param>
+        public void GetLocalizedString(string key, Action<string> onCompleted, string tableName = STRING_TABLE_NAME) {
+            // Fallback: if LocalizationSettings is unavailable, return the key itself
+            if (!LocalizationSettings.HasSettings) {
+                Debug.LogWarning($"[{nameof(LocalizationManager)}] LocalizationSettings unavailable. Callback returned key.");
+                onCompleted?.Invoke(key);
+                return;
+            }
+
+            var handle = LocalizationSettings.StringDatabase.GetLocalizedStringAsync(tableName, key);
+
+            // If already done, invoke immediately; otherwise, subscribe to completion
+            if (handle.IsDone) {
+                onCompleted?.Invoke(handle.Result);
+            } else {
+                handle.Completed += (op) => onCompleted?.Invoke(op.Result);
+            }
+        }
+        #endregion
+
+        #region Private Methods
+        /// <summary>
+        /// Helper coroutine to safely wait for LocalizationSettings initialization operation (with timeout)
+        /// </summary>
+        private IEnumerator WaitForInitializationRoutine() {
+            float timeout = 10f;
+            float timer = 0f;
+
+            // Wait until LocalizationSettings is available
+            while (!LocalizationSettings.HasSettings && timer < timeout) {
+                timer += Time.unscaledDeltaTime;
+                yield return null;
+            }
+
+            // Timeout: LocalizationSettings was never available
+            if (!LocalizationSettings.HasSettings) {
+                Debug.LogError($"[{nameof(LocalizationManager)}] Timeout waiting for LocalizationSettings.");
+                yield break;
+            }
+
+            // Wait for the initialization operation to complete
+            var handle = LocalizationSettings.InitializationOperation;
+            timer = 0f;
+            while ((!handle.IsValid() || !handle.IsDone) && timer < timeout) {
+                timer += Time.unscaledDeltaTime;
+                yield return null;
+                handle = LocalizationSettings.InitializationOperation; // Re-fetch in case it changed
+            }
+        }
+
+        /// <summary>
+        /// Handles locale change events and broadcasts the language code
+        /// </summary>
+        private void HandleLocaleChanged(Locale newLocale) {
+            string code = newLocale != null ? newLocale.Identifier.Code : CurrentLanguageCode;
+            OnLanguageChanged?.Invoke(code);
+        }
+
+        /// <summary>
+        /// Coroutine that changes the locale after ensuring initialization
+        /// </summary>
+        /// <param name="langCode">Language code to switch to</param>
+        private IEnumerator SetLocaleRoutine(string langCode) {
+            // Wait for initialization if not already done
+            if (!IsInitialized) {
+                yield return WaitForInitializationRoutine();
+            }
+
+            // Validate state before switching
+            if (!LocalizationSettings.HasSettings || LocalizationSettings.AvailableLocales == null) {
+                yield break;
+            }
+
+            // Find and apply the target locale
+            Locale targetLocale = LocalizationSettings.AvailableLocales.GetLocale(langCode);
+            if (targetLocale != null) {
+                LocalizationSettings.SelectedLocale = targetLocale;
+                Debug.Log($"[{nameof(LocalizationManager)}] Changed language to: {langCode}");
+            } else {
+                Debug.LogWarning($"[{nameof(LocalizationManager)}] Locale code '{langCode}' not found.");
+            }
+        }
+        #endregion
     }
-    #endregion
 }
