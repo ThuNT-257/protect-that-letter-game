@@ -80,7 +80,7 @@ namespace ProtectThatLetter.UI {
 
         private void Start() {
             if (AudioManager.Instance != null) {
-                AudioManager.Instance.PlayBGMIndex(0);
+                AudioManager.Instance.PlayBGM();
             }
         }
 
