@@ -1,113 +1,86 @@
+using ProtectThatLetter.Definitions;
+using System;
 using UnityEngine;
-using ProtectThatLetter.Managers;
 
-/// <summary>
-/// Manages game settings such as audio preferences and language selection.
-/// Delegates audio muting directly to the AudioManager runtime state and updates LocalizationManager.
-/// </summary>
-public class SettingsManager : MonoBehaviour {
-    #region Constants
-    private const string BGM_KEY = "BGM_STATE";
-    private const string SFX_KEY = "SFX_STATE";
-    private const string LANG_KEY = "LANGUAGE_CODE";
-    #endregion
+namespace ProtectThatLetter.Managers {
+    /// <summary>
+    /// Holds runtime game settings (audio, language) and broadcasts changes.
+    /// No persistence — game is single-playthrough.
+    /// </summary>
+    [DisallowMultipleComponent]
+    public class SettingsManager : MonoBehaviour {
+        #region Events
+        // Broadcast when each setting changes (consumers react to these)
+        public static event Action<bool> OnBGMSettingChanged;
+        public static event Action<bool> OnSFXSettingChanged;
+        public static event Action<string> OnLanguageSettingChanged;
+        #endregion
 
-    #region Instance
-    private static SettingsManager instance;
+        #region Instance
+        // Singleton instance with public getter and private setter
+        public static SettingsManager Instance { get; private set; }
+        #endregion
 
-    public static SettingsManager Instance {
-        get {
-            if (instance == null) {
-                instance = FindAnyObjectByType<SettingsManager>();
-                if (instance == null) {
-                    Debug.LogError("[SettingsManager] There is no SettingsManager in Scene.");
-                }
+        #region Properties
+        // Current settings (default: ON / Vietnamese)
+        public bool IsBGMOn { get; private set; } = true;
+        public bool IsSFXOn { get; private set; } = true;
+        public string CurrentLanguageCode { get; private set; } = GameDefinitions.Languages.DEFAULT_LANGUAGE;
+        #endregion
+
+        #region Lifecycle
+        /// <summary>
+        /// Ensures singleton integrity and makes the object persistent
+        /// </summary>
+        private void Awake() {
+            // Destroy duplicate instances
+            if (Instance != null && Instance != this) {
+                Destroy(gameObject);
+                return;
             }
-            return instance;
+
+            Instance = this;
+            DontDestroyOnLoad(gameObject); // Persist across scenes
         }
-    }
-    #endregion
 
-    #region Properties
-    public bool IsBGMOn { get; private set; } = true;
-    public bool IsSFXOn { get; private set; } = true;
-    public string CurrentLanguageCode { get; private set; } = LocalizationManager.VIETNAMESE;
-    #endregion
-
-    #region Lifecycle
-    private void Awake() {
-        if (instance != null && instance != this) {
-            Destroy(gameObject);
-            return;
+        /// <summary>
+        /// Clears the singleton reference when destroyed
+        /// </summary>
+        private void OnDestroy() {
+            if (Instance == this) {
+                Instance = null;
+            }
         }
-        instance = this;
-        DontDestroyOnLoad(gameObject);
+        #endregion
 
-        LoadSettings();
-    }
-
-    private void Start() {
-        ApplyAudioSettings();
-        ApplyLanguageSettings();
-    }
-    #endregion
-
-    #region Public Methods
-    public void SetBGM(bool isOn) {
-        IsBGMOn = isOn;
-        SaveSettings();
-        ApplyAudioSettings();
-        Debug.Log($"[SettingsManager] BGM State Changed: {isOn}");
-    }
-
-    public void SetSFX(bool isOn) {
-        IsSFXOn = isOn;
-        SaveSettings();
-        ApplyAudioSettings();
-        Debug.Log($"[SettingsManager] SFX State Changed: {isOn}");
-    }
-
-    public void ChangeLanguage(string langCode) {
-        CurrentLanguageCode = langCode;
-        SaveSettings();
-
-        if (LocalizationManager.Instance != null) {
-            LocalizationManager.Instance.SwitchLanguage(langCode);
-        } else {
-            Debug.LogWarning("[SettingsManager] LocalizationManager Instance not found.");
+        #region Public Methods
+        /// <summary>
+        /// Sets the BGM state and broadcasts the change (skips if unchanged)
+        /// </summary>
+        public void SetBGM(bool isOn) {
+            if (IsBGMOn == isOn) return; // Skip if unchanged
+            IsBGMOn = isOn;
+            OnBGMSettingChanged?.Invoke(IsBGMOn);
         }
-    }
 
-    public void ApplyAudioSettings() {
-        if (AudioManager.Instance != null) {
-            AudioManager.Instance.SetBGMMute(!IsBGMOn);
-            AudioManager.Instance.SetSFXMute(!IsSFXOn);
-        } else {
-            Debug.LogWarning("[SettingsManager] AudioManager Instance not found to apply settings.");
+        /// <summary>
+        /// Sets the SFX state and broadcasts the change (skips if unchanged)
+        /// </summary>
+        public void SetSFX(bool isOn) {
+            if (IsSFXOn == isOn) return; // Skip if unchanged
+            IsSFXOn = isOn;
+            OnSFXSettingChanged?.Invoke(IsSFXOn);
         }
-    }
 
-    public void ApplyLanguageSettings() {
-        if (LocalizationManager.Instance != null) {
-            StartCoroutine(LocalizationManager.Instance.InitializeRoutine(CurrentLanguageCode));
-        } else {
-            Debug.LogWarning("[SettingsManager] LocalizationManager Instance not found to apply language.");
+        /// <summary>
+        /// Changes the language and broadcasts the change (skips if unchanged)
+        /// </summary>
+        /// <param name="langCode">Language code (e.g., "vi", "en")</param>
+        public void ChangeLanguage(string langCode) {
+            if (CurrentLanguageCode == langCode) return; // Skip if unchanged
+            CurrentLanguageCode = langCode;
+            OnLanguageSettingChanged?.Invoke(CurrentLanguageCode);
         }
+        #endregion
     }
-    #endregion
-
-    #region Private Methods
-    private void SaveSettings() {
-        PlayerPrefs.SetInt(BGM_KEY, IsBGMOn ? 1 : 0);
-        PlayerPrefs.SetInt(SFX_KEY, IsSFXOn ? 1 : 0);
-        PlayerPrefs.SetString(LANG_KEY, CurrentLanguageCode);
-        PlayerPrefs.Save();
-    }
-
-    private void LoadSettings() {
-        IsBGMOn = PlayerPrefs.GetInt(BGM_KEY, 1) == 1;
-        IsSFXOn = PlayerPrefs.GetInt(SFX_KEY, 1) == 1;
-        CurrentLanguageCode = PlayerPrefs.GetString(LANG_KEY, LocalizationManager.VIETNAMESE);
-    }
-    #endregion
 }

@@ -3,6 +3,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.Localization;
 using UnityEngine.Localization.Settings;
+using ProtectThatLetter.Definitions;
 
 namespace ProtectThatLetter.Managers {
     /// <summary>
@@ -11,15 +12,6 @@ namespace ProtectThatLetter.Managers {
     /// </summary>
     [DisallowMultipleComponent]
     public class LocalizationManager : MonoBehaviour {
-        #region Constants
-        // Language code constants
-        public const string VIETNAMESE = "vi";
-        public const string ENGLISH = "en";
-
-        // String table name in the Localization Package
-        public const string STRING_TABLE_NAME = "PTL_String_Tables";
-        #endregion
-
         #region Singleton
         // Singleton instance with public getter and private setter
         public static LocalizationManager Instance { get; private set; }
@@ -29,9 +21,11 @@ namespace ProtectThatLetter.Managers {
         // Gets the current language code from the Localization Package (null-safe)
         public string CurrentLanguageCode {
             get {
-                if (!LocalizationSettings.HasSettings) return VIETNAMESE;
+                if (!LocalizationSettings.HasSettings)
+                    return GameDefinitions.Languages.DEFAULT_LANGUAGE;
+
                 Locale locale = LocalizationSettings.SelectedLocale;
-                return locale != null ? locale.Identifier.Code : VIETNAMESE;
+                return locale != null ? locale.Identifier.Code : GameDefinitions.Languages.DEFAULT_LANGUAGE;
             }
         }
 
@@ -67,27 +61,29 @@ namespace ProtectThatLetter.Managers {
         }
 
         /// <summary>
-        /// Clears the singleton reference and flushes subscribers when destroyed
+        /// Clears the singleton reference and static event subscribers
         /// </summary>
         private void OnDestroy() {
             if (Instance == this) {
-                OnLanguageChanged = null; // Clear static event subscribers to prevent memory leak
+                OnLanguageChanged = null; // Clear static event subscribers to prevent memory leaks
                 Instance = null;
             }
         }
 
         /// <summary>
-        /// Subscribes to locale change events when enabled
+        /// Subscribes to locale and settings events when enabled
         /// </summary>
         private void OnEnable() {
             LocalizationSettings.SelectedLocaleChanged += HandleLocaleChanged;
+            SettingsManager.OnLanguageSettingChanged += SwitchLanguage;
         }
 
         /// <summary>
-        /// Unsubscribes from locale change events to prevent memory leaks
+        /// Unsubscribes from events to prevent memory leaks
         /// </summary>
         private void OnDisable() {
             LocalizationSettings.SelectedLocaleChanged -= HandleLocaleChanged;
+            SettingsManager.OnLanguageSettingChanged -= SwitchLanguage;
         }
         #endregion
 
@@ -95,8 +91,8 @@ namespace ProtectThatLetter.Managers {
         /// <summary>
         /// Initializes the Localization system and sets the default locale
         /// </summary>
-        /// <param name="defaultLangCode">Default language code (defaults to Vietnamese)</param>
-        public IEnumerator InitializeRoutine(string defaultLangCode = VIETNAMESE) {
+        /// <param name="defaultLangCode">Default language code (defaults from GameDefinitions)</param>
+        public IEnumerator InitializeRoutine(string defaultLangCode = GameDefinitions.Languages.DEFAULT_LANGUAGE) {
             // Wait for the Localization Package to initialize (with timeout)
             yield return WaitForInitializationRoutine();
 
@@ -126,8 +122,8 @@ namespace ProtectThatLetter.Managers {
         /// </summary>
         /// <param name="key">The key to look up</param>
         /// <param name="onCompleted">Callback invoked when the string is ready</param>
-        /// <param name="tableName">Name of the string table (defaults to STRING_TABLE_NAME)</param>
-        public void GetLocalizedString(string key, Action<string> onCompleted, string tableName = STRING_TABLE_NAME) {
+        /// <param name="tableName">Name of the string table</param>
+        public void GetLocalizedString(string key, Action<string> onCompleted, string tableName = GameDefinitions.Localization.STRING_TABLE_NAME) {
             // Fallback: if LocalizationSettings is unavailable, return the key itself
             if (!LocalizationSettings.HasSettings) {
                 Debug.LogWarning($"[{nameof(LocalizationManager)}] LocalizationSettings unavailable. Callback returned key.");
@@ -148,7 +144,7 @@ namespace ProtectThatLetter.Managers {
 
         #region Private Methods
         /// <summary>
-        /// Helper coroutine to safely wait for LocalizationSettings initialization operation (with timeout)
+        /// Helper coroutine to safely wait for LocalizationSettings initialization (with timeout)
         /// </summary>
         private IEnumerator WaitForInitializationRoutine() {
             float timeout = 10f;
