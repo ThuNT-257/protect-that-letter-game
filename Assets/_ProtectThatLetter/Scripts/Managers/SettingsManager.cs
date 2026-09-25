@@ -2,20 +2,15 @@ using ProtectThatLetter.Definitions;
 using System;
 using UnityEngine;
 
-namespace ProtectThatLetter.Managers {
+namespace ProtectThatLetter.Managers 
+{
     /// <summary>
     /// Holds runtime game settings (audio, language) and broadcasts changes.
     /// No persistence — game is single-playthrough.
     /// </summary>
     [DisallowMultipleComponent]
-    public class SettingsManager : MonoBehaviour {
-        #region Events
-        // Broadcast when each setting changes (consumers react to these)
-        public static event Action<bool> OnBGMSettingChanged;
-        public static event Action<bool> OnSFXSettingChanged;
-        public static event Action<string> OnLanguageSettingChanged;
-        #endregion
-
+    public class SettingsManager : MonoBehaviour 
+    {
         #region Instance
         // Singleton instance with public getter and private setter
         public static SettingsManager Instance { get; private set; }
@@ -28,7 +23,14 @@ namespace ProtectThatLetter.Managers {
         public string CurrentLanguageCode { get; private set; } = GameDefinitions.Languages.DEFAULT_LANGUAGE;
         #endregion
 
-        #region Lifecycle
+        #region Events
+        // Broadcast when each setting changes (consumers react to these)
+        public static event Action<bool> OnBGMSettingChanged;
+        public static event Action<bool> OnSFXSettingChanged;
+        public static event Action<string> OnLanguageSettingChanged;
+        #endregion
+
+        #region Unity Lifecycle
         /// <summary>
         /// Ensures singleton integrity and makes the object persistent
         /// </summary>

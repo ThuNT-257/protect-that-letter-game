@@ -1,12 +1,14 @@
 ﻿using System.Collections;
 using UnityEngine;
 
-namespace ProtectThatLetter.Managers {
+namespace ProtectThatLetter.Managers
+{
     /// <summary>
     /// Handles fade animation using CanvasGroup alpha transitions.
     /// </summary>
     [DisallowMultipleComponent]
-    public class UIFadeManager : MonoBehaviour {
+    public class UIFadeManager : MonoBehaviour
+    {
         #region Instance
         // Singleton instance with public getter and private setter
         public static UIFadeManager Instance { get; private set; }
@@ -22,13 +24,15 @@ namespace ProtectThatLetter.Managers {
         private Coroutine currentFadeCoroutine; // Reference to the currently running fade coroutine
         #endregion
 
-        #region Lifecycle
+        #region Unity Lifecycle
         /// <summary>
         /// Ensures singleton integrity and initializes the fade panel to fully opaque
         /// </summary>
-        private void Awake() {
+        private void Awake()
+        {
             // Destroy duplicate instances
-            if (Instance != null && Instance != this) {
+            if (Instance != null && Instance != this)
+            {
                 Destroy(gameObject);
                 return;
             }
@@ -37,9 +41,12 @@ namespace ProtectThatLetter.Managers {
             DontDestroyOnLoad(gameObject); // Persist across scenes
 
             // Start with a fully opaque black screen
-            if (fadeCanvasGroup != null) {
+            if (fadeCanvasGroup != null)
+            {
                 SetAlphaInstant(1f);
-            } else {
+            }
+            else
+            {
                 Debug.LogError($"[{nameof(UIFadeManager)}] CanvasGroup is not assigned!");
             }
         }
@@ -47,13 +54,16 @@ namespace ProtectThatLetter.Managers {
         /// <summary>
         /// Cleans up coroutines and clears the singleton reference when destroyed
         /// </summary>
-        private void OnDestroy() {
-            if (currentFadeCoroutine != null) {
+        private void OnDestroy()
+        {
+            if (currentFadeCoroutine != null)
+            {
                 StopCoroutine(currentFadeCoroutine);
                 currentFadeCoroutine = null;
             }
 
-            if (Instance == this) {
+            if (Instance == this)
+            {
                 Instance = null;
             }
         }
@@ -64,11 +74,13 @@ namespace ProtectThatLetter.Managers {
         /// Instantly sets the alpha value without any fade animation
         /// </summary>
         /// <param name="targetAlpha">Target alpha value (0 = transparent, 1 = opaque)</param>
-        public void SetAlphaInstant(float targetAlpha) {
+        public void SetAlphaInstant(float targetAlpha)
+        {
             if (fadeCanvasGroup == null) return;
 
             // Stop any running fade coroutine
-            if (currentFadeCoroutine != null) {
+            if (currentFadeCoroutine != null)
+            {
                 StopCoroutine(currentFadeCoroutine);
                 currentFadeCoroutine = null;
             }
@@ -86,7 +98,8 @@ namespace ProtectThatLetter.Managers {
         /// Fades the screen from current alpha to transparent (0)
         /// </summary>
         /// <param name="duration">Duration of the fade (uses default if -1)</param>
-        public IEnumerator FadeInRoutine(float duration = -1f) {
+        public IEnumerator FadeInRoutine(float duration = -1f)
+        {
             float dur = duration > 0 ? duration : defaultFadeDuration;
             float startAlpha = fadeCanvasGroup != null ? fadeCanvasGroup.alpha : 1f;
             yield return StartFadeCoroutine(startAlpha, 0f, dur); // Fade to transparent
@@ -96,7 +109,8 @@ namespace ProtectThatLetter.Managers {
         /// Fades the screen from current alpha to opaque (1)
         /// </summary>
         /// <param name="duration">Duration of the fade (uses default if -1)</param>
-        public IEnumerator FadeOutRoutine(float duration = -1f) {
+        public IEnumerator FadeOutRoutine(float duration = -1f)
+        {
             float dur = duration > 0 ? duration : defaultFadeDuration;
             float startAlpha = fadeCanvasGroup != null ? fadeCanvasGroup.alpha : 0f;
             yield return StartFadeCoroutine(startAlpha, 1f, dur); // Fade to opaque
@@ -107,20 +121,26 @@ namespace ProtectThatLetter.Managers {
         /// <summary>
         /// Starts a fade coroutine, stopping any currently running one
         /// </summary>
-        private Coroutine StartFadeCoroutine(float startAlpha, float endAlpha, float duration) {
+        private Coroutine StartFadeCoroutine(float startAlpha, float endAlpha, float duration)
+        {
             // Stop any existing fade coroutine
-            if (currentFadeCoroutine != null) {
+            if (currentFadeCoroutine != null)
+            {
                 StopCoroutine(currentFadeCoroutine);
             }
             currentFadeCoroutine = StartCoroutine(FadeRoutine(startAlpha, endAlpha, duration));
             return currentFadeCoroutine;
         }
+        #endregion
 
+        #region Coroutines
         /// <summary>
         /// Core fading coroutine that interpolates alpha over time
         /// </summary>
-        private IEnumerator FadeRoutine(float startAlpha, float endAlpha, float duration) {
-            if (fadeCanvasGroup == null) {
+        private IEnumerator FadeRoutine(float startAlpha, float endAlpha, float duration)
+        {
+            if (fadeCanvasGroup == null)
+            {
                 currentFadeCoroutine = null;
                 yield break;
             }
@@ -131,7 +151,8 @@ namespace ProtectThatLetter.Managers {
             fadeCanvasGroup.interactable = true;
 
             float timer = 0f;
-            while (timer < duration) {
+            while (timer < duration)
+            {
                 timer += Time.unscaledDeltaTime; // Use unscaled time to ignore time scale
                 fadeCanvasGroup.alpha = Mathf.Lerp(startAlpha, endAlpha, timer / duration);
                 yield return null;
@@ -141,7 +162,8 @@ namespace ProtectThatLetter.Managers {
             fadeCanvasGroup.alpha = endAlpha;
 
             // When fully transparent: unblock input and disable the object (optimization)
-            if (Mathf.Approximately(endAlpha, 0f)) {
+            if (Mathf.Approximately(endAlpha, 0f))
+            {
                 fadeCanvasGroup.blocksRaycasts = false;
                 fadeCanvasGroup.interactable = false;
                 fadeCanvasGroup.gameObject.SetActive(false);

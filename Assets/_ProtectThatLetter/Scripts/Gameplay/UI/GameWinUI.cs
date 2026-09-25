@@ -108,41 +108,6 @@ public class GameWinUI : MonoBehaviour {
             yield break;
         }
 
-        bool isApiFinished = false;
-
-        if (NetworkManager.Instance != null) {
-            var requestBody = new CompleteGameRequestData { code = accessCode };
-
-            StartCoroutine(NetworkManager.Instance.PostRequest<CompleteGameRequestData, CompleteGameResponseData>(
-                "/api/guest/complete-game",
-                requestBody,
-                (success, responseData, errCode) => {
-                    if (success && responseData != null) {
-                        if (GuestDataManager.Instance != null) {
-                            GuestDataManager.Instance.SaveGuestData(
-                                responseData.inviteId,
-                                accessCode,
-                                responseData.guestName,
-                                responseData.guestNickname,
-                                responseData.letterContentVn,
-                                responseData.letterContentEn,
-                                responseData.imageUrl,
-                                responseData.hasCompletedGame,
-                                responseData.isLetterRead,
-                                responseData.isAttending,
-                                responseData.guestNote
-                            );
-                        }
-                    } else {
-                        Debug.LogWarning($"[GameWinUI] Complete game API Failed. Error: {errCode}");
-                    }
-                    isApiFinished = true;
-                }
-            ));
-
-            yield return new WaitUntil(() => isApiFinished);
-        }
-
         if (SceneController.Instance != null) {
             SceneController.Instance.LoadNextScene(fadeDuration);
         }

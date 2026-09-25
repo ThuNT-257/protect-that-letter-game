@@ -414,33 +414,19 @@ namespace ProtectThatLetter.Controllers {
             SetCanvasGroupState(globalUICanvasGroup, alpha: 1f, interactable: true, active: true);
 
             isTransitioning = false;
-            StartCoroutine(SendMarkReadApi());
+            SendMarkReadApi();
         }
 
         /// <summary>
         /// Sends a "mark as read" API request to the server
         /// </summary>
-        private IEnumerator SendMarkReadApi() {
+        private void SendMarkReadApi() {
             string accessCode = GuestDataManager.Instance != null
                 ? GuestDataManager.Instance.AccessCode
                 : string.Empty;
 
             if (string.IsNullOrEmpty(accessCode)) {
                 accessCode = PlayerPrefs.GetString("SavedAccessCode", string.Empty);
-            }
-
-            if (!string.IsNullOrEmpty(accessCode) && NetworkManager.Instance != null) {
-                var requestBody = new MarkReadRequestData { code = accessCode };
-
-                yield return StartCoroutine(NetworkManager.Instance.PostRequest<MarkReadRequestData, bool>(
-                    "/api/guest/mark-read",
-                    requestBody,
-                    (success, responseData, errCode) => {
-                        if (!success) {
-                            Debug.LogWarning($"[LetterController] Failed to mark letter as read. Error: {errCode}");
-                        }
-                    }
-                ));
             }
         }
 

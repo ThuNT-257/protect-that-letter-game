@@ -230,41 +230,7 @@ public class BirdRSVPController : MonoBehaviour {
 
     private void SaveRSVPData(bool attending, string note) {
         if (saveButton != null) saveButton.interactable = false;
-
-        var payload = new ConfirmationRequest(accessCode, attending, note);
-
-        if (NetworkManager.Instance == null) {
-            Debug.LogError("[BirdRSVPController] NetworkManager.Instance is null!");
-            return;
-        }
-
         Debug.Log($"[BirdRSVPController] Sending RSVP payload -> Code: {accessCode}, Attending: {attending}, Note: {note}");
-
-        StartCoroutine(NetworkManager.Instance.PostRequest<ConfirmationRequest, bool>(
-            "/api/Guest/send-confirmation",
-            payload,
-            (success, responseData, errorCode) => {
-                if (success) {
-                    Debug.Log("[BirdRSVPController] SaveRSVPData SUCCESS.");
-                    initialIsAttending = attending;
-                    initialNote = note;
-
-                    if (GuestDataManager.Instance != null) {
-                        GuestDataManager.Instance.SetAttending(attending);
-                        GuestDataManager.Instance.SetGuestNote(note);
-                    }
-
-                    CloseConfirmPopup();
-
-                    if (letterController != null) {
-                        letterController.ShowSavedNotification();
-                    }
-                } else {
-                    Debug.LogError($"[BirdRSVPController] SaveRSVPData FAILED. Error Code: {errorCode}");
-                    ValidateSaveButtonState();
-                }
-            }
-        ));
     }
 
     private void OnTimeExpired() {

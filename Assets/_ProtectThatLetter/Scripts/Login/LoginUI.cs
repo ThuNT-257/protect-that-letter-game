@@ -123,32 +123,14 @@ namespace ProtectThatLetter.UI {
             }
 
             ClearError();
-            StartCoroutine(SendCodeAndProceed(inputCode));
+            SendCodeAndProceed(inputCode);
         }
 
-        private IEnumerator SendCodeAndProceed(string inputCode) {
+        private void SendCodeAndProceed(string inputCode) {
             SetLoading(true);
 
             bool isSuccess = false;
-            string returnedErrorCode = null;
             CheckCodeResponseData responseData = null;
-
-            if (NetworkManager.Instance != null) {
-                var requestBody = new SendCodeRequestData { code = inputCode };
-                string jsonPayload = JsonUtility.ToJson(requestBody);
-
-                yield return StartCoroutine(NetworkManager.Instance.PostRequest<CheckCodeResponseData>(
-                    "/api/guest/send-code",
-                    jsonPayload,
-                    (success, data, errCode) => {
-                        isSuccess = success;
-                        responseData = data;
-                        returnedErrorCode = errCode;
-                    }
-                ));
-            } else {
-                returnedErrorCode = ErrorCodes.ERROR_INTERNAL_SERVER;
-            }
 
             SetLoading(false);
 
@@ -182,10 +164,7 @@ namespace ProtectThatLetter.UI {
                     }
                 }
             } else {
-                string errorCodeToDisplay = !string.IsNullOrEmpty(returnedErrorCode)
-                    ? returnedErrorCode
-                    : ErrorCodes.ERROR_DATABASE_OFFLINE;
-
+                string errorCodeToDisplay = "FIX_LATER";
                 DisplayError(errorCodeToDisplay);
             }
         }
