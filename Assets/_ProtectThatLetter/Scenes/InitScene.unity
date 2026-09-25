@@ -876,7 +876,6 @@ GameObject:
   - component: {fileID: 1556797285}
   - component: {fileID: 1556797286}
   - component: {fileID: 1556797282}
-  - component: {fileID: 1556797287}
   - component: {fileID: 1556797288}
   - component: {fileID: 1556797289}
   m_Layer: 0
@@ -955,19 +954,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7c2c432a6971adb4494d9b9ab7bb8b66, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &1556797287
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1556797280}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5492387f1745732428ab968c795f18a9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  defaultLocalUrl: https://api.lynxworld.space
 --- !u!114 &1556797288
 MonoBehaviour:
   m_ObjectHideFlags: 0
