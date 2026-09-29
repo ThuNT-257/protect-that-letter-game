@@ -391,7 +391,7 @@ MonoBehaviour:
   m_UiScaleMode: 1
   m_ReferencePixelsPerUnit: 100
   m_ScaleFactor: 1
-  m_ReferenceResolution: {x: 1080, y: 1920}
+  m_ReferenceResolution: {x: 1920, y: 1080}
   m_ScreenMatchMode: 0
   m_MatchWidthOrHeight: 0.5
   m_PhysicalUnit: 3
@@ -970,7 +970,7 @@ MonoBehaviour:
   sfxSource: {fileID: 637185296}
   loopSfxSource: {fileID: 1163914502}
   storyAudioSource: {fileID: 342762713}
-  defaultBgmClip: {fileID: 0}
+  defaultBgmClip: {fileID: 8300000, guid: d156bdff851b29240a51ebaf0161cced, type: 3}
   soundsList: []
 --- !u!114 &1556797289
 MonoBehaviour:
@@ -1245,9 +1245,9 @@ MonoBehaviour:
   m_UiScaleMode: 1
   m_ReferencePixelsPerUnit: 100
   m_ScaleFactor: 1
-  m_ReferenceResolution: {x: 1080, y: 1920}
+  m_ReferenceResolution: {x: 1920, y: 1080}
   m_ScreenMatchMode: 0
-  m_MatchWidthOrHeight: 0
+  m_MatchWidthOrHeight: 0.5
   m_PhysicalUnit: 3
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
