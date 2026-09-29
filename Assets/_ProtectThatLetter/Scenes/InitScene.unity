@@ -970,21 +970,8 @@ MonoBehaviour:
   sfxSource: {fileID: 637185296}
   loopSfxSource: {fileID: 1163914502}
   storyAudioSource: {fileID: 342762713}
-  bgmList:
-  - {fileID: 8300000, guid: d156bdff851b29240a51ebaf0161cced, type: 3}
-  sfxList:
-  - {fileID: 8300000, guid: 93218f357eaa05b4d909a96c869808a1, type: 3}
-  - {fileID: 8300000, guid: 526b473f25320fd4b94a4b94920fb70f, type: 3}
-  - {fileID: 8300000, guid: 68de084f3618863469c6693612517de0, type: 3}
-  - {fileID: 8300000, guid: f5414fdff8d5d514d8807bc1e9ff4eda, type: 3}
-  - {fileID: 8300000, guid: 2c89ace28550c7749a412e119c21210b, type: 3}
-  - {fileID: 8300000, guid: c5b05221a3701cf4b866c0a86b2e799f, type: 3}
-  - {fileID: 8300000, guid: 89c53c068b6ea43468fac84c2112a65c, type: 3}
-  - {fileID: 8300000, guid: b56cc67324fc56d49a4577dccba0ab35, type: 3}
-  - {fileID: 8300000, guid: 0e5d03745102cd046bdd6191ffb2e2ea, type: 3}
-  - {fileID: 8300000, guid: ec712df0ea239a44da22e67f2f460eac, type: 3}
-  - {fileID: 8300000, guid: 3081bb8e843ca1249af7a4e13d0b5e3c, type: 3}
-  - {fileID: 8300000, guid: 323d4e28a23ec5749bd8bd93dcd8d8d0, type: 3}
+  defaultBgmClip: {fileID: 0}
+  soundsList: []
 --- !u!114 &1556797289
 MonoBehaviour:
   m_ObjectHideFlags: 0
