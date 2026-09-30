@@ -2,15 +2,13 @@ using ProtectThatLetter.Definitions;
 using System;
 using UnityEngine;
 
-namespace ProtectThatLetter.Managers 
-{
+namespace ProtectThatLetter.Managers {
     /// <summary>
     /// Holds runtime game settings (audio, language) and broadcasts changes.
     /// No persistence — game is single-playthrough.
     /// </summary>
     [DisallowMultipleComponent]
-    public class SettingsManager : MonoBehaviour 
-    {
+    public class SettingsManager : MonoBehaviour {
         #region Instance
         // Singleton instance with public getter and private setter
         public static SettingsManager Instance { get; private set; }

@@ -1,14 +1,12 @@
 using System.Collections;
 using UnityEngine;
 
-namespace ProtectThatLetter.Managers
-{
+namespace ProtectThatLetter.Managers {
     /// <summary>
     /// Controls the Bootstrap execution flow and delegates scene transitions to SceneController.
     /// </summary>
     [DisallowMultipleComponent]
-    public class InitManager : MonoBehaviour
-    {
+    public class InitManager : MonoBehaviour {
         #region Serialized Fields
         [Header("Splash Timing Settings")]
         [SerializeField, Range(0.5f, 5f)] private float splashHoldDuration = 1.5f;
@@ -23,18 +21,15 @@ namespace ProtectThatLetter.Managers
         /// <summary>
         /// Starts the initialization routine when the scene loads
         /// </summary>
-        private void Start()
-        {
+        private void Start() {
             initRoutine = StartCoroutine(InitAndSplashRoutine());
         }
 
         /// <summary>
         /// Stops the initialization coroutine if the object is disabled
         /// </summary>
-        private void OnDisable()
-        {
-            if (initRoutine != null)
-            {
+        private void OnDisable() {
+            if (initRoutine != null) {
                 StopCoroutine(initRoutine);
                 initRoutine = null;
             }
@@ -45,16 +40,12 @@ namespace ProtectThatLetter.Managers
         /// <summary>
         /// Holds the splash screen for a fixed duration, then delegates the scene transition
         /// </summary>
-        private IEnumerator InitAndSplashRoutine()
-        {
+        private IEnumerator InitAndSplashRoutine() {
             yield return new WaitForSecondsRealtime(splashHoldDuration);
 
-            if (SceneController.Instance != null)
-            {
+            if (SceneController.Instance != null) {
                 SceneController.Instance.LoadNextScene(transitionDuration);
-            }
-            else
-            {
+            } else {
                 Debug.LogError($"[{nameof(InitManager)}] SceneController.Instance is NULL! Cannot transition.");
             }
 

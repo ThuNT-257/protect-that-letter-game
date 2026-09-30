@@ -62,8 +62,6 @@ namespace ProtectThatLetter.Managers {
                 SetBGMMute(!SettingsManager.Instance.IsBGMOn); // Invert: true = mute
                 SetSFXMute(!SettingsManager.Instance.IsSFXOn); // Invert: true = mute
             }
-
-            PlayBGM();
         }
 
         /// <summary>

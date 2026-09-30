@@ -352,7 +352,7 @@ public class GameManager : MonoBehaviour {
             if (obstacle != null && obstacle.activeInHierarchy) {
                 Vector3 viewportPos = mainCam.WorldToViewportPoint(obstacle.transform.position);
                 if (viewportPos.y > -0.2f && viewportPos.y < 1.2f) {
-                    return false; 
+                    return false;
                 }
             }
         }

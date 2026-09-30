@@ -5,16 +5,14 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace ProtectThatLetter.Managers
-{
+namespace ProtectThatLetter.Managers {
 
     /// <summary>
     /// Manages the scene pipeline flow and global scene transition effects.
     /// Broadcasts scene change events for other managers to react to.
     /// </summary>
     [DisallowMultipleComponent]
-    public class SceneController : MonoBehaviour
-    {
+    public class SceneController : MonoBehaviour {
         #region Constants
         private const float SCENE_LOAD_TIMEOUT = 15f; // Max time to wait for scene load/activation
         #endregion
@@ -29,7 +27,7 @@ namespace ProtectThatLetter.Managers
         private bool isTransitioning = false;   // Prevents overlapping transitions
 
         // Linear scene pipeline (forward-only transitions)
-        private readonly List<string> pipeline = new List<string> 
+        private readonly List<string> pipeline = new List<string>
         {
             SceneName.INIT_SCENE,    // 0
             SceneName.LOGIN_SCENE,   // 1
@@ -52,11 +50,9 @@ namespace ProtectThatLetter.Managers
         /// <summary>
         /// Initializes the singleton and determines the current step from the active scene
         /// </summary>
-        private void Awake()
-        {
+        private void Awake() {
             // Destroy duplicate instances
-            if (Instance != null && Instance != this)
-            {
+            if (Instance != null && Instance != this) {
                 Destroy(gameObject);
                 return;
             }
@@ -70,10 +66,8 @@ namespace ProtectThatLetter.Managers
         /// <summary>
         /// Fades in the screen on startup to reveal the initial scene
         /// </summary>
-        private void Start()
-        {
-            if (UIFadeManager.Instance != null)
-            {
+        private void Start() {
+            if (UIFadeManager.Instance != null) {
                 StartCoroutine(UIFadeManager.Instance.FadeInRoutine());
             }
         }
@@ -81,18 +75,15 @@ namespace ProtectThatLetter.Managers
         /// <summary>
         /// Resets the transitioning flag when disabled
         /// </summary>
-        private void OnDisable()
-        {
+        private void OnDisable() {
             isTransitioning = false;
         }
 
         /// <summary>
         /// Clears the singleton reference when destroyed
         /// </summary>
-        private void OnDestroy()
-        {
-            if (Instance == this)
-            {
+        private void OnDestroy() {
+            if (Instance == this) {
                 Instance = null;
             }
         }
@@ -103,14 +94,12 @@ namespace ProtectThatLetter.Managers
         /// Advances to the next scene in the pipeline order
         /// </summary>
         /// <param name="fadeDuration">Fade duration (-1 uses default)</param>
-        public void LoadNextScene(float fadeDuration = -1f)
-        {
+        public void LoadNextScene(float fadeDuration = -1f) {
             // Prevent overlapping transitions
             if (isTransitioning) return;
 
             // Check if already at the final scene
-            if (currentStepIndex >= pipeline.Count - 1)
-            {
+            if (currentStepIndex >= pipeline.Count - 1) {
                 Debug.LogWarning($"[SceneController] Already at final scene ('{pipeline[currentStepIndex]}').");
                 return;
             }
@@ -126,13 +115,11 @@ namespace ProtectThatLetter.Managers
         /// </summary>
         /// <param name="sceneName">Name of the scene to load</param>
         /// <param name="fadeDuration">Fade duration (-1 uses default)</param>
-        public void LoadSceneByName(string sceneName, float fadeDuration = -1f)
-        {
+        public void LoadSceneByName(string sceneName, float fadeDuration = -1f) {
             if (isTransitioning) return;
 
             int targetIndex = pipeline.IndexOf(sceneName);
-            if (targetIndex < 0)
-            {
+            if (targetIndex < 0) {
                 Debug.LogWarning($"[SceneController] Target scene '{sceneName}' is not in the defined pipeline.");
                 targetIndex = currentStepIndex; // Keep current index if not found
             }
@@ -145,14 +132,12 @@ namespace ProtectThatLetter.Managers
         /// <summary>
         /// Determines the current pipeline step from the active scene name
         /// </summary>
-        private void InitCurrentStepIndex()
-        {
+        private void InitCurrentStepIndex() {
             string startScene = SceneManager.GetActiveScene().name;
             int idx = pipeline.IndexOf(startScene);
 
             // Fallback to index 0 if scene not in pipeline
-            if (idx < 0)
-            {
+            if (idx < 0) {
                 Debug.LogWarning($"[SceneController] Scene '{startScene}' not in pipeline. Defaulting to index 0.");
                 idx = 0;
             }
@@ -165,24 +150,20 @@ namespace ProtectThatLetter.Managers
         /// <summary>
         /// Handles the full scene transition with fade, async load, timeout, and rollback
         /// </summary>
-        private IEnumerator TransitionToSceneRoutine(string sceneName, int targetStepIndex, float fadeDuration)
-        {
+        private IEnumerator TransitionToSceneRoutine(string sceneName, int targetStepIndex, float fadeDuration) {
             isTransitioning = true;
             bool isSceneReady = false;
             UnityEngine.Events.UnityAction<Scene, LoadSceneMode> onSceneLoaded = null;
 
-            try
-            {
+            try {
                 // Step 1: Fade out the screen
-                if (UIFadeManager.Instance != null)
-                {
+                if (UIFadeManager.Instance != null) {
                     yield return UIFadeManager.Instance.FadeOutRoutine(fadeDuration);
                 }
 
                 // Step 2: Register scene loaded callback
                 onSceneLoaded = (loadedScene, mode) => {
-                    if (loadedScene.name == sceneName)
-                    {
+                    if (loadedScene.name == sceneName) {
                         isSceneReady = true;
                     }
                 };
@@ -190,8 +171,7 @@ namespace ProtectThatLetter.Managers
 
                 // Step 3: Start async scene load
                 AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(sceneName);
-                if (asyncLoad == null)
-                {
+                if (asyncLoad == null) {
                     Debug.LogError($"[SceneController] Failed to initiate async load for scene: {sceneName}");
                     yield return RollbackFadeRoutine(fadeDuration);
                     yield break;
@@ -200,10 +180,8 @@ namespace ProtectThatLetter.Managers
 
                 // Step 4: Wait for progress with timeout
                 float startTime = Time.realtimeSinceStartup;
-                while (asyncLoad.progress < 0.9f)
-                {
-                    if (Time.realtimeSinceStartup - startTime >= SCENE_LOAD_TIMEOUT)
-                    {
+                while (asyncLoad.progress < 0.9f) {
+                    if (Time.realtimeSinceStartup - startTime >= SCENE_LOAD_TIMEOUT) {
                         Debug.LogError($"[SceneController] Loading scene '{sceneName}' timed out. Aborting transition.");
                         yield return RollbackFadeRoutine(fadeDuration);
                         yield break;
@@ -216,10 +194,8 @@ namespace ProtectThatLetter.Managers
 
                 // Step 6: Wait for scene activation with timeout
                 startTime = Time.realtimeSinceStartup;
-                while (!isSceneReady)
-                {
-                    if (Time.realtimeSinceStartup - startTime >= SCENE_LOAD_TIMEOUT)
-                    {
+                while (!isSceneReady) {
+                    if (Time.realtimeSinceStartup - startTime >= SCENE_LOAD_TIMEOUT) {
                         Debug.LogError($"[SceneController] Scene activation for '{sceneName}' timed out. Aborting transition.");
                         yield return RollbackFadeRoutine(fadeDuration);
                         yield break;
@@ -234,16 +210,12 @@ namespace ProtectThatLetter.Managers
                 yield return new WaitForEndOfFrame();
 
                 // Step 8: Fade in the screen
-                if (UIFadeManager.Instance != null)
-                {
+                if (UIFadeManager.Instance != null) {
                     yield return UIFadeManager.Instance.FadeInRoutine(fadeDuration);
                 }
-            }
-            finally
-            {
+            } finally {
                 // Guaranteed cleanup: unsubscribe from scene loaded event
-                if (onSceneLoaded != null)
-                {
+                if (onSceneLoaded != null) {
                     SceneManager.sceneLoaded -= onSceneLoaded;
                 }
                 isTransitioning = false;
@@ -253,10 +225,8 @@ namespace ProtectThatLetter.Managers
         /// <summary>
         /// Fades the screen back in when a transition fails
         /// </summary>
-        private IEnumerator RollbackFadeRoutine(float fadeDuration)
-        {
-            if (UIFadeManager.Instance != null)
-            {
+        private IEnumerator RollbackFadeRoutine(float fadeDuration) {
+            if (UIFadeManager.Instance != null) {
                 yield return UIFadeManager.Instance.FadeInRoutine(fadeDuration);
             }
         }

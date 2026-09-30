@@ -10,7 +10,7 @@ namespace ProtectThatLetter.Definitions {
             public const string VIETNAMESE = "vi";           // Vietnamese language code
             public const string ENGLISH = "en";              // English language code
 
-            public const string DEFAULT_LANGUAGE = ENGLISH; // Default language
+            public const string DEFAULT_LANGUAGE = ENGLISH;  // Default language
         }
 
         /// <summary>
@@ -18,6 +18,13 @@ namespace ProtectThatLetter.Definitions {
         /// </summary>
         public static class Localization {
             public const string STRING_TABLE_NAME = "PTL_String_Tables"; // String table name
+        }
+
+        /// <summary>
+        /// Sound effect clip names.
+        /// </summary>
+        public static class SfxNames {
+            public const string SFX_NORMAL_BUTTON_CLICKED = "sfx_normal_button_clicked"; // Standard button click SFX
         }
     }
 }
