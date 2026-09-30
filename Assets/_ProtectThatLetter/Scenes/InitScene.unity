@@ -970,7 +970,7 @@ MonoBehaviour:
   sfxSource: {fileID: 637185296}
   loopSfxSource: {fileID: 1163914502}
   storyAudioSource: {fileID: 342762713}
-  defaultBgmClip: {fileID: 8300000, guid: d156bdff851b29240a51ebaf0161cced, type: 3}
+  defaultBgmClip: {fileID: 8300000, guid: 6112bad1a20adc9498a9354bb7bacaaa, type: 3}
   soundsList: []
 --- !u!114 &1556797289
 MonoBehaviour:
