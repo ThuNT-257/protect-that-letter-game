@@ -51,6 +51,17 @@ namespace ProtectThatLetter.UI
             dialogueLineText.text = content ?? "";
             typewriterCoroutine = StartCoroutine(TypewriterCoroutine());
         }
+
+        public void CompleteImmediately()
+        {
+            StopTypewriter();
+            if(dialogueLineText != null)
+            {
+                dialogueLineText.maxVisibleCharacters = dialogueLineText.textInfo.characterCount;
+            }
+
+            FinishTypewriter();
+        }
         #endregion
 
         #region Private Methods

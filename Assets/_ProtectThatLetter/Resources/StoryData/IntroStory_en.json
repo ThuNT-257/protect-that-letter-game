@@ -6,7 +6,7 @@
             "content": "I have a mission for you, kid! Take this letter to the right place. No matter what, make sure it gets there! The journey may be long, but just like we practiced, do your best!",
             "avatar": "thu",
             "position": "left",
-            "background": "story_intro_background_landscape.png",
+            "background": "story_intro_background_landscape",
             "sound": "story_wind"
         },
         {

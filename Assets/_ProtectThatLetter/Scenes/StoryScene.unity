@@ -132,6 +132,8 @@ GameObject:
   - component: {fileID: 28096469}
   - component: {fileID: 28096468}
   - component: {fileID: 28096472}
+  - component: {fileID: 28096474}
+  - component: {fileID: 28096473}
   m_Layer: 5
   m_Name: DialogueCanvas
   m_TagString: Untagged
@@ -236,31 +238,57 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4a125955de15e0349b2d94110fa0be14, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  typewriter: {fileID: 28096474}
+  avatarAnimator: {fileID: 28096473}
   overlayCanvasGroup: {fileID: 1515030757}
   fadeDuration: 0.4
   backgroundImage: {fileID: 1923910904}
   leftNameFrame: {fileID: 114417467}
   leftNameText: {fileID: 2137254713}
-  leftAvatarRect: {fileID: 1125464692}
-  leftAvatarImage: {fileID: 1125464693}
   rightNameFrame: {fileID: 638811865}
   rightNameText: {fileID: 2043957926}
-  rightAvatarRect: {fileID: 998894835}
-  rightAvatarImage: {fileID: 998894836}
-  dialogueLineText: {fileID: 1573648216}
   skipButton: {fileID: 490160685}
   nextButton: {fileID: 364438262}
   autoButton: {fileID: 743059757}
-  typingSpeed: 0.03
-  autoDelayAfterType: 2
   autoButtonText: {fileID: 1926641070}
+  autoDelayAfterType: 2
   activeAlpha: 1
   inactiveAlpha: 0.5
+--- !u!114 &28096473
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 28096467}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 32753418121e0324aafec165df80c915, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  leftAvatarRect: {fileID: 1125464692}
+  leftAvatarImage: {fileID: 1125464693}
+  rightAvatarRect: {fileID: 998894835}
+  rightAvatarImage: {fileID: 998894836}
   avatarAnimDuration: 0.3
   inactiveScale: 0.75
   inactiveShiftX: 50
   activeAvatarColor: {r: 1, g: 1, b: 1, a: 1}
-  inactiveAvatarColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+  inactiveAvatarColor: {r: 0.55, g: 0.55, b: 0.55, a: 1}
+--- !u!114 &28096474
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 28096467}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f401fbd304c59f04cb1c4faeb3d0ab35, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  dialogueLineText: {fileID: 1573648216}
+  typingSpeed: 0.03
 --- !u!1 &114417465
 GameObject:
   m_ObjectHideFlags: 0
