@@ -971,7 +971,9 @@ MonoBehaviour:
   loopSfxSource: {fileID: 1163914502}
   storyAudioSource: {fileID: 342762713}
   defaultBgmClip: {fileID: 8300000, guid: 6112bad1a20adc9498a9354bb7bacaaa, type: 3}
-  soundsList: []
+  soundsList:
+  - {fileID: 8300000, guid: 93218f357eaa05b4d909a96c869808a1, type: 3}
+  - {fileID: 8300000, guid: ec712df0ea239a44da22e67f2f460eac, type: 3}
 --- !u!114 &1556797289
 MonoBehaviour:
   m_ObjectHideFlags: 0

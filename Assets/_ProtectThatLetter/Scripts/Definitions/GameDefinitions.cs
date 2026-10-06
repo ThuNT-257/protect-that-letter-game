@@ -25,6 +25,7 @@ namespace ProtectThatLetter.Definitions {
         /// </summary>
         public static class SfxNames {
             public const string SFX_NORMAL_BUTTON_CLICKED = "sfx_normal_button_clicked"; // Standard button click SFX
+            public const string SFX_DIALOGUE_NEW_LINE = "sfx_dialogue_new_line";
         }
     }
 }
