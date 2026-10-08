@@ -1,205 +1,245 @@
 ﻿using ProtectThatLetter.Definitions;
 using ProtectThatLetter.Managers;
+using System;
 using System.Collections;
 using UnityEngine;
 
-namespace ProtectThatLetter.UI {
+namespace ProtectThatLetter.UI
+{
     /// <summary>
     /// Manages dialogue flow: loads story data, displays lines,
     /// and handles next/skip interactions.
+    /// Broadcasts events upon completion or failure.
     /// </summary>
     [DisallowMultipleComponent]
-    public class DialogueManager : MonoBehaviour {
+    public class DialogueManager : MonoBehaviour
+    {
         #region Serialized Fields
         [Header("UI References")]
-        [SerializeField] private DialogueUI dialogueUI; // Reference to the dialogue UI
+        [SerializeField] private DialogueUI dialogueUI;            // Reference to the dialogue UI
 
         [Header("Intro Settings")]
-        [SerializeField] private float introDelayDuration = 2.5f; // Delay before first line (intro media)
+        [SerializeField] private float introDelayDuration = 2.5f;  // Delay before first line
         #endregion
 
         #region Private Fields
-        private StoryData currentStory;              // Currently loaded story data
-        private int currentLineIndex = 0;            // Current dialogue line index
-        private Coroutine startStoryCoroutine;       // Reference to the startup coroutine
+        private StoryData currentStory;              // Currently loaded story
+        private int currentLineIndex = 0;            // Current line index
+        private Coroutine startStoryCoroutine;       // Startup coroutine reference
+        private string currentStoryFileName;         // Cached story file name
         #endregion
 
-        #region Lifecycle
+        #region Events
         /// <summary>
-        /// Loads story data and starts the intro sequence
+        /// Fired when all dialogue lines have been completed successfully.
         /// </summary>
-        private void Start() {
-            LoadStoryData();
-            if (startStoryCoroutine != null) StopCoroutine(startStoryCoroutine);
-            startStoryCoroutine = StartCoroutine(StartStoryRoutine());
+        public static event Action OnStoryCompleted;
+
+        /// <summary>
+        /// Fired when story JSON fails to load or contains no valid lines.
+        /// Parameters: storyFileName, errorMessage
+        /// </summary>
+        public static event Action<string, string> OnStoryLoadFailed;
+        #endregion
+
+        #region Unity Lifecycle
+        /// <summary>
+        /// Loads and starts the story on scene start
+        /// </summary>
+        private void Start()
+        {
+            InitAndStartStory();
         }
 
         /// <summary>
         /// Subscribes to events when enabled
         /// </summary>
-        private void OnEnable() {
+        private void OnEnable()
+        {
             DialogueUI.OnNextButtonClicked += OnNextClicked;
             LocalizationManager.OnLanguageChanged += OnLanguageChanged;
         }
 
         /// <summary>
-        /// Unsubscribes from events to prevent memory leaks
+        /// Unsubscribes from events and stops pending coroutines
         /// </summary>
-        private void OnDisable() {
+        private void OnDisable()
+        {
             DialogueUI.OnNextButtonClicked -= OnNextClicked;
             LocalizationManager.OnLanguageChanged -= OnLanguageChanged;
+
+            StopPendingStoryRoutine();
         }
         #endregion
 
         #region Private Methods
         /// <summary>
-        /// Plays intro media, waits, then displays the first line
+        /// Initializes and starts the story if loading succeeds
         /// </summary>
-        private IEnumerator StartStoryRoutine() {
-            // Validate story data
-            if (currentStory == null || currentStory.lines == null || currentStory.lines.Count == 0) {
-                Debug.LogError("[DialogueManager] Invalid story data!");
-                yield break;
+        private void InitAndStartStory()
+        {
+            if (TryLoadStoryData())
+            {
+                StopPendingStoryRoutine();
+                startStoryCoroutine = StartCoroutine(StartStoryRoutine());
             }
-
-            if (introDelayDuration > 0f) {
-                // Hide dialogue overlay and play intro media (background + sound)
-                dialogueUI.HideDialogueOverlay();
-
-                DialogueLine firstLine = currentStory.lines[0];
-                dialogueUI.PlayIntroMedia(firstLine.background, firstLine.sound);
-
-                // Wait for intro media to finish
-                yield return new WaitForSeconds(introDelayDuration);
+            else
+            {
+                Debug.LogError($"[DialogueManager] Aborting story playback due to load failure: '{currentStoryFileName}'");
             }
-
-            DisplayCurrentLine();
         }
 
         /// <summary>
-        /// Reloads story data and refreshes the current line when language changes
+        /// Stops any pending startup coroutine
         /// </summary>
-        private void OnLanguageChanged(string newLanguageCode) {
-            LoadStoryData();
-            DisplayCurrentLine();
+        private void StopPendingStoryRoutine()
+        {
+            if (startStoryCoroutine != null)
+            {
+                StopCoroutine(startStoryCoroutine);
+                startStoryCoroutine = null;
+            }
         }
 
         /// <summary>
-        /// Loads the story JSON from Resources with multiple fallback paths
+        /// Attempts to load story JSON. Returns true if successful.
         /// </summary>
-        private void LoadStoryData() {
-            // Get the current story filename from StoryManager
-            string storyFileName = SceneController.Instance != null
-                ? StoryManager.Instance.GetCurrentStoryFileName()
-                : "IntroStory";
+        private bool TryLoadStoryData()
+        {
+            // Get the story filename from StoryManager (fallback to IntroStory)
+            currentStoryFileName = (StoryManager.Instance != null) 
+                ? StoryManager.Instance.GetCurrentStoryFileName() : GameDefinitions.Story.INTRO_STORY_FILE;
 
-            // Get the current language (fallback to Vietnamese)
-            string lang = LocalizationManager.Instance != null
+            // Get current language (fallback to English)
+            string lang = (LocalizationManager.Instance != null)
                 ? LocalizationManager.Instance.CurrentLanguageCode
-                : GameDefinitions.Languages.VIETNAMESE;
+                : GameDefinitions.Languages.DEFAULT_LANGUAGE;
 
             // Normalize locale codes like "en-US" → "en"
-            if (!string.IsNullOrEmpty(lang) && lang.Contains("-")) {
+            if (!string.IsNullOrEmpty(lang) && lang.Contains("-"))
+            {
                 lang = lang.Split('-')[0];
             }
 
-            // Try path 1: localized file (e.g., StoryData/IntroStory_en)
-            string fullPath = $"StoryData/{storyFileName}_{lang}";
-            TextAsset jsonFile = Resources.Load<TextAsset>(fullPath);
+            // Try path 1: Localized file (e.g., StoryData/IntroStory_en)
+            TextAsset jsonFile = Resources.Load<TextAsset>($"{GameDefinitions.Story.STORY_DATA_FOLDER}/{currentStoryFileName}_{lang}");
 
-            // Try path 2: non-localized file (e.g., StoryData/IntroStory)
-            if (jsonFile == null) {
-                fullPath = $"StoryData/{storyFileName}";
-                jsonFile = Resources.Load<TextAsset>(fullPath);
+            // Try path 2: Non-localized (e.g., StoryData/IntroStory)
+            if (jsonFile == null)
+            {
+                jsonFile = Resources.Load<TextAsset>(
+                    $"{GameDefinitions.Story.STORY_DATA_FOLDER}/{currentStoryFileName}");
             }
 
-            // Try path 3: root-level file (e.g., IntroStory)
-            if (jsonFile == null) {
-                fullPath = storyFileName;
-                jsonFile = Resources.Load<TextAsset>(fullPath);
+            // Try path 3: Root fallback (e.g., IntroStory)
+            if (jsonFile == null)
+            {
+                jsonFile = Resources.Load<TextAsset>(currentStoryFileName);
             }
 
-            // Parse the JSON if found
-            if (jsonFile != null) {
+            // Parse if found
+            if (jsonFile != null)
+            {
                 currentStory = JsonUtility.FromJson<StoryData>(jsonFile.text);
-            } else {
-                Debug.LogError($"[DialogueManager] FAIL: File not found");
-                EndStory();
+                if (currentStory != null && currentStory.lines != null && currentStory.lines.Count > 0)
+                {
+                    return true;
+                }
             }
+
+            // Report failure
+            string errorMsg = $"Story file '{currentStoryFileName}' could not be found or parsed.";
+            Debug.LogError($"[DialogueManager] FAIL: {errorMsg}");
+            OnStoryLoadFailed?.Invoke(currentStoryFileName, errorMsg);
+
+            return false;
         }
 
         /// <summary>
-        /// Advances to the next dialogue line
+        /// Ends the story cleanly and notifies registered listeners.
+        /// Pure event-driven implementation (no direct scene loading).
         /// </summary>
-        private void OnNextClicked() {
-            currentLineIndex++;
-            DisplayCurrentLine();
+        private void EndStory()
+        {
+            Debug.Log($"[DialogueManager] Story '{currentStoryFileName}' completed.");
+            OnStoryCompleted?.Invoke();
         }
 
         /// <summary>
-        /// Ends the story and loads the next scene
+        /// Displays the current line or ends the story if all lines are shown
         /// </summary>
-        private void EndStory() {
-            if (SceneController.Instance != null) {
-                SceneController.Instance.LoadNextScene();
-            } else {
-                Debug.LogError("[DialogueManager] SceneController instance is missing!");
-            }
-        }
-
-        /// <summary>
-        /// Displays the current line with processed tokens (e.g., {GuestName})
-        /// </summary>
-        private void DisplayCurrentLine() {
-            // Validate story and line index
+        private void DisplayCurrentLine()
+        {
+            // Validate story data
             if (currentStory == null || currentStory.lines == null || currentStory.lines.Count == 0) return;
 
-            // End story if all lines are shown
-            if (currentLineIndex >= currentStory.lines.Count) {
+            // End story when all lines are shown
+            if (currentLineIndex >= currentStory.lines.Count)
+            {
                 EndStory();
                 return;
             }
 
             DialogueLine rawLine = currentStory.lines[currentLineIndex];
 
-            // Get the guest name for token replacement
-            string guestName = GetCurrentGuestName();
-
-            // Process tokens in speaker and content
-            DialogueLine processedLine = new DialogueLine {
-                speaker = ProcessTextTokens(rawLine.speaker, guestName),
-                content = ProcessTextTokens(rawLine.content, guestName),
-                avatar = rawLine.avatar,
-                position = rawLine.position,
-                background = rawLine.background,
-                sound = rawLine.sound
-            };
-
-            // Display the line (flag first line for special handling)
-            if (dialogueUI != null) {
+            if (dialogueUI != null)
+            {
                 bool isFirstLine = (currentLineIndex == 0);
-                dialogueUI.DisplayLine(processedLine, isFirstLine);
+                dialogueUI.DisplayLine(rawLine, isFirstLine);
             }
+        }
+        #endregion
+
+        #region Coroutines
+        /// <summary>
+        /// Plays intro media, waits, then displays the first line
+        /// </summary>
+        private IEnumerator StartStoryRoutine()
+        {
+            // Validate story data
+            if (currentStory == null || currentStory.lines == null || currentStory.lines.Count == 0)
+            {
+                Debug.LogError("[DialogueManager] Story data is null or contains no lines!");
+                OnStoryLoadFailed?.Invoke(currentStoryFileName, "Story contains no lines.");
+                yield break;
+            }
+
+            // Play intro media (background + sound) if a delay is set
+            if (introDelayDuration > 0f)
+            {
+                if (dialogueUI != null)
+                {
+                    dialogueUI.HideDialogueOverlay();
+                    DialogueLine firstLine = currentStory.lines[0];
+                    dialogueUI.PlayIntroMedia(firstLine.background, firstLine.sound);
+                }
+
+                yield return new WaitForSeconds(introDelayDuration);
+            }
+
+            DisplayCurrentLine();
+        }
+        #endregion
+
+        #region Event Handlers
+        /// <summary>
+        /// Advances to the next line when Next is clicked
+        /// </summary>
+        private void OnNextClicked()
+        {
+            currentLineIndex++;
+            DisplayCurrentLine();
         }
 
         /// <summary>
-        /// Replaces text tokens like {GuestName} with actual values
+        /// Reloads and redisplays the current line when the language changes
         /// </summary>
-        private string ProcessTextTokens(string text, string replacementName) {
-            if (string.IsNullOrEmpty(text)) return string.Empty;
-
-            return text.Replace("{GuestName}", replacementName);
-        }
-
-        /// <summary>
-        /// Gets the current guest name (fallback to "Guest")
-        /// </summary>
-        private string GetCurrentGuestName() {
-            if (GuestDataManager.Instance != null && !string.IsNullOrEmpty(GuestDataManager.Instance.GuestName)) {
-                return GuestDataManager.Instance.GuestName;
+        private void OnLanguageChanged(string newLanguageCode)
+        {
+            if (TryLoadStoryData())
+            {
+                DisplayCurrentLine();
             }
-
-            return "Guest"; // Fallback name
         }
         #endregion
     }

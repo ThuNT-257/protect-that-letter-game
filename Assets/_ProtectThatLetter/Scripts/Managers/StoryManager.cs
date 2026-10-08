@@ -1,14 +1,16 @@
 using ProtectThatLetter.Definitions;
 using UnityEngine;
 
-namespace ProtectThatLetter.Managers {
+namespace ProtectThatLetter.Managers
+{
 
     /// <summary>
     /// Handles story-specific concerns such as story mode (Intro/Outro)
     /// and the corresponding JSON file name.
     /// Subscribes to SceneController events to stay in sync.
     /// </summary>
-    public class StoryManager : MonoBehaviour {
+    public class StoryManager : MonoBehaviour
+    {
         #region Constants
         // Index of the Intro story step in the SceneController pipeline
         private const int INTRO_STORY_STEP_INDEX = 2;
@@ -28,9 +30,11 @@ namespace ProtectThatLetter.Managers {
         /// <summary>
         /// Ensures singleton integrity and makes the object persistent across scenes
         /// </summary>
-        private void Awake() {
+        private void Awake()
+        {
             // Destroy duplicate instances
-            if (Instance != null && Instance != this) {
+            if (Instance != null && Instance != this)
+            {
                 Destroy(gameObject);
                 return;
             }
@@ -42,16 +46,19 @@ namespace ProtectThatLetter.Managers {
         /// <summary>
         /// Registers event listeners after all Awake calls have completed
         /// </summary>
-        private void Start() {
+        private void Start()
+        {
             RegisterEvents();
         }
 
         /// <summary>
         /// Unregisters events and clears the singleton reference when destroyed
         /// </summary>
-        private void OnDestroy() {
+        private void OnDestroy()
+        {
             UnregisterEvents();
-            if (Instance == this) {
+            if (Instance == this)
+            {
                 Instance = null;
             }
         }
@@ -61,12 +68,16 @@ namespace ProtectThatLetter.Managers {
         /// <summary>
         /// Subscribes to SceneController scene change events
         /// </summary>
-        private void RegisterEvents() {
-            if (SceneController.Instance != null) {
+        private void RegisterEvents()
+        {
+            if (SceneController.Instance != null)
+            {
                 // Unsubscribe first to prevent duplicate subscriptions
                 SceneController.Instance.OnSceneChanged -= HandleSceneChanged;
                 SceneController.Instance.OnSceneChanged += HandleSceneChanged;
-            } else {
+            }
+            else
+            {
                 Debug.LogWarning($"[{nameof(StoryManager)}] {nameof(SceneController)}.Instance is null. Failed to subscribe to scene change events.");
             }
         }
@@ -74,8 +85,10 @@ namespace ProtectThatLetter.Managers {
         /// <summary>
         /// Unsubscribes from SceneController scene change events
         /// </summary>
-        private void UnregisterEvents() {
-            if (SceneController.Instance != null) {
+        private void UnregisterEvents()
+        {
+            if (SceneController.Instance != null)
+            {
                 SceneController.Instance.OnSceneChanged -= HandleSceneChanged;
             }
         }
@@ -85,8 +98,10 @@ namespace ProtectThatLetter.Managers {
         /// </summary>
         /// <param name="sceneName">Name of the newly loaded scene</param>
         /// <param name="stepIndex">Index of the step in the pipeline</param>
-        private void HandleSceneChanged(string sceneName, int stepIndex) {
-            if (sceneName == SceneName.STORY_SCENE) {
+        private void HandleSceneChanged(string sceneName, int stepIndex)
+        {
+            if (sceneName == SceneName.STORY_SCENE)
+            {
                 // Intro if index matches INTRO_STORY_STEP_INDEX, otherwise Outro
                 CurrentStoryMode = (stepIndex == INTRO_STORY_STEP_INDEX) ? StoryMode.Intro : StoryMode.Outro;
             }
@@ -98,11 +113,13 @@ namespace ProtectThatLetter.Managers {
         /// Gets the JSON file name for the current story mode
         /// </summary>
         /// <returns>File name of the story JSON</returns>
-        public string GetCurrentStoryFileName() {
-            return CurrentStoryMode switch {
-                StoryMode.Intro => "IntroStory",
-                StoryMode.Outro => "OutroStory",
-                _ => "IntroStory" // Fallback
+        public string GetCurrentStoryFileName()
+        {
+            return CurrentStoryMode switch
+            {
+                StoryMode.Intro => GameDefinitions.Story.INTRO_STORY_FILE,
+                StoryMode.Outro => GameDefinitions.Story.OUTRO_STORY_FILE,
+                _ => GameDefinitions.Story.INTRO_STORY_FILE
             };
         }
         #endregion

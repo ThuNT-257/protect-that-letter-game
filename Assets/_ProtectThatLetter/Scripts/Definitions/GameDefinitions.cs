@@ -1,12 +1,15 @@
-namespace ProtectThatLetter.Definitions {
+namespace ProtectThatLetter.Definitions
+{
     /// <summary>
     /// Centralized game-wide constants, organized by category.
     /// </summary>
-    public static class GameDefinitions {
+    public static class GameDefinitions
+    {
         /// <summary>
         /// Language codes and default language.
         /// </summary>
-        public static class Languages {
+        public static class Languages
+        {
             public const string VIETNAMESE = "vi";           // Vietnamese language code
             public const string ENGLISH = "en";              // English language code
 
@@ -16,16 +19,28 @@ namespace ProtectThatLetter.Definitions {
         /// <summary>
         /// Localization-related constants.
         /// </summary>
-        public static class Localization {
+        public static class Localization
+        {
             public const string STRING_TABLE_NAME = "PTL_String_Tables"; // String table name
         }
 
         /// <summary>
         /// Sound effect clip names.
         /// </summary>
-        public static class SfxNames {
+        public static class SfxNames
+        {
             public const string SFX_NORMAL_BUTTON_CLICKED = "sfx_normal_button_clicked"; // Standard button click SFX
             public const string SFX_DIALOGUE_NEW_LINE = "sfx_dialogue_new_line";
+        }
+
+        /// <summary>
+        /// Story-related constants.
+        /// </summary>
+        public static class Story
+        {
+            public const string STORY_DATA_FOLDER = "StoryData";
+            public const string INTRO_STORY_FILE = "IntroStory";
+            public const string OUTRO_STORY_FILE = "OutroStory";
         }
     }
 }
