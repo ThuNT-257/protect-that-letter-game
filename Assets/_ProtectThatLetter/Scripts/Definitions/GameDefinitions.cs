@@ -31,6 +31,7 @@ namespace ProtectThatLetter.Definitions
         {
             public const string SFX_NORMAL_BUTTON_CLICKED = "sfx_normal_button_clicked"; // Standard button click SFX
             public const string SFX_DIALOGUE_NEW_LINE = "sfx_dialogue_new_line";
+            public const string SFX_SHIELD_HIT = "sfx_shield_hit";
         }
 
         /// <summary>
@@ -41,6 +42,11 @@ namespace ProtectThatLetter.Definitions
             public const string STORY_DATA_FOLDER = "StoryData";
             public const string INTRO_STORY_FILE = "IntroStory";
             public const string OUTRO_STORY_FILE = "OutroStory";
+        }
+
+        public static class  Tags
+        {
+            public const string OBSTACLES = "Obstacles";
         }
     }
 }

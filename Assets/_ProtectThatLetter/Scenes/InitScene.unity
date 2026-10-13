@@ -974,6 +974,7 @@ MonoBehaviour:
   soundsList:
   - {fileID: 8300000, guid: 93218f357eaa05b4d909a96c869808a1, type: 3}
   - {fileID: 8300000, guid: ec712df0ea239a44da22e67f2f460eac, type: 3}
+  - {fileID: 8300000, guid: 323d4e28a23ec5749bd8bd93dcd8d8d0, type: 3}
 --- !u!114 &1556797289
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -5,6 +5,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using ProtectThatLetter.Controllers;
+using ProtectThatLetter.Gameplay;
 
 public class QuizUI : MonoBehaviour {
     #region Serialized Fields
