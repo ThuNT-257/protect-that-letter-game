@@ -47,6 +47,7 @@ namespace ProtectThatLetter.Definitions
         public static class  Tags
         {
             public const string OBSTACLES = "Obstacles";
+            public const string PIGEON = "Pigeon";
         }
     }
 }
