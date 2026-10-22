@@ -72,14 +72,12 @@ namespace ProtectThatLetter.Gameplay
                     {
                         pos.y -= currentSpeed * deltaTime;
                     }
-                    rb.MovePosition(pos);
                     break;
 
                 case ObstacleType.Swaying:
                     pos.y -= currentSpeed * deltaTime;
                     float timeElapsed = Time.time - spawnTime;
                     pos.x = startX + Mathf.Sin(timeElapsed * obstacleData.swayFrequency) * obstacleData.swayAmplitude;
-                    rb.MovePosition(pos);
                     break;
 
                 case ObstacleType.Tackle:
@@ -87,20 +85,19 @@ namespace ProtectThatLetter.Gameplay
                     {
                         Vector2 direction = ((Vector2)targetTransform.position - pos).normalized;
                         pos += direction * obstacleData.tackleSpeed * deltaTime;
-                        rb.MovePosition(pos);
                     }
                     else
                     {
                         pos.y -= currentSpeed * deltaTime;
-                        rb.MovePosition(pos);
                     }
                     break;
 
                 case ObstacleType.Boss:
                     pos.y -= currentSpeed * deltaTime;
-                    rb.MovePosition(pos);
                     break;
             }
+
+            rb.MovePosition(pos);
 
             // Recycle if it leaves the play area
             if (transform.position.y < despawnY || Mathf.Abs(transform.position.x) > despawnX)
@@ -182,6 +179,8 @@ namespace ProtectThatLetter.Gameplay
         /// </summary>
         private void RecycleToPool()
         {
+            useDirectMove = false;
+            targetTransform = null;
             gameObject.SetActive(false);
         }
         #endregion
