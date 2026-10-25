@@ -5,7 +5,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using static ObstacleSpawner;
 
 public class GameManager : MonoBehaviour {
     #region State Enum

@@ -3,6 +3,7 @@ using UnityEngine;
 
 namespace ProtectThatLetter.Managers
 {
+    [DisallowMultipleComponent]
     /// <summary>
     /// Simple prefab-based object pool.
     /// Reuses inactive instances; instantiates new ones only when needed.
@@ -19,6 +20,7 @@ namespace ProtectThatLetter.Managers
         private readonly Dictionary<GameObject, Queue<GameObject>> poolDictionary
             = new Dictionary<GameObject, Queue<GameObject>>();
 
+        // Maps each spawned instance back to its originating prefab (for ReturnToPool)
         private readonly Dictionary<GameObject, GameObject> instanceToPrefabMap
             = new Dictionary<GameObject, GameObject>();
         #endregion
@@ -65,7 +67,7 @@ namespace ProtectThatLetter.Managers
             if (prefab == null) return null;
 
             // Ensure a queue exists for this prefab
-            if(!poolDictionary.TryGetValue(prefab, out Queue<GameObject> poolQueue))
+            if (!poolDictionary.TryGetValue(prefab, out Queue<GameObject> poolQueue))
             {
                 poolQueue = new Queue<GameObject>();
                 poolDictionary[prefab] = poolQueue;
@@ -73,31 +75,40 @@ namespace ProtectThatLetter.Managers
 
             GameObject objToUse = null;
 
-            if(poolQueue.Count > 0)
+            // Take the next queued instance if available
+            if (poolQueue.Count > 0)
             {
                 objToUse = poolQueue.Dequeue();
             }
 
-            if(objToUse == null)
+            // No queued instance: instantiate a new one and track its prefab
+            if (objToUse == null)
             {
                 objToUse = Instantiate(prefab, transform);
                 instanceToPrefabMap[objToUse] = prefab;
             }
 
-            objToUse.transform.position = position;
-            objToUse.transform.rotation = rotation;
+            // Place and activate
+            objToUse.transform.SetPositionAndRotation(position, rotation);
             objToUse.SetActive(true);
 
             return objToUse;
         }
 
+        /// <summary>
+        /// Returns an instance to the pool (deactivates it).
+        /// </summary>
+        /// <param name="obj">The GameObject to return</param>
         public void ReturnToPool(GameObject obj)
         {
             if (obj == null) return;
+
             obj.SetActive(false);
-            if(instanceToPrefabMap.TryGetValue(obj, out GameObject prefab))
+
+            // Look up the original prefab and enqueue the instance
+            if (instanceToPrefabMap.TryGetValue(obj, out GameObject prefab))
             {
-                if(poolDictionary.TryGetValue(prefab, out Queue<GameObject> poolQueue))
+                if (poolDictionary.TryGetValue(prefab, out Queue<GameObject> poolQueue))
                 {
                     if (!poolQueue.Contains(obj))
                     {
