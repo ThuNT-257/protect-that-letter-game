@@ -158,11 +158,9 @@ public class GameManager : MonoBehaviour {
         InitGame();
     }
 
-    // HÀM XỬ LÝ KHI THUA
     public void GameOver() {
         CurrentState = GameState.GameOver;
 
-        // KIỂM SOÁT TRIỆT ĐỂ: Dừng sạch mọi Coroutine đang chạy
         StopAllGameCoroutines();
 
         if (obstacleSpawner != null) {

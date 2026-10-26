@@ -1,4 +1,5 @@
 using ProtectThatLetter.Definitions;
+using ProtectThatLetter.Managers;
 using UnityEngine;
 
 namespace ProtectThatLetter.Gameplay
@@ -181,20 +182,8 @@ namespace ProtectThatLetter.Gameplay
         {
             useDirectMove = false;
             targetTransform = null;
-            gameObject.SetActive(false);
-        }
-        #endregion
 
-        #region Unity Messages
-        /// <summary>
-        /// Recycles the obstacle if it hits the pigeon
-        /// </summary>
-        private void OnCollisionEnter2D(Collision2D collision)
-        {
-            if (collision.gameObject.CompareTag(GameDefinitions.Tags.PIGEON))
-            {
-                RecycleToPool();
-            }
+            ObjectPool.Instance.ReturnToPool(gameObject);
         }
         #endregion
     }
